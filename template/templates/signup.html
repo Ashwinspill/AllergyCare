@@ -1,0 +1,145 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+
+        .card-registration .select-input.form-control[readonly]:not([disabled]) {
+            font-size: 1rem;
+            line-height: 2.15;
+            padding-left: .75em;
+            padding-right: .75em;
+            }
+            .card-registration .select-arrow {
+            top: 13px;
+            }
+    </style>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+<body>
+
+    <section class="h-100 bg-dark">
+        <div class="container py-5 h-100">
+          <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col">
+              <div class="card card-registration my-4">
+                <div class="row g-0">
+                  <div class="col-xl-6 d-none d-xl-block">
+                    <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-registration/img4.webp"
+                      alt="Sample photo" class="img-fluid"
+                      style="border-top-left-radius: .25rem; border-bottom-left-radius: .25rem;" />
+                  </div>
+                  <div class="col-xl-6">
+                    <div class="card-body p-md-5 text-black">
+                      <h3 class="mb-5 text-uppercase">SIGNUP</h3>
+                      <form id="validateForm" name="validateForm" method="POST">
+                        {% csrf_token %}
+                        <div class="row">
+                          <div class="col-md-6 mb-4">
+                            <div class="form-outline">
+                              <input type="text" id="firstname" class="form-control form-control-lg" name="firstName" />
+                              <label class="form-label" for="form3Example1m">First name</label>
+                            </div>
+                          </div>
+                          <div class="col-md-6 mb-4">
+                            <div class="form-outline">
+                              <input type="text" id="lastname" class="form-control form-control-lg" name="lastName" />
+                              <label class="form-label" for="form3Example1n">Last name</label>
+                            </div>
+                          </div>
+                        </div>
+                      
+                        <div class="row">
+                          <div class="col-md-6 mb-4">
+                            <div class="form-outline">
+                              <input type="password" id="password" class="form-control form-control-lg" name="password" />
+                              <label class="form-label" for="form3Example1m1">Password</label>
+                            </div>
+                          </div>
+                          <div class="col-md-6 mb-4">
+                            <div class="form-outline">
+                              <input type="password" id="confirmpassword" class="form-control form-control-lg" name="confirmpassword" />
+                              <label class="form-label" for="form3Example1n1">Confirm Password</label>
+                            </div>
+                          </div>
+                          <div class="col-md-6 mb-4">
+                            <div class="form-outline">
+                              <input type="text" id="phoneNumber" class="form-control form-control-lg" name="phoneNumber" />
+                              <label class="form-label" for="form3Example1n1">Phone number</label>
+                            </div>
+                          </div>
+                          <div class="col-md-6 mb-6">
+                            <div class="form-outline">
+                              <input type="text" id="address" class="form-control form-control-lg" name="address" />
+                              <label class="form-label" for="form3Example1n1">Place</label>
+                            </div>
+                          </div>
+                        </div>
+                      
+                        <div class="form-outline mb-4">
+                          <input type="email" id="email" class="form-control form-control-lg" name="email" />
+                          <label class="form-label" for="form3Example8">Email</label>
+                        </div>
+                        
+                        <div class="d-flex justify-content-end pt-3">
+                          <button type="reset" class="btn btn-light btn-lg">Reset all</button>
+                          <button type="submit" class="btn btn-warning btn-lg ms-2">Submit form</button>
+                        </div>
+                      </form>
+                      
+                      <script>
+                        // Function to validate the form
+                        function validateForm() {
+                          var firstName = document.getElementById("firstname").value;
+                          var lastName = document.getElementById("lastname").value;
+                          var password = document.getElementById("password").value;
+                          var phoneNumber = document.getElementById("phoneNumber").value;
+                          var email = document.getElementById("email").value;
+                          var confirmpassword = document.getElementById("confirmpassword").value;
+                      
+                          // Check if required fields are empty
+                          if (firstName === "") {
+                            alert("Enter your name");
+                            return false;
+                          } else if (lastName === "") { 
+                            alert("Last name field is empty");
+                            return false;
+                          } else if (phoneNumber === "") { 
+                            alert("Enter the Phone number");
+                            return false;
+                          }
+                        else if (password === "") { 
+                        alert("Enter the password");
+                        return false;
+                          }
+                          else if (password != confirmpassword) { 
+                            alert("password doesn't match ");
+                            return false;
+                          }
+                        
+                      
+                          // Validate email format
+                          var emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+                          if (!email.match(emailPattern)) {
+                            alert("Please enter a valid email address");
+                            return false;
+                          }
+                      
+                          // Additional validation rules can be added here
+                      
+                          // If all validations pass, the form can be submitted
+                          return true;
+                        }
+                      
+                        // Attach the validation function to the form's submit event
+                        document.getElementById("validateForm").onsubmit = validateForm;
+                      </script>
+                      
+                      
+      
+</body><!-- This templates was made by Colorlib (https://colorlib.com) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+</html>
