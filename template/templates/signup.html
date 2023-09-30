@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -56,38 +57,26 @@
                 <h3 class="registration-heading mb-4">Patient Registration</h3>
 
                 <!-- Registration Form -->
-                <form action="#" id="userregistrationform" method="POST">
+                <form action="#" id="userregistrationform" method="POST" onsubmit="return validateRegistrationForm()">
                     {% csrf_token %}
-                    {% comment %} <div class="mb-3">
-                        <label for="role" style=" margin-top: 15px;">Role:</label>
-                        <select id="role" class="custom-select" name="role" style="  background-color: rgba(255, 255, 255, 0.07);  ">
-                          <option value="staff">Patient</option>
-                          <option value="player">Doctor</option>
-                         </select>
-                    </div> {% endcomment %}
                     <div class="mb-3">
                         <label for="username" class="form-label">Username</label>
                         <input type="text" class="form-control" id="username" name="username" required oninput="validateUsername()">
                         <div class="error-message" id="username-error"></div>
                     </div>
                     <div class="mb-3">
-                        <label for="username" class="form-label">FirstName</label>
-                        <input type="text" class="form-control" id="firstname" name="firstname" required oninput="validateUsername()">
-                        <div class="error-message" id="username-error"></div>
+                        <label for="firstname" class="form-label">First Name</label>
+                        <input type="text" class="form-control" id="firstname" name="firstname" required oninput="validateName(this, 'firstNameError')">
+                        <div class="error-message" id="firstNameError"></div>
                     </div>
                     <div class="mb-3">
-                        <label for="username" class="form-label">Lastname</label>
-                        <input type="text" class="form-control" id="lastname" name="lastname" required oninput="validateUsername()">
-                        <div class="error-message" id="username-error"></div>
+                        <label for="lastname" class="form-label">Last Name</label>
+                        <input type="text" class="form-control" id="lastname" name="lastname" required oninput="validateName(this, 'lastNameError')">
+                        <div class="error-message" id="lastNameError"></div>
                     </div>
-                    {% comment %} <div class="mb-3">
-                        <label for="fullname" class="form-label">Full Name</label>
-                        <input type="text" class="form-control" id="fullname" name="fullname" required oninput="validateFullName()">
-                        <div class="error-message" id="fullname-error"></div>
-                    </div> {% endcomment %}
                     <div class="mb-3">
-                        <label for="playerAge">Date of birth:</label>
-                        <input type="date" placeholder="Select DOB" name="dob" id="dob" >
+                        <label for="dob">Date of birth:</label>
+                        <input type="date" placeholder="Select DOB" name="dob" id="dob">
                     </div>
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
@@ -131,18 +120,17 @@
             }
         }
 
-        function validateFullName() {
-            const fullnameInput = document.getElementById("fullname");
-            const fullnameError = document.getElementById("fullname-error");
+        function validateName(inputElement, errorId) {
+            const namePattern = /^[A-Z][a-zA-Z\s]*$/; // First letter capital, alphabetic characters, and spaces
+            const inputValue = inputElement.value.trim();
+            const errorElement = document.getElementById(errorId);
 
-            // Validation for full name
-            // Example: Full Name should start with a capital letter and can contain spaces.
-            const isValid = /^[A-Z][a-zA-Z\s]*$/.test(fullnameInput.value);
-
-            if (!isValid) {
-                fullnameError.textContent = "Full Name should start with a capital letter and can contain spaces.";
+            if (inputValue === "") {
+                errorElement.textContent = "This field should not be blank";
+            } else if (!namePattern.test(inputValue)) {
+                errorElement.textContent = "Only alphabetic characters and spaces are allowed, and the first letter should be capital";
             } else {
-                fullnameError.textContent = "";
+                errorElement.textContent = "";
             }
         }
 
@@ -194,15 +182,19 @@
 
         // Function to validate the registration form
         function validateRegistrationForm() {
-            // ... (the same validation logic used for real-time validation) ...
-        }
+            // Call individual validation functions here and return true if all are valid
+            const isUsernameValid = /^[a-zA-Z0-9]{5,}$/.test(document.getElementById("username").value);
+            const isFirstnameValid = /^[A-Z][a-zA-Z\s]*$/.test(document.getElementById("firstname").value.trim());
+            const isLastnameValid = /^[A-Z][a-zA-Z\s]*$/.test(document.getElementById("lastname").value.trim());
+            const isEmailValid = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(document.getElementById("email").value);
+            const isPasswordValid = document.getElementById("password").value.length >= 8;
+            const isConfirmPasswordValid = document.getElementById("password").value === document.getElementById("confirmPassword").value;
 
-        // Attach the validation function to the form's submit event
-        document.querySelector("#userregistrationform").addEventListener('submit', (e) => {
-            if (!validateRegistrationForm()) {
-                e.preventDefault(); // Prevent form submission if validation fails
-            }
-        });
-    </script> 
+            // You can add more validation checks as needed
+
+            // Check if all validations are true
+            return isUsernameValid && isFirstnameValid && isLastnameValid && isEmailValid && isPasswordValid && isConfirmPasswordValid;
+        }
+    </script>
 </body>
 </html>
