@@ -11,4 +11,6 @@ urlpatterns = [
     path('phome/', views.phome, name='phome'),
     path('logout/', views.logout, name='logout'), 
     path('logout_confirmation/', views.logout_confirmation, name='logout_confirmation'),
+    path('forget-password/' , views.ForgetPassword , name="forget_password"),
+    path('change-password/<token>/' , views.ChangePassword , name="change_password"),
 ] 
