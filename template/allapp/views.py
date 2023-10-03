@@ -1,23 +1,31 @@
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate,login as auth_login
 from django.contrib.auth import logout as auth_logout 
-from django.contrib.auth.decorators import login_required
+# from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from .models import CustomUser
 from .helpers import send_forget_password_mail
-#from .models import Registration
+from .forms import PatientProfileForm
 
 # Create your views here.
 def index(request):
     return render(request,'index.html')
 
-@login_required
+# @login_required
 def phome(request):
-    return render(request,'phome.html')
-@login_required
+   if 'username' in request.session:
+       response = render(request, 'phome.html')
+       response['Cache-Control'] = 'no-store, must-revalidate'
+       return response
+   else:
+       return redirect('logout_confirmation') 
+    # return render(request,'phome.html')
+# @login_required
 def appointment(request):
     return render(request,'appointment.html')
+def test(request):
+    return render(request,'test.html')
 def login(request):
     if request.method == "POST":
         username = request.POST.get('username')
@@ -27,11 +35,16 @@ def login(request):
 
         if user is not None:
             auth_login(request, user)
+            request.session['username']=username
             return redirect("phome")
         else:
             messages.error(request, "Invalid login credentials")
+    response = render(request,'login.html')
+    response['Cache-Control'] = 'no-store, must-revalidate'
+    return response
+            
 
-    return render(request,'login.html')
+    # return render(request,'login.html')
 def signup(request):
     if request.method == "POST":
         username=request.POST.get('username')
@@ -62,7 +75,7 @@ def signup(request):
 def logout_confirmation(request):
     return render(request, 'logout_confirmation.html')
 def logout(request):
-    auth_logout(request)  # Use the logout function to log the user out
+    auth_logout(request) # Use the logout function to log the user out
     return redirect('logout_confirmation')  # Redirect to the confirmation page
 
 def ChangePassword(request, token):
@@ -118,3 +131,15 @@ def ForgetPassword(request):
         print(e)
     
     return render(request, 'forget-password.html')
+
+def patient_profile(request):
+    patient = request.user
+    
+    if request.method == 'POST':
+        form = PatientProfileForm(request.POST, instance=patient)
+        if form.is_valid():
+            form.save()
+    else:
+        form = PatientProfileForm(instance=patient)
+
+    return render(request, 'patient_profile.html', {'patient': patient, 'form': form})
