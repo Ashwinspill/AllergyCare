@@ -32,6 +32,40 @@
 </head>
 
 <body>
+     <!-- Topbar Start -->
+     <div class="container-fluid py-2 border-bottom d-none d-lg-block">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 text-center text-lg-start mb-2 mb-lg-0">
+                    <div class="d-inline-flex align-items-center">
+                        <a class="text-decoration-none text-body pe-3" href=""><i class="bi bi-telephone me-2"></i>+91 7592048618</a>
+                        <span class="text-body">|</span>
+                        <a class="text-decoration-none text-body px-3" href=""><i class="bi bi-envelope me-2"></i>allergycare163@gmail.com</a>
+                    </div>
+                </div>
+                <div class="col-md-6 text-center text-lg-end">
+                    <div class="d-inline-flex align-items-center">
+                        <a class="text-body px-2" href="">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a class="text-body px-2" href="">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a class="text-body px-2" href="">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a class="text-body px-2" href="">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a class="text-body ps-2" href="">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Topbar End --> 
     <!-- Navbar Start -->
     <div class="container-fluid sticky-top bg-white shadow-sm">
         <div class="container">
@@ -39,13 +73,20 @@
                 <a href="index.html" class="navbar-brand">
                     <h1 class="m-0 text-uppercase text-primary"><i class="fa fa-clinic-medical me-2"></i>AllergyCare</h1>
                 </a>
+                {% if user.is_authenticated %}
+	                <li class="nav-item">
+	                <a class="nav-link"> Welcome, {{ user.first_name }}</a>
+	                </li>
+                {%endif%}
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarCollapse">
+
                     <div class="navbar-nav ms-auto py-0">
+                        
                         <a href="index.html" class="nav-item nav-link active">Home</a>
-                        <a href="about.html" class="nav-item nav-link">About</a>
+                        <a href="{% url 'patient_profile' %}" class="nav-item nav-link">My Profile</a>
                         <a href="service.html" class="nav-item nav-link">Service</a>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
@@ -59,7 +100,6 @@
                             </div>
                         </div>
                         <a href="{% url 'logout' %}" class="nav-item nav-link">Logout</a>
-                        <a href="{% url 'login' %}" class="nav-item nav-link">Signup/Login</a>
                     </div>
                 </div>
             </nav>
@@ -438,6 +478,7 @@
 
     <!-- Template Javascript -->
     <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'js/refresh_on_back.js' %}"></script>
 </body>
 
 </html>

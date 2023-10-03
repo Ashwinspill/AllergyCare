@@ -76,7 +76,7 @@
                     </div>
                     <div class="mb-3">
                         <label for="dob">Date of birth:</label>
-                        <input type="date" placeholder="Select DOB" name="dob" id="dob">
+                        <input type="date" placeholder="Select DOB" name="dob" id="dob" value="1990-01-01" max="" onchange="setDateMax()">
                     </div>
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
@@ -98,6 +98,9 @@
                         <button class="btn btn-lg btn-primary text-uppercase fw-bold mb-2" type="submit">Register</button>
                     </div>
                 </form>
+                <div class="alert alert-success" id="registration-success" style="display: none;">
+                    Registered Successfully!
+                </div>
                 <p class="login">Already have an account? <a href="{% url 'login' %}">Login</a></p>
             </div>
         </div>
@@ -118,6 +121,12 @@
             } else {
                 usernameError.textContent = "";
             }
+        }
+
+        function setDateMax() {
+            const dobInput = document.getElementById("dob");
+            const currentDate = new Date().toISOString().split("T")[0];
+            dobInput.max = currentDate;
         }
 
         function validateName(inputElement, errorId) {
@@ -152,13 +161,13 @@
         function validatePassword() {
             const passwordInput = document.getElementById("password");
             const passwordError = document.getElementById("password-error");
-
+        
             // Validation for password
-            // Example: Password should have at least 8 characters.
-            const isValid = passwordInput.value.length >= 8;
-
+            // Example: Password should have at least 8 characters and contain at least one number and one special character.
+            const isValid = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/.test(passwordInput.value);
+        
             if (!isValid) {
-                passwordError.textContent = "Password should have at least 8 characters.";
+                passwordError.textContent = "Password should have at least 8 characters and contain at least one number and one special character.";
             } else {
                 passwordError.textContent = "";
             }
@@ -187,13 +196,25 @@
             const isFirstnameValid = /^[A-Z][a-zA-Z\s]*$/.test(document.getElementById("firstname").value.trim());
             const isLastnameValid = /^[A-Z][a-zA-Z\s]*$/.test(document.getElementById("lastname").value.trim());
             const isEmailValid = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(document.getElementById("email").value);
-            const isPasswordValid = document.getElementById("password").value.length >= 8;
+            const isPasswordValid = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/.test(document.getElementById("password").value);
             const isConfirmPasswordValid = document.getElementById("password").value === document.getElementById("confirmPassword").value;
 
             // You can add more validation checks as needed
 
             // Check if all validations are true
-            return isUsernameValid && isFirstnameValid && isLastnameValid && isEmailValid && isPasswordValid && isConfirmPasswordValid;
+            const isFormValid = isUsernameValid && isFirstnameValid && isLastnameValid && isEmailValid && isPasswordValid && isConfirmPasswordValid;
+
+            // If the form is valid, show the success message and return true
+            if (isFormValid) {
+                // Show the success message
+                const successMessage = document.getElementById("registration-success");
+                successMessage.style.display = "block";
+
+                return true; // Allow form submission
+            }
+
+            // If the form is not valid, return false to prevent form submission
+            return false;
         }
     </script>
 </body>
