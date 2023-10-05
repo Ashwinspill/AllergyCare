@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Profiles - Admin Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .sidebar {
+            height: 100%;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #333;
+            padding-top: 20px;
+        }
+
+        .sidebar a {
+            padding: 10px 25px;
+            text-decoration: none;
+            font-size: 18px;
+            color: white;
+            display: block;
+        }
+
+        .sidebar a:hover {
+            background-color: #007bff;
+        }
+
+        .navbar {
+            overflow: hidden;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+        }
+
+        h1 {
+            text-align: center;
+            background-color: #007bff;
+            color: #fff;
+            padding: 20px;
+            margin-left: 250px; /* Adjust to match sidebar width */
+        }
+
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background-color: #fff;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #ddd;
+        }
+
+        .delete-button {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <a href="{% url 'signup' %}">Registration</a>
+        <a href="{% url 'logout' %}">Logout</a>
+    </div>
+
+    <div class="navbar">
+        <h1>Admin Dashboard</h1>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Role</th>
+                <th>DOB</th>
+                <th>User name</th>
+                <th>Email</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user_profile in user_profiles %}
+            <tr>
+                <td>{{ user_profile.first_name }}</td>
+                <td>{{ user_profile.last_name }}</td>
+                <td>{{ user_profile.role }}</td>
+                <td>{{ user_profile.dob }}</td>
+                <td>{{ user_profile.username }}</td>
+                <td>{{ user_profile.email }}</td>
+                <td>
+                    {% if user_profile.role != "Admin" %}
+                    <button class="delete-button" onclick="deleteUser('{{ user_profile.id }}')">Delete</button>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    // Function to obtain the CSRF token from cookies
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.startsWith(name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Function to delete a user
+    function deleteUser(userId) {
+        if (confirm("Are you sure you want to delete this user?")) {
+            // Get the CSRF token from the cookie
+            const csrftoken = getCookie('csrftoken');
+
+            $.ajax({
+                type: 'POST',
+                url: `/delete-user/${userId}/`,
+                headers: { "X-CSRFToken": csrftoken },  // Include the CSRF token in the headers
+                success: function() {
+                    // Remove the table row upon successful deletion
+                    const rowToRemove = document.querySelector(`tr[data-user-id="${userId}"]`);
+                    if (rowToRemove) {
+                        rowToRemove.remove();
+                    }
+                },
+                error: function() {
+                    alert('Failed to delete user.');
+                }
+            });
+        }
+    }
+</script>
+</body>
+</html>
