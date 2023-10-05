@@ -30,7 +30,33 @@
     <!-- Template Stylesheet -->
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
 </head>
-
+<style>
+    .toast-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 9999;
+        pointer-events: none;
+    }
+    
+    .toast {
+        background-color: #333;
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
+    }
+    
+    .toast.success {
+        background-color: #28a745;
+    }
+    
+    .toast.error {
+        background-color: #dc3545;
+    }
+</style>
 <body>
      <!-- Topbar Start -->
      <div class="container-fluid py-2 border-bottom d-none d-lg-block">
@@ -479,6 +505,53 @@
     <!-- Template Javascript -->
     <script src="{% static 'js/main.js' %}"></script>
     <script src="{% static 'js/refresh_on_back.js' %}"></script>
+
+ 
+
+ <!-- Toast container for displaying messages -->
+    <div class="toast-container">
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+            <li class="{{ message.tags }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div> 
+
+    <script>
+        const messages = document.querySelectorAll('.messages li');
+
+        messages.forEach(function (message) {
+            const messageText = message.textContent;
+            const messageClass = message.getAttribute('class');
+
+            if (messageClass === 'success') {
+                showToast(messageText, 'success');
+            } else if (messageClass === 'error') {
+                showToast(messageText, 'error');
+            }
+        });
+
+        function showToast(message, type) {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.querySelector('.toast-container').appendChild(toast);
+
+            setTimeout(function () {
+                toast.style.opacity = '1';
+            }, 100);
+
+            setTimeout(function () {
+                toast.style.opacity = '0';
+            }, 3000);
+
+            setTimeout(function () {
+                toast.remove();
+            }, 3500);
+        }
+    </script> 
 </body>
 
 </html>

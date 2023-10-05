@@ -73,6 +73,32 @@
             color: #333;
         }
 
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            pointer-events: none;
+        }
+        
+        .toast {
+            background-color: #333;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        
+        .toast.success {
+            background-color: #28a745;
+        }
+        
+        .toast.error {
+            background-color: #dc3545;
+        }
+
         @media (max-width: 600px) {
             .login-container {
                 width: 95%;
@@ -84,7 +110,7 @@
     <div class="background-container">
         <div class="login-container">
             <h1>LOGIN</h1>
-            
+
             <form class="login-form" method="POST">
                 {% csrf_token %}
                 <input type="text" id="username" name="username" placeholder="Username" required>
@@ -93,50 +119,59 @@
                 <span id="password-error" class="error-message"></span>
                 <button type="submit">Login</button>
             </form>
-            <p class="forgot-password"><a href="#">Forgot your password?</a></p>
+            <p class="forgot-password"><a href="{% url 'forget_password' %}">Forgot your password?</a></p>
             <p class="signup">Don't have an account? <a href="{% url 'signup' %}">Sign Up</a></p>
         </div>
     </div>
-
+    <div class="toast-container">
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+            <li class="{{ message.tags }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% if success_message %}
+        <ul class="messages">
+            <li class="success">{{ success_message }}</li>
+        </ul>
+        {% endif %}
+    </div>
+    
     <script>
-        // ... (your existing script for form validation)
-        const form = document.getElementById('login-form');
-        const username = document.getElementById('username');
-        const password = document.getElementById('password');
-        const usernameError = document.getElementById('username-error');
-        const passwordError = document.getElementById('password-error');
-
-        form.addEventListener('submit', function (e) {
-            let valid = true;
-
-            // Clear previous error messages
-            usernameError.textContent = '';
-            passwordError.textContent = '';
-
-            // Username validation (example: at least 5 characters)
-            if (username.value.length < 5) {
-                usernameError.textContent = 'Username must be at least 5 characters.';
-                valid = false;
-            }
-
-            // Password validation (example: at least 8 characters)
-            if (password.value.length < 8) {
-                passwordError.textContent = 'Password must be at least 8 characters.';
-                valid = false;
-            }
-
-            if (!valid) {
-                e.preventDefault(); // Prevent form submission
+        const messages = document.querySelectorAll('.messages li');
+    
+        messages.forEach(function (message) {
+            const messageText = message.textContent;
+            const messageClass = message.getAttribute('class');
+    
+            if (messageClass === 'success') {
+                showToast(messageText, 'success');
+            } else if (messageClass === 'error') {
+                showToast(messageText, 'error');
             }
         });
+    
+        function showToast(message, type) {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.querySelector('.toast-container').appendChild(toast);
+    
+            setTimeout(function () {
+                toast.style.opacity = '1';
+            }, 100);
+    
+            setTimeout(function () {
+                toast.style.opacity = '0';
+            }, 3000);
+    
+            setTimeout(function () {
+                toast.remove();
+            }, 3500);
+        }
     </script>
-    {% if messages %}
-  <ul class="messages">
-    {% for message in messages %}
-      <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-    {% endfor %}
-  </ul>
-{% endif %}
 
+   
 </body>
 </html>
