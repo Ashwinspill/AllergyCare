@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'social_django',
     'allapp',
 ]
 
@@ -52,6 +53,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'social_django.middleware.SocialAuthExceptionMiddleware',
 ]
 
 ROOT_URLCONF = 'allcare.urls'
@@ -67,6 +69,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'social_django.context_processors.backends',
             ],
         },
     },
@@ -128,8 +131,7 @@ STATICFILES_DIRS = [
 ]
 AUTH_USER_MODEL = 'allapp.CustomUser'
 
-LOGIN_REDIRECT_URL = 'index'
-LOGOUT_REDIRECT_URL = 'logout_confirmation'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
@@ -147,7 +149,7 @@ EMAIL_HOST_PASSWORD = 'ubkh ippn yysu vwtp'
 SESSION_ENGINE = "django.contrib.sessions.backends.db"
 SESSION_COOKIE_NAME = "sessionid"
 SESSION_COOKIE_AGE = 600
-LOGIN_URL = 'login'
+
 
 # Jazzmin admin
 AZZMIN_SETTINGS = {
@@ -161,3 +163,17 @@ AZZMIN_SETTINGS = {
     # Title on the brand (19 chars max) (defaults to current_admin_site.site_header if absent or None)
     "site_brand": "Library",
 }
+
+#social app 
+AUTHENTICATION_BACKENDS = [
+    'social_core.backends.google.GoogleOAuth2',
+    'django.contrib.auth.backends.ModelBackend'
+]
+
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'phome'
+LOGOUT_URL = 'logout'
+LOGOUT_REDIRECT_URL = 'logout_confirmation'
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '827204911738-4n5mo421au1sh75ae8lg0glvji51s3jq.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
