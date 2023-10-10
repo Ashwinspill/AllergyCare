@@ -35,7 +35,7 @@
 
         .navbar {
             overflow: hidden;
-            background-color: #007bff;
+            background-color: #000;
             color: white;
             padding: 10px 20px;
         }
@@ -47,7 +47,7 @@
 
         h1 {
             text-align: center;
-            background-color: #007bff;
+            background-color: #000;
             color: #fff;
             padding: 20px;
             margin-left: 250px; /* Adjust to match sidebar width */
@@ -67,7 +67,7 @@
         }
 
         th {
-            background-color: #007bff;
+            background-color: #000;
             color: #fff;
         }
 
@@ -86,104 +86,189 @@
             padding: 5px 10px;
             cursor: pointer;
         }
+
         /* Style for active users */
         .active {
             background-color: green;
             color: white;
         }
 
-/* Style for inactive users */
+        /* Style for inactive users */
         .inactive {
             background-color: red;
             color: white;
+        }
+        
+        /* Style for table containers */
+        .table-container {
+            display: block;
+        }
+
+        /* Custom button style */
+        .custom-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            margin: 10px;
+        }
+
+        /* Custom button hover effect */
+        .custom-button:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
 <body>
     <div class="sidebar">
-        <a href="{% url 'signup' %}">Registration</a>
-        <a href="{% url 'logout' %}">Logout</a>
+        <a href="{% url 'signup' %}" class="custom-button">Registration</a>
+        <a href="{% url 'logout' %}" class="custom-button">Logout</a>
+        <a href="#" onclick="toggleTable('patient-table', 'doctor-table')" class="custom-button">Patient Details</a>
+        <a href="#" onclick="toggleTable('doctor-table', 'patient-table')" class="custom-button">Doctor Details</a>
     </div>
 
     <div class="navbar">
         <h1>Admin Dashboard</h1>
     </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Role</th>
-                <th>DOB</th>
-                <th>User name</th>
-                <th>Email</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for user_profile in user_profiles %}
-            <tr>
-                <td>{{ user_profile.first_name }}</td>
-                <td>{{ user_profile.last_name }}</td>
-                <td>{{ user_profile.role }}</td>
-                <td>{{ user_profile.dob }}</td>
-                <td>{{ user_profile.username }}</td>
-                <td>{{ user_profile.email }}</td>
-                <td>
-                    <button class="active-toggle-button {% if user_profile.is_active %}active{% else %}inactive{% endif %}" onclick="toggleActive('{{ user_profile.id }}', '{{ user_profile.is_active }}')" {% if user_profile.role == "Admin" %}style="display: none;"{% endif %}>
-                        {% if user_profile.is_active %}
-                            Active
-                        {% else %}
-                            Inactive
-                        {% endif %}
-                    </button>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <!-- Container for patient details table -->
+    <div class="table-container" id="patient-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Role</th>
+                    <th>DOB</th>
+                    <th>User name</th>
+                    <th>Email</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user_profile in user_profiles %}
+                {% if user_profile.role == "Patient" or user_profile.role == "PATIENT" %}
+                <tr>
+                    <td>{{ user_profile.first_name }}</td>
+                    <td>{{ user_profile.last_name }}</td>
+                    <td>{{ user_profile.role }}</td>
+                    <td>{{ user_profile.dob }}</td>
+                    <td>{{ user_profile.username }}</td>
+                    <td>{{ user_profile.email }}</td>
+                    <td>
+                        <button class="active-toggle-button {% if user_profile.is_active %}active{% else %}inactive{% endif %}" onclick="toggleActive('{{ user_profile.id }}', '{{ user_profile.is_active }}')">
+                            {% if user_profile.is_active %}
+                                Active
+                            {% else %}
+                                Inactive
+                            {% endif %}
+                        </button>
+                    </td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Container for doctor details table -->
+    <div class="table-container" id="doctor-table" style="display: none;">
+        <table>
+            <thead>
+                <tr>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Role</th>
+                    <th>DOB</th>
+                    <th>User name</th>
+                    <th>Email</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user_profile in user_profiles %}
+                {% if user_profile.role == "Doctor" or user_profile.role == "DOCTOR" %}
+                <tr>
+                    <td>{{ user_profile.first_name }}</td>
+                    <td>{{ user_profile.last_name }}</td>
+                    <td>{{ user_profile.role }}</td>
+                    <td>{{ user_profile.dob }}</td>
+                    <td>{{ user_profile.username }}</td>
+                    <td>{{ user_profile.email }}</td>
+                    <td>
+                        <button class="active-toggle-button {% if user_profile.is_active %}active{% else %}inactive{% endif %}" onclick="toggleActive('{{ user_profile.id }}', '{{ user_profile.is_active }}')">
+                            {% if user_profile.is_active %}
+                                Active
+                            {% else %}
+                                Inactive
+                            {% endif %}
+                        </button>
+                    </td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    // Function to obtain the CSRF token from cookies
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.startsWith(name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
+    <script>
+        // Function to obtain the CSRF token from cookies
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.startsWith(name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
                 }
             }
+            return cookieValue;
         }
-        return cookieValue;
-    }
 
-    function toggleActive(userId, isActive) {
-        if (confirm(`Are you sure you want to set this user ${isActive ? 'inactive' : 'active'}?`)) {
-            // Get the CSRF token from the cookie
-            const csrftoken = getCookie('csrftoken');
-    
-            $.ajax({
-                type: 'POST',
-                url: `/toggle-active/${userId}/${isActive}/`,
-                headers: { "X-CSRFToken": csrftoken },  // Include the CSRF token in the headers
-                success: function () {
-                    // Update the button text and background color upon successful toggle
-                    const toggleButton = document.querySelector(`button.active-toggle-button[data-user-id="${userId}"]`);
-                    if (toggleButton) {
-                        toggleButton.textContent = isActive ? 'Inactive' : 'Active';
-                        toggleButton.style.backgroundColor = isActive ? 'red' : 'green';
-                        isActive = !isActive;
+        // Function to toggle active status
+        function toggleActive(userId, isActive) {
+            if (confirm(`Are you sure you want to set this user ${isActive ? 'inactive' : 'active'}?`)) {
+                // Get the CSRF token from the cookie
+                const csrftoken = getCookie('csrftoken');
+        
+                $.ajax({
+                    type: 'POST',
+                    url: `/toggle-active/${userId}/${isActive}/`,
+                    headers: { "X-CSRFToken": csrftoken },
+                    success: function () {
+                        // Update the button text and background color upon successful toggle
+                        const toggleButton = document.querySelector(`button.active-toggle-button[data-user-id="${userId}"]`);
+                        if (toggleButton) {
+                            toggleButton.textContent = isActive ? 'Inactive' : 'Active';
+                            toggleButton.style.backgroundColor = isActive ? 'red' : 'green';
+                            isActive = !isActive;
+                        }
+                    },
+                    error: function () {
+                        alert('Failed to toggle active status.');
                     }
-                },
-                error: function () {
-                    alert('Failed to toggle active status.');
-                }
-            });
+                });
+            }
         }
-    }
-</script>
+
+        // Function to toggle patient and doctor details tables
+        function toggleTable(showTableId, hideTableId) {
+            const showTable = document.getElementById(showTableId);
+            const hideTable = document.getElementById(hideTableId);
+
+            if (showTable && hideTable) {
+                showTable.style.display = 'block';
+                hideTable.style.display = 'none';
+            }
+        }
+    </script>
 </body>
 </html>
+
+
+
