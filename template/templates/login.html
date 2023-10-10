@@ -104,6 +104,20 @@
                 width: 95%;
             }
         }
+        .home-button {
+            text-align: center;
+            margin-top: 20px; /* Add spacing between "Don't have an account?" and the home button */
+        }
+        
+        .home-button a {
+            display: inline-block;
+            background-color: #333;
+            color: #fff;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            /* Add more styling as needed */
+        }
     </style>
 </head>
 <body>
@@ -111,16 +125,21 @@
         <div class="login-container">
             <h1>LOGIN</h1>
 
-            <form class="login-form" method="POST">
+            <form class="login-form" method="POST" action="{% url 'login' %}">
                 {% csrf_token %}
-                <input type="text" id="username" name="username" placeholder="Username" required>
-                <span id="username-error" class="error-message"></span>
+                <input type="email" id="email" name="email" placeholder="Email" required>
+                <span id="email-error" class="error-message"></span> <!-- Use 'email' here -->
                 <input type="password" id="password" name="password" placeholder="Password" required>
                 <span id="password-error" class="error-message"></span>
                 <button type="submit">Login</button>
             </form>
+            
             <p class="forgot-password"><a href="{% url 'forget_password' %}">Forgot your password?</a></p>
             <p class="signup">Don't have an account? <a href="{% url 'signup' %}">Sign Up</a></p>
+            <a href="{% url 'social:begin' 'google-oauth2'  %}">Google Sigin</a>
+            <div class="home-button">
+                <a href="{% url 'index' %}" title="Home">Home</a>
+            </div>
         </div>
     </div>
     <div class="toast-container">
