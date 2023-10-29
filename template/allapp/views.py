@@ -10,9 +10,20 @@ from .forms import PatientProfileForm
 from django.views.decorators.cache import never_cache
 from django.contrib.auth.hashers import check_password
 from social_django.models import UserSocialAuth
+from django.contrib.auth import login
 from social_django.utils import psa
 from django.views import View
 from django.contrib.auth.backends import ModelBackend
+from django.shortcuts import get_object_or_404
+from django.core.mail import send_mail
+from django.contrib import messages
+from django.http import JsonResponse
+from django import forms
+from .models import CustomUser
+from django.contrib.auth.forms import AuthenticationForm
+from .forms import MedicineForm
+from .models import Medicine
+
 
 
 # Create your views here.
@@ -261,6 +272,52 @@ def patient_profile(request):
 
     return render(request, 'patient_profile.html', {'patient': patient, 'form': form})
 
+
+# trial of profile 
+# class PatientProfileForm(forms.ModelForm):
+#     dob = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+
+#     class Meta:
+#         model = CustomUser
+#         fields = ['first_name', 'last_name', 'email', 'username', 'dob']
+
+#     def clean_email(self):
+#         email = self.cleaned_data.get('email')
+#         # Add your email validation logic here, e.g., check for a specific domain or pattern
+#         if not email.endswith('@example.com'):
+#             raise forms.ValidationError("Email must be from example.com domain.")
+#         return email
+
+#     def clean_username(self):
+#         username = self.cleaned_data.get('username')
+#         # Add your username validation logic here, e.g., checking for uniqueness
+#         if CustomUser.objects.filter(username=username).exclude(id=self.instance.id).exists():
+#             raise forms.ValidationError("Username is already in use.")
+#         return username
+
+#     def clean_dob(self):
+#         dob = self.cleaned_data.get('dob')
+#         # Add your date of birth validation logic here, e.g., checking if the user is of a certain age
+#         # Example: Check if the user is at least 18 years old
+#         from datetime import date
+#         age = date.today().year - dob.year
+#         if age < 18:
+#             raise forms.ValidationError("You must be at least 18 years old.")
+#         return dob
+
+@never_cache
+def patient_profile2(request):
+    patient = request.user
+    
+    if request.method == 'POST':
+        form = PatientProfileForm(request.POST, instance=patient)
+        if form.is_valid():
+            form.save()
+    else:
+        form = PatientProfileForm(instance=patient)
+
+    return render(request, 'patient_profile2.html', {'patient': patient, 'form': form})
+
 @login_required
 def admind(request):
     # Query all User objects (using the custom user model) from the database
@@ -271,21 +328,46 @@ def admind(request):
     context = {'user_profiles': user_profiles}
     
     # Render the HTML template
-    return render(request, 'admind.html', context)
+    # return render(request, 'admind.html', context)
+
+    response = render(request, 'admind.html', {'user_profiles': user_profiles})
+    # response = render(request, 'dhome.html')
+    response['Cache-Control'] = 'no-store, must-revalidate'
+    return response   
 
 def toggle_active(request, user_id, is_active):
+    user = get_object_or_404(CustomUser, id=user_id)
+    is_active = is_active.lower() == 'true'
+
+    if is_active:  # If activating the user
+        # Send an activation email
+        subject = 'Your Account Deactivation'
+        message = 'Your account has been Deactivated. Please contact support for more information.'
+    else:  # If deactivating the user
+        # Send a deactivation email
+        subject = 'Your Account Activation'
+        message = 'Your account has been Activated by the administrator. You can now log in and use your account.'
+
+    from_email = 'allergycare163@gmail.com'  # Use the email address you configured in settings.py
+    recipient_list = [user.email]
+
     try:
-        user = CustomUser.objects.get(id=user_id)
-        # Convert the "is_active" parameter to a boolean
-        is_active = is_active.lower() == 'true'
-        # Toggle the active status
+        send_mail(subject, message, from_email, recipient_list, fail_silently=False)
+
         user.is_active = not is_active
         user.save()
-        messages.success(request, f'User is now {"Active" if user.is_active else "Inactive"}.')
-    except CustomUser.DoesNotExist:
-        messages.error(request, 'User not found.')
-    return redirect('admind')  # Replace 'admind' with your actual admin dashboard URL name
 
+        response_data = {
+            'message': f'User is now {"Active" if user.is_active else "Inactive"}.',
+            'email_sent': True
+        }
+    except CustomUser.DoesNotExist:
+        response_data = {
+            'message': 'User not found',
+            'email_sent': False
+        }
+
+    return JsonResponse(response_data)
 
 
 def google_authenticate(request):
@@ -299,73 +381,42 @@ def google_authenticate(request):
     except UserSocialAuth.DoesNotExist:
         user = request.user
 
-    # Set a default role for users signing in with Google (e.g., "Patient")
-    user.role = 'Patient'
-    user.save()
+    # Set the user's role to "Patient"
+        user.role = 'Patient'
+        user.save()
+
+    # Set the user's is_patient field to True
+        user.is_patient = True
+        user.save()
 
     # Redirect to the desired page (phome.html for Patient role)
-    if user.role == 'Patient':
-        return redirect('phome')  # Make sure you have a URL named 'phome'
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-# def login(request):
-#     if request.method == "POST":
-#         username = request.POST.get('username')
-#         password = request.POST.get('password')
+    return redirect('phome')  # Make sure you have a URL named 'phome
 
-#         user = authenticate(request, username=username, password=password)
-
-#         if user is not None:
-#             auth_login(request, user)
-#             request.session['username'] = username
-#             messages.success(request, "Login successful!")
-#             return redirect("phome")  # Replace 'phome' with the name of your home page URL
-#         else:
-#             messages.error(request, "Invalid login credentials")
-
-#     response = render(request, 'login.html')
-#     response['Cache-Control'] = 'no-store, must-revalidate'
-#     return response
-            
-
-    # return render(request,'login.html')
-
-
-
-# try email login
-# from django.contrib import messages
-
-# def login(request):
+# def add_medicine(request):
 #     if request.method == 'POST':
-#         email = request.POST.get('email')
-#         password = request.POST.get('password')
+#         form = MedicineRegistrationForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('medicine_list')  # Redirect to the medicine list page
+#     else:
+#         form = MedicineRegistrationForm()
 
-#         try:
-#             # Attempt to retrieve the user by email
-#             user = CustomUser.objects.get(email=email)
+#     context = {
+#         'form': form,
+#     }
+#     return render(request, 'add_medicine.html', context)
 
-#             # Check the password
-#             if user and check_password(password, user.password):
-#                 request.session['email'] = email
-#                 auth_login(request, user)
-#                 return redirect('phome')
-#             else:
-#                 error_message = "Invalid credentials"
-#                 messages.error(request, error_message)      
-#         except CustomUser.DoesNotExist:
-#             # User with the given email does not exist
-#             error_message = "User with this email does not exist"
-#             messages.error(request, error_message)
-    
-#     response = render(request, 'login.html')
-#     response['Cache-Control'] = 'no-store, must-revalidate'
-#     return response
 
+def add_medicine(request):
+    if request.method == 'POST':
+        form = MedicineForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('medicine_list')  # Redirect to the medicine list page
+    else:
+        form = MedicineForm()
+    return render(request, 'add_medicine.html', {'form': form})
+
+def medicine_list(request):
+    medicines = Medicine.objects.all()
+    return render(request, 'medicine_list.html', {'medicines': medicines})

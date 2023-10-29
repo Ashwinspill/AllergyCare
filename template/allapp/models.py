@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.conf import settings
 
 # class CustomUserManager(BaseUserManager):
 #     def create_user(self, email, password=None,dob=None, **extra_fields):     #, role='Patient'
@@ -33,18 +34,33 @@ class CustomUser(AbstractUser):
     ]
 
     # Fields for custom user roles
-    role = models.CharField(max_length=15, choices=ROLE_CHOICES, default=PATIENT)  # Default role for regular users
     role = models.CharField(max_length=15, choices=ROLE_CHOICES, default=DOCTOR)
+    role = models.CharField(max_length=15, choices=ROLE_CHOICES, default=PATIENT)  # Default role for regular users
     forget_password_token = models.UUIDField(null=True, blank=True) #forgetpass
     email = models.EmailField(unique=True)
     # objects = CustomUserManager()
     username = models.CharField(max_length=150, unique=True)
     dob = models.DateField(null=True, blank=True)
     # Define boolean fields for specific roles
-    # is_patient = models.BooleanField(default=True)
-    # is_doctor = models.BooleanField(default=True)
-    is_patient=models.BooleanField('is_patient',default=False,null=True)
-    is_doctor=models.BooleanField('is_doctor',default=False,null=True)
+    is_patient = models.BooleanField(default=True)
+    is_doctor = models.BooleanField(default=True)
+    # is_patient=models.BooleanField('is_patient',default=False,null=True)
+    # is_doctor=models.BooleanField('is_doctor',default=False,null=True)
     REQUIRED_FIELDS=[]
     def __str__(self):
         return self.email
+    
+    
+    
+class Medicine(models.Model):
+    med_image = models.ImageField(upload_to='shop_images/')
+    name = models.CharField(max_length=15)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    content = models.CharField(max_length=255)
+    company_name = models.CharField(max_length=100)
+    medicine_info = models.CharField(max_length=200, default='medicine info')
+    # owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    
+    
+    def __str__(self):
+        return self.med_name
