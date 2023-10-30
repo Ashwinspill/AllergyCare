@@ -420,3 +420,7 @@ def add_medicine(request):
 def medicine_list(request):
     medicines = Medicine.objects.all()
     return render(request, 'medicine_list.html', {'medicines': medicines})
+
+def patient_medlist(request):
+    medicines = Medicine.objects.all()
+    return render(request, 'patient_medlist.html', {'medicines': medicines})
