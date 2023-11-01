@@ -424,3 +424,45 @@ def medicine_list(request):
 def patient_medlist(request):
     medicines = Medicine.objects.all()
     return render(request, 'patient_medlist.html', {'medicines': medicines})
+
+
+
+
+
+# doctor by admin starts here 
+from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
+from django.conf import settings
+def doctor_registration(request):
+    if request.method == 'POST':
+        provider_name = request.POST.get('providername')
+        provider_email = request.POST.get('email')
+        
+        # Validate the input fields here if necessary
+        
+        # Replace 'YOUR_BASE_URL' with the actual base URL of your website
+        base_url = 'http://127.0.0.1:8000/signup1'
+        
+        # Create a registration link
+        registration_path = "register"  # Relative path for registration
+        registration_link = f"{base_url}"
+        
+        # Render HTML content for the email
+        html_message = render_to_string('doctor_registration_email.html', {
+            'provider_name': provider_name,
+            'registration_link': registration_link
+        })
+        
+        # Send HTML email to the provider's email
+        subject = 'Doctor Registration Link'
+        plain_message = f"Click the following link to complete your registration: {registration_link}"
+        from_email = settings.DEFAULT_FROM_EMAIL
+        
+        email = EmailMessage(subject, plain_message, from_email, [provider_email])
+        email.content_subtype = "html"
+        email.send(fail_silently=False)
+        
+        # Redirect to a success page or display a success message
+        return render(request, 'doctor_registration_success.html')
+    
+    return render(request, 'doctor_registration_form.html')
