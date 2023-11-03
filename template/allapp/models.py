@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.conf import settings
-
+from django.contrib.auth import get_user_model
 # class CustomUserManager(BaseUserManager):
 #     def create_user(self, email, password=None,dob=None, **extra_fields):     #, role='Patient'
 #         if not email:
@@ -34,21 +34,36 @@ class CustomUser(AbstractUser):
     ]
 
     # Fields for custom user roles
-    role = models.CharField(max_length=15, choices=ROLE_CHOICES, default=DOCTOR)
     role = models.CharField(max_length=15, choices=ROLE_CHOICES, default=PATIENT)  # Default role for regular users
+    role = models.CharField(max_length=15, choices=ROLE_CHOICES, default=DOCTOR)
     forget_password_token = models.UUIDField(null=True, blank=True) #forgetpass
     email = models.EmailField(unique=True)
     # objects = CustomUserManager()
     username = models.CharField(max_length=150, unique=True)
     dob = models.DateField(null=True, blank=True)
     # Define boolean fields for specific roles
-    is_patient = models.BooleanField(default=True)
-    is_doctor = models.BooleanField(default=True)
-    # is_patient=models.BooleanField('is_patient',default=False,null=True)
-    # is_doctor=models.BooleanField('is_doctor',default=False,null=True)
+    # is_patient = models.BooleanField(default=True)
+    # is_doctor = models.BooleanField(default=True)
+    is_patient=models.BooleanField('is_patient',default=False,null=True)
+    is_doctor=models.BooleanField('is_doctor',default=False,null=True)
     REQUIRED_FIELDS=[]
     def __str__(self):
         return self.email
+    
+    
+    
+    
+# doctor
+class Doctor(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    # Add fields for id, first name, last name, email, role, dob, and username
+    id = models.AutoField(primary_key=True)
+    first_name = models.CharField(max_length=30)
+    last_name = models.CharField(max_length=30)
+    email = models.EmailField(unique=True)
+    role = models.CharField(max_length=15, default=CustomUser.DOCTOR)
+    dob = models.DateField(null=True, blank=True)
+    username = models.CharField(max_length=150, unique=True)
     
     
     
@@ -59,8 +74,16 @@ class Medicine(models.Model):
     content = models.CharField(max_length=255)
     company_name = models.CharField(max_length=100)
     medicine_info = models.CharField(max_length=200, default='medicine info')
-    # owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    
-    
+    quantity = models.PositiveIntegerField(default=0)  # Add this field for quantity
+
     def __str__(self):
-        return self.med_name
+        return self.name
+    
+    
+class DoctorAdditionalDetails(models.Model):
+    doctor = models.OneToOneField(Doctor, on_delete=models.CASCADE)
+    picture = models.ImageField(upload_to='doctor_pictures/', null=True, blank=True)
+    registration_number = models.CharField(max_length=20, unique=True, null=True, blank=True)
+    experience = models.PositiveIntegerField(null=True, blank=True)
+    specialty = models.CharField(max_length=100, null=True, blank=True)
+    education = models.CharField(max_length=100, null=True, blank=True)

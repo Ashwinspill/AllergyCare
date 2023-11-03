@@ -26,6 +26,7 @@ from .models import Medicine
 
 
 
+
 # Create your views here.
 
 def index(request):
@@ -164,21 +165,50 @@ def signup(request):
 
 
 #doctor signup
+# def signup1(request):
+#     if request.method == "POST":
+#         username=request.POST.get('username')
+#         #fullname = request.POST.get('firstname')
+#         firstname=request.POST.get('firstname') 
+#         lastname = request.POST.get('lastname')
+#         dob = request.POST.get('dob')
+#         email = request.POST.get('email')
+#         password = request.POST.get('password')
+#         confirmPassword = request.POST.get('confirmPassword')
+#        # phone_number = request.POST.get('phoneNumber')
+#         #address = request.POST.get('address')
+      
+        
+
+#         if CustomUser.objects.filter(email=email).exists():
+#             messages.error(request, "Email already exists")
+#         elif CustomUser.objects.filter(username=username).exists():
+#             messages.error(request, "Username already exists")
+#         elif password != confirmPassword:
+#             messages.error(request, "Passwords do not match")
+#         else:
+#             user = CustomUser(username=username,first_name=firstname,last_name=lastname,dob=dob,email=email,is_doctor=True,role="DOCTOR")  # Change role as needed
+#             user.set_password(password)
+#             user.save()
+#             messages.success(request, "Registered successfully")
+#             return redirect("login")
+#     return render(request,'signup1.html')
+
+
+
+# new doctor signup 
+from .models import CustomUser, Doctor
 def signup1(request):
     if request.method == "POST":
-        username=request.POST.get('username')
-        #fullname = request.POST.get('firstname')
-        firstname=request.POST.get('firstname') 
+        username = request.POST.get('username')
+        firstname = request.POST.get('firstname')
         lastname = request.POST.get('lastname')
         dob = request.POST.get('dob')
         email = request.POST.get('email')
         password = request.POST.get('password')
         confirmPassword = request.POST.get('confirmPassword')
-       # phone_number = request.POST.get('phoneNumber')
-        #address = request.POST.get('address')
-      
-        
 
+        # Check if the email or username already exists
         if CustomUser.objects.filter(email=email).exists():
             messages.error(request, "Email already exists")
         elif CustomUser.objects.filter(username=username).exists():
@@ -186,12 +216,32 @@ def signup1(request):
         elif password != confirmPassword:
             messages.error(request, "Passwords do not match")
         else:
-            user = CustomUser(username=username,first_name=firstname,last_name=lastname,dob=dob,email=email,is_doctor=True,role="DOCTOR")  # Change role as needed
-            user.set_password(password)
-            user.save()
+            # Create a CustomUser with role 'DOCTOR'
+            user = CustomUser.objects.create_user(
+                username=username,
+                first_name=firstname,
+                last_name=lastname,
+                dob=dob,
+                email=email,
+                password=password,
+                is_doctor=True,
+                role=CustomUser.DOCTOR  # Assuming you have defined DOCTOR as 'Doctor' in your model
+            )
+
+            # Create a corresponding Doctor record
+            Doctor.objects.create(
+                user=user,
+                first_name=firstname,
+                last_name=lastname,
+                dob=dob,
+                email=email,
+                username=username
+            )
+
             messages.success(request, "Registered successfully")
             return redirect("login")
-    return render(request,'signup1.html')
+    
+    return render(request, 'signup1.html')
 
 @never_cache
 def logout_confirmation(request):
@@ -417,15 +467,33 @@ def add_medicine(request):
         form = MedicineForm()
     return render(request, 'add_medicine.html', {'form': form})
 
+@login_required
 def medicine_list(request):
     medicines = Medicine.objects.all()
     return render(request, 'medicine_list.html', {'medicines': medicines})
 
+@login_required
 def patient_medlist(request):
     medicines = Medicine.objects.all()
     return render(request, 'patient_medlist.html', {'medicines': medicines})
 
 
+
+# from .forms import DoctorDetailsForm
+# def add_doctor_details(request):
+#     if request.method == 'POST':
+#         user = request.user
+#         # Check if a DoctorDetails instance already exists for this user
+#         if not hasattr(user, 'doctor_details'):
+#             form = DoctorDetailsForm(request.POST, request.FILES)
+#             if form.is_valid():
+#                 doctor_details = form.save(commit=False)
+#                 doctor_details.user = user
+#                 doctor_details.save()
+#                 return redirect('doctor_information')
+#         else:
+#             form = DoctorDetailsForm()
+#     return render(request, 'doctor_information.html', {'form': form})
 
 
 
@@ -433,6 +501,7 @@ def patient_medlist(request):
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.conf import settings
+@login_required
 def doctor_registration(request):
     if request.method == 'POST':
         provider_name = request.POST.get('providername')
@@ -466,3 +535,88 @@ def doctor_registration(request):
         return render(request, 'doctor_registration_success.html')
     
     return render(request, 'doctor_registration_form.html')
+
+
+from .forms import DoctorAdditionalDetailsForm
+from .models import Doctor
+@login_required
+def fill_additional_details(request):
+    if request.method == "POST":
+        form = DoctorAdditionalDetailsForm(request.POST, request.FILES)
+        if form.is_valid():
+            doctor_instance = Doctor.objects.get(user=request.user)  # Get the currently logged-in doctor
+
+            # Create and save the DoctorAdditionalDetails instance using the form
+            doctor_additional_details = form.save(commit=False)  # Create an instance without saving it
+            doctor_additional_details.doctor = doctor_instance  # Link it to the doctor
+            doctor_additional_details.save()
+
+            return redirect('doctor_information')  # Redirect to the doctor information page
+
+    else:
+        form = DoctorAdditionalDetailsForm()
+
+    return render(request, 'fill_additional_details.html', {'form': form})
+
+
+from django.http import HttpResponse
+from .models import Doctor, DoctorAdditionalDetails
+@login_required
+def doctor_information(request):
+    if request.user.is_authenticated and request.user.is_doctor:
+        # Get the doctor and associated additional details if they exist
+        try:
+            doctor = Doctor.objects.get(user=request.user)
+            additional_details = DoctorAdditionalDetails.objects.get(doctor=doctor)
+        except Doctor.DoesNotExist:
+            doctor = None
+            additional_details = None
+
+        return render(request, 'doctor_info.html', {'doctor': doctor, 'additional_details': additional_details})
+    else:
+        return HttpResponse("User is not authenticated or not a doctor.")
+    
+    
+
+from .forms import DoctorForm, DoctorAdditionalDetailsForm
+def edit_doctor_details(request):
+    user = request.user
+    try:
+        doctor = Doctor.objects.get(user=user)
+        doctor_additional_details = DoctorAdditionalDetails.objects.get(doctor=doctor)
+    except Doctor.DoesNotExist:
+        # Handle the case where the doctor doesn't exist
+        # You can create a doctor profile if needed
+        return redirect('create_doctor_profile')
+    
+    if request.method == 'POST':
+        doctor_form = DoctorForm(request.POST, instance=doctor)
+        details_form = DoctorAdditionalDetailsForm(request.POST, request.FILES, instance=doctor_additional_details)
+        if doctor_form.is_valid() and details_form.is_valid():
+            doctor_form.save()
+            details_form.save()
+            return redirect('doctor_information')
+    else:
+        doctor_form = DoctorForm(instance=doctor)
+        details_form = DoctorAdditionalDetailsForm(instance=doctor_additional_details)
+    
+    return render(request, 'edit_doctor_details.html', {'doctor_form': doctor_form, 'details_form': details_form})
+
+from django.views.generic import ListView
+from .models import Doctor, DoctorAdditionalDetails
+class AllDoctorsListView(ListView):
+    template_name = 'all_doctor_list.html'
+    context_object_name = 'doctors'
+
+    def get_queryset(self):
+        # Fetch all doctors and their additional details
+        doctors = Doctor.objects.all()
+        details = DoctorAdditionalDetails.objects.all()
+        
+        # Combine the data into a list of tuples (doctor, additional_details)
+        doctor_data = []
+        for doctor in doctors:
+            additional_details = details.filter(doctor=doctor).first()
+            doctor_data.append((doctor, additional_details))
+
+        return doctor_data
