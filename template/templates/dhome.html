@@ -112,17 +112,18 @@
                     <div class="navbar-nav ms-auto py-0">
                         
                         <a href="{% url 'phome' %}" class="nav-item nav-link active">Home</a>
-                        <a href="{% url 'patient_profile' %}" class="nav-item nav-link">My Profile</a>
-                        <a href="{% url 'phome' %}" class="nav-item nav-link">Requests</a>
+                        <a href="{% url 'patient_profile2' %}" class="nav-item nav-link">My Profile</a>
+                        <a href="{% url 'doctor_information' %}" class="nav-item nav-link">Details</a>
+                        <a href="{% url 'doctor_requests' %}" class="nav-item nav-link">Consultation Requests</a>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Diseases</a>
                             <div class="dropdown-menu m-0">
-                                <a href="{% url 'phome' %}" class="dropdown-item">Blog Grid</a>
-                                <a href="{% url 'phome' %}" class="dropdown-item">Blog Detail</a>
-                                <a href="{% url 'phome' %}" class="dropdown-item">The Team</a>
-                                <a href="{% url 'phome' %}" class="dropdown-item">Testimonial</a>
-                                <a href="{% url 'phome' %}" class="dropdown-item">Appointment</a>
-                                <a href="{% url 'phome' %}" class="dropdown-item">Search</a>
+                                <a href="{% url 'dhome' %}" class="dropdown-item">Blog Grid</a>
+                                <a href="{% url 'dhome' %}" class="dropdown-item">Blog Detail</a>
+                                <a href="{% url 'dhome' %}" class="dropdown-item">The Team</a>
+                                <a href="{% url 'dhome' %}" class="dropdown-item">Testimonial</a>
+                                <a href="{% url 'dhome' %}" class="dropdown-item">Appointment</a>
+                                <a href="{% url 'dhome' %}" class="dropdown-item">Search</a>
                             </div>
                         </div>
                         <a href="{% url 'logout' %}" class="nav-item nav-link">Logout</a>
