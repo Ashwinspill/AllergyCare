@@ -8,6 +8,7 @@ from .models import DoctorAdditionalDetails
 from .models import Doctor
 
 
+
 # patient details
 class PatientProfileForm(forms.ModelForm):
     dob = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
@@ -80,3 +81,16 @@ class AllDoctorsListView(ListView):
             doctor_data.append((doctor, additional_details))
 
         return doctor_data
+    
+   
+from .models import ConsultationRequest
+class ConsultationRequestForm(forms.ModelForm):
+    class Meta:
+        model = ConsultationRequest
+        fields = ['image', 'description']
+
+
+class ConsultationForm(forms.Form):
+    message = forms.CharField(widget=forms.Textarea)
+    consultation_fee = forms.DecimalField(max_digits=10, decimal_places=2)
+    appointment_needed = forms.BooleanField(required=False)

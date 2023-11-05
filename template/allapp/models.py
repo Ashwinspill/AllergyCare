@@ -50,7 +50,18 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return self.email
     
-    
+
+# patient
+class Patient(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    # Add fields for id, first name, last name, email, role, dob, and username
+    id = models.AutoField(primary_key=True)
+    first_name = models.CharField(max_length=30)
+    last_name = models.CharField(max_length=30)
+    email = models.EmailField(unique=True)
+    role = models.CharField(max_length=15, default=CustomUser.PATIENT)
+    dob = models.DateField(null=True, blank=True)
+    username = models.CharField(max_length=150, unique=True)
     
     
 # doctor
@@ -87,3 +98,45 @@ class DoctorAdditionalDetails(models.Model):
     experience = models.PositiveIntegerField(null=True, blank=True)
     specialty = models.CharField(max_length=100, null=True, blank=True)
     education = models.CharField(max_length=100, null=True, blank=True)
+    
+    
+    
+User = get_user_model()
+
+class Cart(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    medicines = models.ManyToManyField(Medicine, through='CartItem')
+
+    def __str__(self):
+        return f"Cart for {self.user}"
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
+    medicine = models.ForeignKey(Medicine, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+
+    def __str__(self):
+        return f"{self.quantity} x {self.medicine.name} in Cart for {self.cart.user}"
+    
+
+# consult
+class ConsultationRequest(models.Model):
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='consultation_requests/')
+    description = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Consultation request from {self.patient.first_name} to {self.doctor.first_name}"
+    
+    
+class Reply(models.Model):
+    consultation_request = models.ForeignKey(ConsultationRequest, on_delete=models.CASCADE)
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
+    message = models.TextField()
+    consultation_fee = models.DecimalField(max_digits=10, decimal_places=2)
+    appointment_needed = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Reply from {self.doctor.first_name} to {self.consultation_request.patient.first_name}"

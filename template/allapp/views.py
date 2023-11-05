@@ -134,20 +134,17 @@ def login(request):
     
     
 #patient signup
+from .models import CustomUser, Patient
+
 def signup(request):
     if request.method == "POST":
-        username=request.POST.get('username')
-        #fullname = request.POST.get('firstname')
-        firstname=request.POST.get('firstname') 
+        username = request.POST.get('username')
+        firstname = request.POST.get('firstname')
         lastname = request.POST.get('lastname')
         dob = request.POST.get('dob')
         email = request.POST.get('email')
         password = request.POST.get('password')
         confirmPassword = request.POST.get('confirmPassword')
-       # phone_number = request.POST.get('phoneNumber')
-        #address = request.POST.get('address')
-      
-        
 
         if CustomUser.objects.filter(email=email).exists():
             messages.error(request, "Email already exists")
@@ -156,13 +153,32 @@ def signup(request):
         elif password != confirmPassword:
             messages.error(request, "Passwords do not match")
         else:
-            user = CustomUser(username=username,first_name=firstname,last_name=lastname,dob=dob,email=email,is_patient=True,role="PATIENT")  # Change role as needed
-            user.set_password(password)
-            user.save()
+            # Create a CustomUser with role 'PATIENT'
+            user = CustomUser.objects.create_user(
+                username=username,
+                first_name=firstname,
+                last_name=lastname,
+                dob=dob,
+                email=email,
+                password=password,
+                is_patient=True,
+                role=CustomUser.PATIENT  # Assuming you have defined PATIENT as 'Patient' in your model
+            )
+
+            # Create a corresponding Patient record
+            Patient.objects.create(
+                user=user,
+                first_name=firstname,
+                last_name=lastname,
+                dob=dob,
+                email=email,
+                username=username
+            )
+
             messages.success(request, "Registered successfully")
             return redirect("login")
-    return render(request,'signup.html')
-
+    
+    return render(request, 'signup.html')
 
 #doctor signup
 # def signup1(request):
@@ -620,3 +636,109 @@ class AllDoctorsListView(ListView):
             doctor_data.append((doctor, additional_details))
 
         return doctor_data
+    
+    
+    
+# cart trial
+from .models import Medicine, Cart, CartItem
+def add_to_cart(request, medicine_id):
+    if request.method == 'POST':
+        # Get the medicine object based on the medicine_id
+        medicine = Medicine.objects.get(pk=medicine_id)
+        user = request.user  # Assuming the user is authenticated
+
+        # Check if the user has a cart, create one if not
+        cart, created = Cart.objects.get_or_create(user=user)
+
+        # Check if the medicine is already in the cart
+        cart_item, item_created = CartItem.objects.get_or_create(cart=cart, medicine=medicine)
+
+        if not item_created:
+            # If the item already exists in the cart, increase the quantity
+            cart_item.quantity += 1
+            cart_item.save()
+
+    return redirect('view_cart')  # Redirect to the cart view after adding the item
+
+def view_cart(request):
+    user = request.user  # Assuming the user is authenticated
+    cart, created = Cart.objects.get_or_create(user=user)
+
+    context = {
+        'cart': cart,
+    }
+    return render(request, 'cart.html', context)
+
+def remove_from_cart(request, cart_item_id):
+    cart_item = CartItem.objects.get(pk=cart_item_id)
+    cart_item.delete()
+    return redirect('view_cart')
+
+
+
+#online consulting
+from .forms import ConsultationRequestForm
+def submit_request(request, doctor_id):
+    doctor = get_object_or_404(Doctor, id=doctor_id)
+
+    if request.method == 'POST':
+        form = ConsultationRequestForm(request.POST, request.FILES)
+        if form.is_valid():
+            consultation_request = form.save(commit=False)
+            consultation_request.patient = request.user.patient
+            consultation_request.doctor = doctor
+            consultation_request.save()
+            return redirect('all_doctors')  # Redirect to the doctor list after submission
+
+    else:
+        form = ConsultationRequestForm()
+
+    return render(request, 'submit_request.html', {'form': form})
+
+
+from .models import ConsultationRequest
+class DoctorRequestsListView(ListView):
+    model = ConsultationRequest
+    template_name = 'doctor_requests.html'
+    context_object_name = 'requests'
+
+    def get_queryset(self):
+        return ConsultationRequest.objects.filter(doctor=self.request.user.doctor)
+    
+    
+def doctor_request_page(request):
+    # Retrieve consultation requests for the logged-in doctor
+    consultation_requests = ConsultationRequest.objects.filter(doctor=request.user.doctor)
+    
+    return render(request, 'doctor_request_page.html', {'requests': consultation_requests})
+
+
+from .forms import ConsultationForm
+from .models import ConsultationRequest, Reply
+def doctor_consultation(request, request_id):
+    consultation_request = ConsultationRequest.objects.get(pk=request_id)
+    
+    if request.method == 'POST':
+        form = ConsultationForm(request.POST)
+        if form.is_valid():
+            message = form.cleaned_data['message']
+            consultation_fee = form.cleaned_data['consultation_fee']
+            appointment_needed = form.cleaned_data['appointment_needed']
+
+            # Create a new Reply and save it
+            reply = Reply(consultation_request=consultation_request, doctor=request.user.doctor, message=message, consultation_fee=consultation_fee, appointment_needed=appointment_needed)
+            reply.save()
+
+            return redirect('doctor_requests')  # Redirect to the doctor's requests page
+
+    else:
+        form = ConsultationForm()
+
+    return render(request, 'doctor_consultation.html', {'form': form})
+
+
+def patient_replies(request):
+    # Query the replies for the current patient (you'll need to identify the patient, e.g., using the logged-in user)
+    patient_replies = Reply.objects.filter(consultation_request__patient=request.user.patient)
+
+    return render(request, 'patient_replies.html', {'replies': patient_replies})

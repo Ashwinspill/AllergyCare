@@ -33,7 +33,13 @@ urlpatterns = [
     path('doctor_information/', views.doctor_information, name='doctor_information'),
     path('edit_doctor_details/', views.edit_doctor_details, name='edit_doctor_details'),
     path('all_doctors/', AllDoctorsListView.as_view(), name='all_doctors'),
-    
+    path('add_to_cart/<int:medicine_id>/', views.add_to_cart, name='add_to_cart'),
+    path('view_cart/', views.view_cart, name='view_cart'),
+    path('remove_from_cart/<int:cart_item_id>/', views.remove_from_cart, name='remove_from_cart'),
+    path('submit_request/<int:doctor_id>/', views.submit_request, name='submit_request'),
+    path('doctor_requests/', views.doctor_request_page, name='doctor_requests'),
+    path('doctor_consultation/<int:request_id>/', views.doctor_consultation, name='doctor_consultation'),
+    path('patient_replies/', views.patient_replies, name='patient_replies'),
 ] 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
