@@ -86,6 +86,7 @@
                         <a class="text-body ps-2" href="">
                             <i class="fab fa-youtube"></i>
                         </a>
+                        
                     </div>
                 </div>
             </div>
@@ -103,7 +104,7 @@
 	                <li class="nav-item">
 	                <a class="nav-link"> Welcome, {{ user.first_name }}</a>
 	                </li>
-                {%endif%}
+                {%endif%} 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -111,21 +112,24 @@
 
                     <div class="navbar-nav ms-auto py-0">
                         
-                        <a href="index.html" class="nav-item nav-link active">Home</a>
+                        <a href="{% url 'phome' %}" class="nav-item nav-link active">Home</a>
                         <a href="{% url 'patient_profile' %}" class="nav-item nav-link">My Profile</a>
-                        <a href="service.html" class="nav-item nav-link">Service</a>
+                        <a href="{% url 'patient_medlist' %}" class="nav-item nav-link">Medicines</a>
+                        <a href="{% url 'all_doctors' %}" class="nav-item nav-link">Doctors</a>
+                        <a href="{% url 'patient_replies' %}" class="nav-item nav-link">Replies</a>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
                             <div class="dropdown-menu m-0">
-                                <a href="blog.html" class="dropdown-item">Blog Grid</a>
-                                <a href="detail.html" class="dropdown-item">Blog Detail</a>
-                                <a href="team.html" class="dropdown-item">The Team</a>
-                                <a href="testimonial.html" class="dropdown-item">Testimonial</a>
-                                <a href="appointment.html" class="dropdown-item">Appointment</a>
-                                <a href="search.html" class="dropdown-item">Search</a>
+                                <a href="{% url 'phome' %}" class="dropdown-item">Blog Grid</a>
+                                <a href="{% url 'phome' %}" class="dropdown-item">Blog Detail</a>
+                                <a href="{% url 'phome' %}" class="dropdown-item">The Team</a>
+                                <a href="{% url 'phome' %}" class="dropdown-item">Testimonial</a>
+                                <a href="{% url 'phome' %}" class="dropdown-item">Appointment</a>
+                                <a href="{% url 'phome' %}" class="dropdown-item">Search</a>
                             </div>
                         </div>
                         <a href="{% url 'logout' %}" class="nav-item nav-link">Logout</a>
+                        
                     </div>
                 </div>
             </nav>
@@ -142,8 +146,8 @@
                     <h5 class="d-inline-block text-primary text-uppercase border-bottom border-5" style="border-color: rgba(256, 256, 256, .3) !important;">Welcome To AllergyCare</h5>
                     <h1 class="display-1 text-white mb-md-4">Best care for your allergies</h1>
                     <div class="pt-2">
-                        <a href="" class="btn btn-light rounded-pill py-md-3 px-md-5 mx-2">Find Doctor</a>
-                        <a href="{% url 'appointment' %}" class="btn btn-outline-light rounded-pill py-md-3 px-md-5 mx-2">Appointment</a>
+                        <a href="{% url 'patient_medlist' %}" class="btn btn-light rounded-pill py-md-3 px-md-5 mx-2">Medicines</a>
+                        <a href="{% url 'all_doctors' %}" class="btn btn-outline-light rounded-pill py-md-3 px-md-5 mx-2">Appointment</a>
                     </div>
                 </div>
             </div>

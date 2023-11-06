@@ -114,7 +114,8 @@
                         <a href="{% url 'phome' %}" class="nav-item nav-link active">Home</a>
                         <a href="{% url 'patient_profile2' %}" class="nav-item nav-link">My Profile</a>
                         <a href="{% url 'doctor_information' %}" class="nav-item nav-link">Details</a>
-                        <a href="{% url 'doctor_requests' %}" class="nav-item nav-link">Consultation Requests</a>
+                        <a href="{% url 'doctor_requests' %}" class="nav-item nav-link">Consultation</a>
+                        <a href="{% url 'doctor_appointments' %}" class="nav-item nav-link">Appointment</a>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Diseases</a>
                             <div class="dropdown-menu m-0">
@@ -143,8 +144,8 @@
                     <h5 class="d-inline-block text-primary text-uppercase border-bottom border-5" style="border-color: rgba(256, 256, 256, .3) !important;">Welcome To AllergyCare</h5>
                     <h1 class="display-1 text-white mb-md-4">Best care for your allergies</h1>
                     <div class="pt-2">
-                        <a href="" class="btn btn-light rounded-pill py-md-3 px-md-5 mx-2">Find Doctor</a>
-                        <a href="{% url 'appointment' %}" class="btn btn-outline-light rounded-pill py-md-3 px-md-5 mx-2">Appointment</a>
+                        <a href="{% url 'doctor_requests' %}" class="btn btn-light rounded-pill py-md-3 px-md-5 mx-2">Consultation</a>
+                        <a href="{% url 'doctor_appointments' %}" class="btn btn-outline-light rounded-pill py-md-3 px-md-5 mx-2">Appointment</a>
                     </div>
                 </div>
             </div>
