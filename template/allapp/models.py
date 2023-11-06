@@ -76,6 +76,9 @@ class Doctor(models.Model):
     dob = models.DateField(null=True, blank=True)
     username = models.CharField(max_length=150, unique=True)
     
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}"
+    
     
     
 class Medicine(models.Model):
@@ -140,3 +143,28 @@ class Reply(models.Model):
 
     def __str__(self):
         return f"Reply from {self.doctor.first_name} to {self.consultation_request.patient.first_name}"
+    
+
+# appointment
+class Appointment(models.Model):
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
+    date = models.DateField()
+    time_slot_choices = [
+        ('9:00 AM - 10:00 AM', '9:00 AM - 10:00 AM'),
+        ('10:00 AM - 11:00 AM', '10:00 AM - 11:00 AM'),
+        ('11:00 AM - 12:00 PM', '11:00 AM - 12:00 PM'),
+        ('12:00 PM - 1:00 PM', '12:00 PM - 1:00 PM'),
+        ('2:00 PM - 3:00 PM', '2:00 PM - 3:00 PM'),
+        ('3:00 PM - 4:00 PM', '3:00 PM - 4:00 PM'),
+        ('4:00 PM - 5:00 PM', '4:00 PM - 5:00 PM'),
+        ('5:00 PM - 6:00 PM', '5:00 PM - 6:00 PM'),
+        ('6:00 PM - 7:00 PM', '6:00 PM - 7:00 PM'),
+    ]
+    time_slot = models.CharField(max_length=30, choices=time_slot_choices)
+    patient_name = models.CharField(max_length=60)
+    patient_email = models.EmailField()
+
+    def __str__(self):
+        return f"Appointment with {self.doctor} on {self.date} at {self.time_slot}"
+    

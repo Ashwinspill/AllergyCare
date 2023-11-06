@@ -742,3 +742,100 @@ def patient_replies(request):
     patient_replies = Reply.objects.filter(consultation_request__patient=request.user.patient)
 
     return render(request, 'patient_replies.html', {'replies': patient_replies})
+
+
+# appointment
+from .models import Appointment, Doctor
+from .forms import AppointmentForm
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+
+def create_appointment(request):
+    if request.method == 'POST':
+        # Get the doctor instance
+        doctor_id = request.GET.get('doctor_id')
+        doctor = get_object_or_404(Doctor, id=doctor_id)
+
+        form = AppointmentForm(request.POST)
+        if form.is_valid():
+            appointment = form.save(commit=False)
+            appointment.doctor = doctor  # Assign the doctor to the appointment
+            date = appointment.date
+            time_slot = appointment.time_slot
+            
+            # Check if the slot is available for the selected doctor and date
+            slot_exists = Appointment.objects.filter(
+                doctor=doctor,
+                date=date,
+                time_slot=time_slot
+            ).exists()
+
+            if not slot_exists:
+                appointment.patient = request.user.patient  # Assuming you have a user profile for patients
+                appointment.save()
+
+                # Send an email to the user with the appointment details
+                subject = 'Appointment Confirmation'
+                from_email = 'your_email@example.com'
+                to_email = request.user.email  # Assuming user's email is available
+                appointment_data = {
+                    'appointment': appointment,
+                }
+
+                html_message = render_to_string('appointment_email.html', appointment_data)
+                plain_message = strip_tags(html_message)
+
+                send_mail(subject, plain_message, from_email, [to_email], html_message=html_message)
+
+                return render(request, 'booking_success.html')  # Redirect to the booking success page
+            else:
+                form.add_error('time_slot', 'This slot is already booked. Please choose another.')
+    
+    else:
+        form = AppointmentForm()
+    
+    return render(request, 'create_appointment.html', {'form': form})
+    
+
+def appointment_detail(request, appointment_id):
+    appointment = get_object_or_404(Appointment, id=appointment_id)
+    return render(request, 'appointment_detail.html', {'appointment': appointment})
+
+def list_appointments(request):
+    appointments = Appointment.objects.filter(patient=request.user.patient)
+    return render(request, 'list_appointments.html', {'appointments': appointments})
+
+
+def get_available_time_slots(request):
+    if request.is_ajax() and request.method == "POST":
+        doctor_id = request.POST.get("doctor_id")
+        selected_date = request.POST.get("selected_date")
+
+        # Retrieve the doctor's appointments for the selected date
+        appointments = Appointment.objects.filter(
+            doctor_id=doctor_id,
+            date=selected_date,
+        )
+
+        # Extract the booked time slots
+        booked_slots = [appointment.time_slot for appointment in appointments]
+
+        # Define a list of all available time slots
+        all_time_slots = ["08:00 AM", "09:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "01:00 PM", "02:00 PM", "03:00 PM", "04:00 PM", "05:00 PM", "06:00 PM", "07:00 PM"]  # Define your time slots
+
+        # Calculate available time slots by removing booked slots
+        available_slots = [slot for slot in all_time_slots if slot not in booked_slots]
+
+        return JsonResponse({"available_slots": available_slots})
+    return JsonResponse({"error": "Invalid request"}, status=400)
+
+
+
+def doctor_appointments(request):
+    # Assuming you're using the logged-in doctor to filter appointments
+    doctor = request.user.doctor
+    appointments = Appointment.objects.filter(doctor=doctor)
+
+    return render(request, 'doctor_appointments.html', {'appointments': appointments})
+

@@ -94,3 +94,14 @@ class ConsultationForm(forms.Form):
     message = forms.CharField(widget=forms.Textarea)
     consultation_fee = forms.DecimalField(max_digits=10, decimal_places=2)
     appointment_needed = forms.BooleanField(required=False)
+    
+    
+# appointment
+from .models import Appointment
+class AppointmentForm(forms.ModelForm):
+    class Meta:
+        model = Appointment
+        fields = ['date', 'time_slot', 'patient_name', 'patient_email']
+        widgets = {
+            'date': forms.DateInput(attrs={'type': 'date'}),
+        }

@@ -40,6 +40,10 @@ urlpatterns = [
     path('doctor_requests/', views.doctor_request_page, name='doctor_requests'),
     path('doctor_consultation/<int:request_id>/', views.doctor_consultation, name='doctor_consultation'),
     path('patient_replies/', views.patient_replies, name='patient_replies'),
+    path('create_appointment/', views.create_appointment, name='create_appointment'),
+    path('get_available_time_slots/', views.get_available_time_slots, name='get_available_time_slots'),
+    path('appointment_detail/<int:appointment_id>/', views.appointment_detail, name='appointment_detail'),
+    path('doctor_appointments/', views.doctor_appointments, name='doctor_appointments'),
 ] 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
