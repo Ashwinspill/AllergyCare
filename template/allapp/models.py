@@ -112,15 +112,18 @@ class Cart(models.Model):
 
     def __str__(self):
         return f"Cart for {self.user}"
+    
+    def get_total_price(self):
+        total = sum(item.subtotal() for item in self.cartitem_set.all())
+        return total
 
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
     medicine = models.ForeignKey(Medicine, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
 
-    def __str__(self):
-        return f"{self.quantity} x {self.medicine.name} in Cart for {self.cart.user}"
-    
+    def subtotal(self):
+        return self.quantity * self.medicine.price
 
 # consult
 class ConsultationRequest(models.Model):

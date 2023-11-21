@@ -262,6 +262,7 @@ def signup1(request):
 @never_cache
 def logout_confirmation(request):
     return render(request, 'logout_confirmation.html')
+@login_required
 def logout(request):
     auth_logout(request) # Use the logout function to log the user out
     return redirect('logout_confirmation')  # Redirect to the confirmation page
@@ -595,6 +596,7 @@ def doctor_information(request):
     
 
 from .forms import DoctorForm, DoctorAdditionalDetailsForm
+@login_required
 def edit_doctor_details(request):
     user = request.user
     try:
@@ -618,8 +620,10 @@ def edit_doctor_details(request):
     
     return render(request, 'edit_doctor_details.html', {'doctor_form': doctor_form, 'details_form': details_form})
 
+
 from django.views.generic import ListView
 from .models import Doctor, DoctorAdditionalDetails
+
 class AllDoctorsListView(ListView):
     template_name = 'all_doctor_list.html'
     context_object_name = 'doctors'
@@ -641,6 +645,7 @@ class AllDoctorsListView(ListView):
     
 # cart trial
 from .models import Medicine, Cart, CartItem
+@login_required
 def add_to_cart(request, medicine_id):
     if request.method == 'POST':
         # Get the medicine object based on the medicine_id
@@ -658,26 +663,95 @@ def add_to_cart(request, medicine_id):
             cart_item.quantity += 1
             cart_item.save()
 
+        # Reduce the quantity of the medicine in your inventory
+        medicine.quantity -= 1
+        medicine.save()
+
     return redirect('view_cart')  # Redirect to the cart view after adding the item
 
+# @login_required
+# def view_cart(request):
+#     user = request.user  # Assuming the user is authenticated
+#     cart, created = Cart.objects.get_or_create(user=user)
+
+#     context = {
+#         'cart': cart,
+#     }
+#     return render(request, 'cart.html', context)
+
+@login_required
 def view_cart(request):
     user = request.user  # Assuming the user is authenticated
     cart, created = Cart.objects.get_or_create(user=user)
+
+    # Calculate subtotal for each cart item
+    for cart_item in cart.cartitem_set.all():
+        cart_item.subtotal = cart_item.quantity * cart_item.medicine.price
 
     context = {
         'cart': cart,
     }
     return render(request, 'cart.html', context)
 
+@login_required
 def remove_from_cart(request, cart_item_id):
     cart_item = CartItem.objects.get(pk=cart_item_id)
+
+    # Increase the quantity of the medicine in your inventory
+    cart_item.medicine.quantity += 1
+    cart_item.medicine.save()
+
     cart_item.delete()
+
     return redirect('view_cart')
+
+@login_required
+def checkout(request):
+    user = request.user  # Assuming the user is authenticated
+    cart, created = Cart.objects.get_or_create(user=user)
+
+    context = {
+        'cart': cart,
+        'total': cart.get_total_price(),
+    }
+    return render(request, 'checkout.html', context)
+
+@login_required
+def razorpay_payment(request):
+    user = request.user  # Assuming the user is authenticated
+    cart, created = Cart.objects.get_or_create(user=user)
+
+    context = {
+        'cart': cart,
+    }
+    return render(request, 'razorpay_payment.html', context)
+
+import razorpay
+from django.http import JsonResponse
+
+def create_order(request):
+    # Replace "YOUR_ID" and "YOUR_SECRET" with your actual Razorpay key_id and key_secret
+    client = razorpay.Client(auth=("rzp_test_aWcyAl6q9LJYqx", "j1dFxiB5MzxmkXTMo6IYQlnP"))
+
+    data = {
+        "amount": 5000,  # Amount in paise (e.g., 5000 paise = ₹50.00)
+        "currency": "INR",
+        "receipt": "receipt#1",
+        "notes": {
+            "key1": "value3",
+            "key2": "value2"
+        }
+    }
+
+    order = client.order.create(data=data)
+
+    return JsonResponse({"order_id": order["id"]})
 
 
 
 #online consulting
 from .forms import ConsultationRequestForm
+@login_required
 def submit_request(request, doctor_id):
     doctor = get_object_or_404(Doctor, id=doctor_id)
 
@@ -697,6 +771,7 @@ def submit_request(request, doctor_id):
 
 
 from .models import ConsultationRequest
+@login_required
 class DoctorRequestsListView(ListView):
     model = ConsultationRequest
     template_name = 'doctor_requests.html'
@@ -705,7 +780,7 @@ class DoctorRequestsListView(ListView):
     def get_queryset(self):
         return ConsultationRequest.objects.filter(doctor=self.request.user.doctor)
     
-    
+@login_required
 def doctor_request_page(request):
     # Retrieve consultation requests for the logged-in doctor
     consultation_requests = ConsultationRequest.objects.filter(doctor=request.user.doctor)
@@ -715,9 +790,13 @@ def doctor_request_page(request):
 
 from .forms import ConsultationForm
 from .models import ConsultationRequest, Reply
+
+@login_required
 def doctor_consultation(request, request_id):
     consultation_request = ConsultationRequest.objects.get(pk=request_id)
-    
+    # replies = Reply.objects.filter(consultation_request=consultation_request).order_by('-timestamp')
+    replies = Reply.objects.filter(consultation_request=consultation_request)
+
     if request.method == 'POST':
         form = ConsultationForm(request.POST)
         if form.is_valid():
@@ -729,14 +808,15 @@ def doctor_consultation(request, request_id):
             reply = Reply(consultation_request=consultation_request, doctor=request.user.doctor, message=message, consultation_fee=consultation_fee, appointment_needed=appointment_needed)
             reply.save()
 
-            return redirect('doctor_requests')  # Redirect to the doctor's requests page
+            # Redirect back to the same consultation page after submitting the reply
+            return redirect('doctor_consultation', request_id)
 
     else:
         form = ConsultationForm()
 
-    return render(request, 'doctor_consultation.html', {'form': form})
+    return render(request, 'doctor_consultation.html', {'form': form, 'consultation_request': consultation_request, 'replies': replies})
 
-
+@login_required
 def patient_replies(request):
     # Query the replies for the current patient (you'll need to identify the patient, e.g., using the logged-in user)
     patient_replies = Reply.objects.filter(consultation_request__patient=request.user.patient)
@@ -750,20 +830,95 @@ from .forms import AppointmentForm
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
+from django.http import JsonResponse
 
+# def create_appointment(request):
+#     if request.method == 'POST':
+#         # Get the doctor instance
+#         doctor_id = request.GET.get('doctor_id')
+#         doctor = get_object_or_404(Doctor, id=doctor_id)
+
+#         form = AppointmentForm(request.POST)
+#         if form.is_valid():
+#             appointment = form.save(commit=False)
+#             appointment.doctor = doctor  # Assign the doctor to the appointment
+#             date = appointment.date
+#             time_slot = appointment.time_slot
+
+#             # Check if the slot is available for the selected doctor and date
+#             slot_exists = Appointment.objects.filter(
+#                 doctor=doctor,
+#                 date=date,
+#                 time_slot=time_slot
+#             ).exists()
+
+#             if not slot_exists:
+#                 # Check if the patient already has an appointment on the same day
+#                 existing_appointment = Appointment.objects.filter(
+#                     patient=request.user.patient,  # Assuming you have a user profile for patients
+#                     date=date
+#                 ).first()
+
+#                 if existing_appointment:
+#                     response_data = {'success': False, 'message': 'You already have an appointment on the same day.'}
+#                 else:
+#                     appointment.patient = request.user.patient
+#                     appointment.save()
+
+#                     # Send an email to the user with the appointment details
+#                     subject = 'Appointment Confirmation'
+#                     from_email = 'your_email@example.com'
+#                     to_email = request.user.email
+#                     appointment_data = {
+#                         'appointment': appointment,
+#                     }
+
+#                     html_message = render_to_string('appointment_email.html', appointment_data)
+#                     plain_message = strip_tags(html_message)
+
+#                     send_mail(subject, plain_message, from_email, [to_email], html_message=html_message)
+
+#                     response_data = {'success': True, 'message': 'Appointment successfully booked.'}
+#                     return redirect('booking_success')  # Redirect to the booking success page using the URL name
+#             else:
+#                 response_data = {'success': False, 'message': 'This slot is already booked. Please choose another.'}
+
+#             # Send a toast notification
+#             if not response_data['success']:
+#                 message = response_data['message']
+#                 message_tags = 'error'  # You can customize this based on your styling
+
+#                 return JsonResponse(response_data, status=400)
+#             else:
+#                 # If the appointment was successful, return a success message
+#                 return JsonResponse(response_data)
+
+#     else:
+#         form = AppointmentForm()
+
+#     return render(request, 'create_appointment.html', {'form': form})
+
+@login_required
 def create_appointment(request):
     if request.method == 'POST':
         # Get the doctor instance
         doctor_id = request.GET.get('doctor_id')
         doctor = get_object_or_404(Doctor, id=doctor_id)
 
-        form = AppointmentForm(request.POST)
+        # Automatically populate patient name and email
+        patient = request.user.patient
+        form_data = request.POST.copy()
+        form_data['patient_name'] = f"{patient.first_name} {patient.last_name}"
+        form_data['patient_email'] = patient.email
+
+        form = AppointmentForm(form_data)
+        
         if form.is_valid():
             appointment = form.save(commit=False)
             appointment.doctor = doctor  # Assign the doctor to the appointment
             date = appointment.date
             time_slot = appointment.time_slot
-            
+
             # Check if the slot is available for the selected doctor and date
             slot_exists = Appointment.objects.filter(
                 doctor=doctor,
@@ -772,41 +927,66 @@ def create_appointment(request):
             ).exists()
 
             if not slot_exists:
-                appointment.patient = request.user.patient  # Assuming you have a user profile for patients
-                appointment.save()
+                # Check if the patient already has an appointment on the same day
+                existing_appointment = Appointment.objects.filter(
+                    patient=patient,
+                    date=date
+                ).first()
 
-                # Send an email to the user with the appointment details
-                subject = 'Appointment Confirmation'
-                from_email = 'your_email@example.com'
-                to_email = request.user.email  # Assuming user's email is available
-                appointment_data = {
-                    'appointment': appointment,
-                }
+                if existing_appointment:
+                    response_data = {'success': False, 'message': 'You already have an appointment on the same day.'}
+                else:
+                    appointment.patient = patient
+                    appointment.save()
 
-                html_message = render_to_string('appointment_email.html', appointment_data)
-                plain_message = strip_tags(html_message)
+                    # Send an email to the user with the appointment details
+                    subject = 'Appointment Confirmation'
+                    from_email = 'your_email@example.com'
+                    to_email = patient.email
+                    appointment_data = {
+                        'appointment': appointment,
+                    }
 
-                send_mail(subject, plain_message, from_email, [to_email], html_message=html_message)
+                    html_message = render_to_string('appointment_email.html', appointment_data)
+                    plain_message = strip_tags(html_message)
 
-                return render(request, 'booking_success.html')  # Redirect to the booking success page
+                    send_mail(subject, plain_message, from_email, [to_email], html_message=html_message)
+
+                    response_data = {'success': True, 'message': 'Appointment successfully booked.'}
+                    return redirect('booking_success')  # Redirect to the booking success page using the URL name
             else:
-                form.add_error('time_slot', 'This slot is already booked. Please choose another.')
-    
+                response_data = {'success': False, 'message': 'This slot is already booked. Please choose another.'}
+
+            # Send a toast notification
+            if not response_data['success']:
+                message = response_data['message']
+                message_tags = 'error'  # You can customize this based on your styling
+
+                return JsonResponse(response_data, status=400)
+            else:
+                # If the appointment was successful, return a success message
+                return JsonResponse(response_data)
+
     else:
         form = AppointmentForm()
-    
+
     return render(request, 'create_appointment.html', {'form': form})
     
+@login_required   
+def booking_success(request):
+    return render(request, 'booking_success.html')
 
+@login_required
 def appointment_detail(request, appointment_id):
     appointment = get_object_or_404(Appointment, id=appointment_id)
     return render(request, 'appointment_detail.html', {'appointment': appointment})
 
+@login_required
 def list_appointments(request):
     appointments = Appointment.objects.filter(patient=request.user.patient)
     return render(request, 'list_appointments.html', {'appointments': appointments})
 
-
+@login_required
 def get_available_time_slots(request):
     if request.is_ajax() and request.method == "POST":
         doctor_id = request.POST.get("doctor_id")
@@ -831,7 +1011,7 @@ def get_available_time_slots(request):
     return JsonResponse({"error": "Invalid request"}, status=400)
 
 
-
+@login_required
 def doctor_appointments(request):
     # Assuming you're using the logged-in doctor to filter appointments
     doctor = request.user.doctor
@@ -839,3 +1019,19 @@ def doctor_appointments(request):
 
     return render(request, 'doctor_appointments.html', {'appointments': appointments})
 
+
+
+# history
+
+from .models import Appointment, ConsultationRequest
+
+def patient_history(request, patient_id):
+    patient = get_object_or_404(Patient, id=patient_id)
+    
+    # Query the patient's appointment history
+    appointments = Appointment.objects.filter(patient=patient)
+    
+    # Query the patient's consultation request history
+    consultation_requests = ConsultationRequest.objects.filter(patient=patient)
+    
+    return render(request, 'patient_history.html', {'patient': patient, 'appointments': appointments, 'consultation_requests': consultation_requests})

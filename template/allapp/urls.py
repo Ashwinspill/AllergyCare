@@ -4,6 +4,7 @@ from . import views
 from django.conf import settings
 from django.conf.urls.static import static
 from .views import AllDoctorsListView
+from django.contrib.auth.decorators import login_required
 
 urlpatterns = [
     #path('admin/', admin.site.urls),
@@ -44,6 +45,10 @@ urlpatterns = [
     path('get_available_time_slots/', views.get_available_time_slots, name='get_available_time_slots'),
     path('appointment_detail/<int:appointment_id>/', views.appointment_detail, name='appointment_detail'),
     path('doctor_appointments/', views.doctor_appointments, name='doctor_appointments'),
+    path('booking_success/', views.booking_success, name='booking_success'),
+    path('patient_history/<int:patient_id>/', views.patient_history, name='patient_history'),
+    path('checkout/', views.checkout, name='checkout'),
+    path('razorpay_payment/', views.razorpay_payment, name='razorpay_payment'),
 ] 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
