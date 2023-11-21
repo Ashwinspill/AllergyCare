@@ -97,7 +97,7 @@
     <div class="container-fluid sticky-top bg-white shadow-sm" style="z-index: 1;">
         <div class="container">
             <nav class="navbar navbar-expand-lg bg-white navbar-light py-3 py-lg-0">
-                <a href="{% url 'index' %}" class="navbar-brand">
+                <a href="{% url 'phome' %}" class="navbar-brand">
                     <h1 class="m-0 text-uppercase text-primary"><i class="fa fa-clinic-medical me-2"></i>AllergyCare</h1>
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
@@ -105,7 +105,8 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarCollapse">
                     <div class="navbar-nav ms-auto py-0">
-                        {% comment %} <a href="{% url 'dhome' %}" class="nav-item nav-link active">Back</a> {% endcomment %}
+                        {% comment %} <a href="{% url 'phome' %}" class="nav-item nav-link active">Home</a> {% endcomment %}
+                        <a href="{% url 'patient_medlist' %}" class="nav-item nav-link">Keep Shopping</a>
                         <a href="{% url 'logout' %}" class="nav-item nav-link">Logout</a> 
                     </div>
                 </div>
@@ -113,45 +114,66 @@
         </div>
     </div>
    
-    <div class="container-fluid bg-primary py-5 mb-5 hero-header">
-        <div class="container py-5">
-            <div class="row justify-content-center">
-                <div class="col-lg-8">
-                    <div class="card card-container">
-                        <div class="card-header bg-primary text-white">
-                            <h2 class="mb-0">Consultation Requests</h2>
-                        </div>
-                        <div class="card-body">
-                            <div class="container">
-                                <ul>
-                                    {% for request in requests %}
-                                        <li>
-                                            <div class="row">
-                                                <div class="col-md-4">
-                                                    <!-- Add an image for the request here -->
-                                                    <img src="{{ request.image.url }}" width="200" alt="Request Image">
-                                                    {% comment %} <img src="{{ additional_details.picture.url }}"  width="200"> {% endcomment %}
-                                                </div>
-                                                <div class="col-md-8">
-                                                    <h2>Request from {{ request.patient.first_name }}</h2>
-                                                    <p>Description: {{ request.description }}</p>
-                                                    <p>Timestamp: {{ request.timestamp }}</p>
-                                                    <!-- Add any other information you want to display -->
-                                                    <a href="{% url 'doctor_consultation' request.id %}" class="btn btn-primary">Consult</a>
-                                                    <a href="{% url 'patient_history' request.patient.id %}" class="btn btn-info">Patient History</a>
-                                                </div>
-                                            </div>
-                                        </li>
-                                    {% endfor %}
-                                </ul>
-                            </div>
-                        </div>
+<!-- Razorpay Payment Section -->
+<div class="container-fluid bg-primary py-5 mb-5 hero-header">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card card-container">
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="mb-0">Razorpay Payment</h2>
+                    </div>
+                    <div class="card-body">
+                        <p>Total Amount: {{ cart.get_total_price }}</p>
+                        <button id="rzp-button1" class="btn btn-success">Pay Now</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    // Fetch the order ID from the server
+    fetch("{% url 'create_order' %}")
+      .then(response => response.json())
+      .then(data => {
+        var orderID = data.order_id;
+
+        var options = {
+            "key": "rzp_test_aWcyAl6q9LJYqx",
+            "amount": {{ cart.get_total_price_in_paise }},
+            "currency": "INR",
+            "name": "Your Company Name",
+            "description": "Payment for Medicines",
+            "image": "path_to_your_logo.png",
+            "order_id": orderID,
+            "handler": function(response) {
+                // Handle the payment success
+                console.log("Payment Successful:", response);
+            },
+            "prefill": {
+                "name": "{{ request.user.get_full_name }}",
+                "email": "{{ request.user.email }}"
+            },
+            "notes": {
+                "address": "Your Company Address"
+            },
+            "theme": {
+                "color": "#F37254"
+            }
+        };
+
+        var rzp1 = new Razorpay(options);
+
+        // Attach the click event to the button
+        document.getElementById('rzp-button1').onclick = function() {
+            console.log("Button Clicked");
+            rzp1.open();
+        };
+    });
+</script>
 
     <div class="container-fluid bg-dark text-light mt-5 py-5">
         <div class="container py-5">
@@ -223,6 +245,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
     <!-- ... (Your JavaScript library references remain the same) ... -->
 

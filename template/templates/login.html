@@ -73,6 +73,31 @@
             color: #333;
         }
 
+        .google-signin {
+            background-color: red;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            text-decoration: none;
+        }
+
+        .home-button {
+            text-align: center;
+            margin-top: 10px; /* Add spacing between "Don't have an account?" and the home button */
+        }
+
+        .home-button a {
+            display: inline-block;
+            background-color: #333;
+            color: #fff;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+            /* Add more styling as needed */
+        }
+        
+
         .toast-container {
             position: fixed;
             bottom: 20px;
@@ -80,7 +105,7 @@
             z-index: 9999;
             pointer-events: none;
         }
-        
+
         .toast {
             background-color: #333;
             color: #fff;
@@ -90,11 +115,11 @@
             opacity: 0;
             transition: opacity 0.3s ease-in-out;
         }
-        
+
         .toast.success {
             background-color: #28a745;
         }
-        
+
         .toast.error {
             background-color: #dc3545;
         }
@@ -104,19 +129,13 @@
                 width: 95%;
             }
         }
-        .home-button {
-            text-align: center;
-            margin-top: 20px; /* Add spacing between "Don't have an account?" and the home button */
-        }
-        
-        .home-button a {
-            display: inline-block;
-            background-color: #333;
-            color: #fff;
-            padding: 10px 20px;
-            text-decoration: none;
-            border-radius: 5px;
-            /* Add more styling as needed */
+
+        .google-logo {
+            font-family: 'Arial', sans-serif;
+            font-size: 24px; /* Adjust the size as needed */
+            font-weight: bold;
+            color: #4285F4; /* Google logo blue color */
+            margin-right: 10px; /* Adjust spacing as needed */
         }
     </style>
 </head>
@@ -125,7 +144,7 @@
         <div class="login-container">
             <h1>LOGIN</h1>
 
-            <form class="login-form" method="POST" action="{% url 'login' %}">
+            <form class="login-form" method="POST" action="{% url 'login' %}" id="login-form">
                 {% csrf_token %}
                 <input type="email" id="email" name="email" placeholder="Email" required>
                 <span id="email-error" class="error-message"></span> <!-- Use 'email' here -->
@@ -133,10 +152,12 @@
                 <span id="password-error" class="error-message"></span>
                 <button type="submit">Login</button>
             </form>
-            
+            <div id="inactive-account-message" class="toast error" style="display: none;">Your account is inactive. Please contact support.</div>
             <p class="forgot-password"><a href="{% url 'forget_password' %}">Forgot your password?</a></p>
             <p class="signup">Don't have an account? <a href="{% url 'signup' %}">Sign Up</a></p>
-            <a href="{% url 'social:begin' 'google-oauth2'  %}">Google Sigin</a>
+            <a class="google-signin" href="{% url 'social:begin' 'google-oauth2' %}">
+                <span class="google-logo">G</span> Google Signin
+            </a> 
             <div class="home-button">
                 <a href="{% url 'index' %}" title="Home">Home</a>
             </div>
@@ -159,6 +180,7 @@
     
     <script>
         const messages = document.querySelectorAll('.messages li');
+        const inactiveMessage = document.getElementById('inactive-account-message');
     
         messages.forEach(function (message) {
             const messageText = message.textContent;
@@ -189,8 +211,11 @@
                 toast.remove();
             }, 3500);
         }
+    
+        // Check for the inactive account message and display it
+        if (inactiveMessage.style.display !== 'none') {
+            showToast(inactiveMessage.textContent, 'error');
+        }
     </script>
-
-   
 </body>
 </html>

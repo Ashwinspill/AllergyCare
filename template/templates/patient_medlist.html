@@ -29,7 +29,6 @@
 
     <!-- Template Stylesheet -->
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
-    
     <style>
         body {
             position: relative;
@@ -75,67 +74,20 @@
         .btn-update-profile:hover {
             background-color: #0056b3;
         }
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px;
-        }
 
-        .medicine-card {
-            background-color: #fff;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px 0;
-            display: flex;
-            align-items: center;
-        }
-
-        .medicine-card img {
-            max-width: 80px;
-            max-height: 80px;
-            object-fit: cover;
-            border-radius: 10px;
-            margin-right: 20px;
-        }
-
-        .medicine-info {
-            flex: 1;
-        }
-
-        .medicine-info h2 {
-            font-size: 20px;
-            margin: 0;
-        }
-
-        .medicine-info p {
-            font-size: 16px;
-            color: #555;
-            margin: 5px 0;
-        }
-
-        .medicine-description {
-            margin-top: 10px;
-            font-size: 16px;
-        }
-
-        #toast-container {
-            position: fixed;
-            top: 0;
-            right: 0;
-            width: 100%;
-            text-align: center;
-            z-index: 999;
-            display: none;
+        .add-to-cart-button {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
         }
     
-        /* Style for the toast message */
-        #toast {
-            background-color: #007bff;
-            color: white;
-            padding: 10px;
+        .add-to-cart-button:hover {
+            background-color: #0056b3;
         }
-
     </style>
 </head>
 <body>
@@ -153,79 +105,61 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarCollapse">
                     <div class="navbar-nav ms-auto py-0">
-                        <a href="{% url 'phome' %}" class="nav-item nav-link active">Home</a>
+                        <a href="{% url 'phome' %}" class="nav-item nav-link active">Back</a>
                         <a href="{% url 'patient_profile' %}" class="nav-item nav-link">My Profile</a>
-                        <a href="service.html" class="nav-item nav-link">Service</a>
-                        <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
-                            <div class="dropdown-menu m-0">
-                                <a href="blog.html" class="dropdown-item">Blog Grid</a>
-                                <a href="detail.html" class="dropdown-item">Blog Detail</a>
-                                <a href="team.html" class="dropdown-item">The Team</a>
-                                <a href="testimonial.html" class="dropdown-item">Testimonial</a>
-                                <a href="appointment.html" class="dropdown-item">Appointment</a>
-                                <a href="search.html" class="dropdown-item">Search</a>
-                            </div>
-                        </div>
+                        <a href="{% url 'view_cart' %}" class="nav-item nav-link">Cart</a> 
                         <a href="{% url 'logout' %}" class="nav-item nav-link">Logout</a> 
                     </div>
                 </div>
             </nav>
         </div>
     </div>
-
-
-
-            <div class="container">
-                {% for medicine in medicines %}
-                    <div class="medicine-card">
-                      <img src="{{ medicine.med_image.url }}" alt="{{ medicine.name }}">
-                         <div class="medicine-info">
-                            <h2>{{ medicine.name }}</h2>
-                            <p><strong>Price:</strong> {{ medicine.price }}</p>
-                            <p><strong>Content:</strong> {{ medicine.content }}</p>
-                            <p><strong>Company Name:</strong> {{ medicine.company_name }}</p>
-                            <p><strong>Medicine Info:</strong> {{ medicine.medicine_info }}</p>
-                            <button class="purchase-button" data-medicine="{{ medicine.name }}" style="cursor: pointer;">Purchase</button>
-                            <button type="submit" class="btn btn-primary btn-update-profile">Update Profile</button>
+   
+    <div class="container-fluid bg-primary py-5 mb-5 hero-header">
+        <div class="container py-5">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card card-container">
+                        <div class="card-header bg-primary text-white">
+                            <h2 class="mb-0">Medicines</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="container">
+                                <div class="mb-3">
+                                    <label for="search-medicine" class="form-label">Search Medicine:</label>
+                                    <div class="input-group">
+                                        <input type="text" id="search-medicine" class="form-control" placeholder="Enter medicine name">
+                                        <button type="button" class="btn btn-primary search-button">Search</button>
+                                    </div>
+                                </div>
+    
+                                <div class="row">
+                                    {% for medicine in medicines %}
+                                        <div class="medicine-card col-md-6">
+                                            <img src="{{ medicine.med_image.url }}" alt="{{ medicine.name }}">
+                                            <div class="medicine-info">
+                                                <h2>{{ medicine.name }}</h2>
+                                                <p><strong>Price:</strong> {{ medicine.price }}</p>
+                                                <p><strong>Content:</strong> {{ medicine.content }}</p>
+                                                <p><strong>Company Name:</strong> {{ medicine.company_name }}</p>
+                                                <p><strong>Medicine Info:</strong> {{ medicine.medicine_info }}</p>
+                                                <form method="post" action="{% url 'add_to_cart' medicine.id %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-primary add-to-cart-button">Add to Cart</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                {% endfor %}
+                </div>
             </div>
-   
-    
-    <div id="toast-container">
-        <div id="toast">Order placed successfully.</div>
+        </div>
     </div>
 
-    <script>
-        // Function to handle the purchase button click event
-        document.addEventListener('DOMContentLoaded', function() {
-            const purchaseButtons = document.querySelectorAll('.purchase-button');
-    
-            purchaseButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const medicineName = this.getAttribute('data-medicine');
-                    showPurchaseToast(medicineName);
-                });
-            });
-    
-            function showPurchaseToast(medicineName) {
-                const toastContainer = document.getElementById('toast-container');
-                const toast = document.getElementById('toast');
-    
-                toast.innerText = `Order placed successfully for ${medicineName}.`;
-    
-                // Show the toast
-                toastContainer.style.display = 'block';
-    
-                // Hide the toast after 3 seconds
-                setTimeout(function() {
-                    toastContainer.style.display = 'none';
-                }, 3000);
-            }
-        });
-    </script>
 
     <div class="container-fluid bg-dark text-light mt-5 py-5">
         <div class="container py-5">
@@ -296,14 +230,29 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <!-- ... (Your JavaScript library references remain the same) ... -->
 
     <!-- Template Javascript -->
     <script src="{% static 'js/main.js' %}"></script>
     <script src="{% static 'js/refresh_on_back.js' %}"></script>
-   
 
+    <script>
+        $(document).ready(function () {
+            $('#search-medicine').on('input', function () {
+                const searchText = $(this).val().toLowerCase();
+                $('.medicine-card').each(function () {
+                    const medicineName = $(this).find('h2').text().toLowerCase();
+                    if (medicineName.includes(searchText)) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 
 </html>

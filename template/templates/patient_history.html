@@ -113,44 +113,25 @@
         </div>
     </div>
    
-    <div class="container-fluid bg-primary py-5 mb-5 hero-header">
-        <div class="container py-5">
-            <div class="row justify-content-center">
-                <div class="col-lg-8">
-                    <div class="card card-container">
-                        <div class="card-header bg-primary text-white">
-                            <h2 class="mb-0">Consultation Requests</h2>
-                        </div>
-                        <div class="card-body">
-                            <div class="container">
-                                <ul>
-                                    {% for request in requests %}
-                                        <li>
-                                            <div class="row">
-                                                <div class="col-md-4">
-                                                    <!-- Add an image for the request here -->
-                                                    <img src="{{ request.image.url }}" width="200" alt="Request Image">
-                                                    {% comment %} <img src="{{ additional_details.picture.url }}"  width="200"> {% endcomment %}
-                                                </div>
-                                                <div class="col-md-8">
-                                                    <h2>Request from {{ request.patient.first_name }}</h2>
-                                                    <p>Description: {{ request.description }}</p>
-                                                    <p>Timestamp: {{ request.timestamp }}</p>
-                                                    <!-- Add any other information you want to display -->
-                                                    <a href="{% url 'doctor_consultation' request.id %}" class="btn btn-primary">Consult</a>
-                                                    <a href="{% url 'patient_history' request.patient.id %}" class="btn btn-info">Patient History</a>
-                                                </div>
-                                            </div>
-                                        </li>
-                                    {% endfor %}
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+ <!-- patient_history.html -->
+ <div class="container-fluid bg-primary py-5 mb-5 hero-header">
+    <div class="container py-5">
+        <div class="bg-white p-4 rounded shadow">
+            <h1>Patient History for {{ patient.first_name }} {{ patient.last_name }}</h1>
+            <p>Email: {{ patient.email }}</p>
+            <ul>
+                {% for appointment in appointments %}
+                    <!-- Display appointment details -->
+                    <li>{{ appointment.date }} - {{ appointment.time_slot }}</li>
+                {% endfor %}
+                {% for request in consultation_requests %}
+                    <!-- Display consultation request details -->
+                    <li>{{ request.timestamp }} - Consultation Request</li>
+                {% endfor %}
+            </ul>
         </div>
     </div>
+</div>
 
 
     <div class="container-fluid bg-dark text-light mt-5 py-5">

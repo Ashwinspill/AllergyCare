@@ -97,7 +97,7 @@
     <div class="container-fluid sticky-top bg-white shadow-sm" style="z-index: 1;">
         <div class="container">
             <nav class="navbar navbar-expand-lg bg-white navbar-light py-3 py-lg-0">
-                <a href="index.html" class="navbar-brand">
+                <a href="{% url 'index' %}" class="navbar-brand">
                     <h1 class="m-0 text-uppercase text-primary"><i class="fa fa-clinic-medical me-2"></i>AllergyCare</h1>
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
@@ -105,9 +105,8 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarCollapse">
                     <div class="navbar-nav ms-auto py-0">
-                        <a href="{% url 'phome' %}" class="nav-item nav-link active">Home</a>
-                        <a href="{% url 'patient_profile' %}" class="nav-item nav-link">My Profile</a>
-                        <a href="{% url 'view_cart' %}" class="nav-item nav-link">Cart</a> 
+                        {% comment %} <a href="{% url 'dhome' %}" class="nav-item nav-link active">Home</a> {% endcomment %}
+                        <a href="{% url 'doctor_requests' %}" class="nav-item nav-link active">Back</a>
                         <a href="{% url 'logout' %}" class="nav-item nav-link">Logout</a> 
                     </div>
                 </div>

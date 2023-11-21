@@ -105,42 +105,33 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarCollapse">
                     <div class="navbar-nav ms-auto py-0">
-                        {% comment %} <a href="{% url 'dhome' %}" class="nav-item nav-link active">Back</a> {% endcomment %}
+                        <a href="{% url 'phome' %}" class="nav-item nav-link active">Home</a>
+                        <a href="{% url 'patient_profile' %}" class="nav-item nav-link">My Profile</a>
+                        <a href="{% url 'view_cart' %}" class="nav-item nav-link">Cart</a> 
                         <a href="{% url 'logout' %}" class="nav-item nav-link">Logout</a> 
                     </div>
                 </div>
             </nav>
         </div>
     </div>
-   
+
+    
     <div class="container-fluid bg-primary py-5 mb-5 hero-header">
         <div class="container py-5">
             <div class="row justify-content-center">
                 <div class="col-lg-8">
                     <div class="card card-container">
                         <div class="card-header bg-primary text-white">
-                            <h2 class="mb-0">Consultation Requests</h2>
+                            <h2 class="mb-0">Your Appointments</h2>
                         </div>
                         <div class="card-body">
                             <div class="container">
                                 <ul>
-                                    {% for request in requests %}
+                                    {% for appointment in appointments %}
                                         <li>
-                                            <div class="row">
-                                                <div class="col-md-4">
-                                                    <!-- Add an image for the request here -->
-                                                    <img src="{{ request.image.url }}" width="200" alt="Request Image">
-                                                    {% comment %} <img src="{{ additional_details.picture.url }}"  width="200"> {% endcomment %}
-                                                </div>
-                                                <div class="col-md-8">
-                                                    <h2>Request from {{ request.patient.first_name }}</h2>
-                                                    <p>Description: {{ request.description }}</p>
-                                                    <p>Timestamp: {{ request.timestamp }}</p>
-                                                    <!-- Add any other information you want to display -->
-                                                    <a href="{% url 'doctor_consultation' request.id %}" class="btn btn-primary">Consult</a>
-                                                    <a href="{% url 'patient_history' request.patient.id %}" class="btn btn-info">Patient History</a>
-                                                </div>
-                                            </div>
+                                            <p>Doctor: {{ appointment.doctor.first_name }}</p>
+                                            <p>Date: {{ appointment.date }}</p>
+                                            <p>Time Slot: {{ appointment.time_slot }}</p>
                                         </li>
                                     {% endfor %}
                                 </ul>
@@ -151,8 +142,9 @@
             </div>
         </div>
     </div>
+    
 
-
+    
     <div class="container-fluid bg-dark text-light mt-5 py-5">
         <div class="container py-5">
             <div class="row g-5">

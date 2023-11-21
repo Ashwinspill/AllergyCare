@@ -97,7 +97,7 @@
     <div class="container-fluid sticky-top bg-white shadow-sm" style="z-index: 1;">
         <div class="container">
             <nav class="navbar navbar-expand-lg bg-white navbar-light py-3 py-lg-0">
-                <a href="{% url 'index' %}" class="navbar-brand">
+                <a href="{% url 'phome' %}" class="navbar-brand">
                     <h1 class="m-0 text-uppercase text-primary"><i class="fa fa-clinic-medical me-2"></i>AllergyCare</h1>
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
@@ -105,7 +105,8 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarCollapse">
                     <div class="navbar-nav ms-auto py-0">
-                        {% comment %} <a href="{% url 'dhome' %}" class="nav-item nav-link active">Back</a> {% endcomment %}
+                        {% comment %} <a href="{% url 'phome' %}" class="nav-item nav-link active">Home</a> {% endcomment %}
+                        <a href="{% url 'patient_medlist' %}" class="nav-item nav-link">Keep Shopping</a>
                         <a href="{% url 'logout' %}" class="nav-item nav-link">Logout</a> 
                     </div>
                 </div>
@@ -119,32 +120,25 @@
                 <div class="col-lg-8">
                     <div class="card card-container">
                         <div class="card-header bg-primary text-white">
-                            <h2 class="mb-0">Consultation Requests</h2>
+                            <h2 class="mb-0">Your Shopping Cart</h2>
                         </div>
                         <div class="card-body">
-                            <div class="container">
-                                <ul>
-                                    {% for request in requests %}
-                                        <li>
-                                            <div class="row">
-                                                <div class="col-md-4">
-                                                    <!-- Add an image for the request here -->
-                                                    <img src="{{ request.image.url }}" width="200" alt="Request Image">
-                                                    {% comment %} <img src="{{ additional_details.picture.url }}"  width="200"> {% endcomment %}
-                                                </div>
-                                                <div class="col-md-8">
-                                                    <h2>Request from {{ request.patient.first_name }}</h2>
-                                                    <p>Description: {{ request.description }}</p>
-                                                    <p>Timestamp: {{ request.timestamp }}</p>
-                                                    <!-- Add any other information you want to display -->
-                                                    <a href="{% url 'doctor_consultation' request.id %}" class="btn btn-primary">Consult</a>
-                                                    <a href="{% url 'patient_history' request.patient.id %}" class="btn btn-info">Patient History</a>
-                                                </div>
+                            <ul class="cart-items">
+                                {% for cart_item in cart.cartitem_set.all %}
+                                    <li class="cart-item">
+                                        <div class="media">
+                                            <img src="{{ cart_item.medicine.med_image.url }}" class="mr-3" alt="{{ cart_item.medicine.name }}" width="100" height="100">
+                                            <div class="media-body">
+                                                <h5 class="mt-0">{{ cart_item.medicine.name }}</h5>
+                                                {{ cart_item.quantity }} x Price: {{ cart_item.medicine.price }}
+                                                <a href="{% url 'remove_from_cart' cart_item.id %}" class="btn btn-danger remove-button">Remove</a>
                                             </div>
-                                        </li>
-                                    {% endfor %}
-                                </ul>
-                            </div>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                            <a href="{% url 'checkout' %}" class="btn btn-primary">Proceed to Checkout</a>
+                            <!-- Add more cart-related content here -->
                         </div>
                     </div>
                 </div>
