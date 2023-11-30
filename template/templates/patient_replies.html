@@ -128,10 +128,12 @@
                                     {% for reply in replies %}
                                         <li>
                                             <div class="row">
-                                                {% comment %} <div class="col-md-4">
+                                                {% comment %}
+                                                <div class="col-md-4">
                                                     <!-- Add an image for the doctor here if available -->
                                                     <img src="{% if reply.doctor.profile_image %}{{ reply.doctor.profile_image.url }}{% else %}{% static 'img/default-doctor-image.jpg' %}{% endif %}" width="200" alt="Doctor Image">
-                                                </div> {% endcomment %}
+                                                </div>
+                                                {% endcomment %}
                                                 <div class="col-md-8">
                                                     <h2>Reply from Dr. {{ reply.doctor.first_name }}</h2>
                                                     <p>Message: {{ reply.message }}</p>
@@ -139,6 +141,7 @@
                                                     <p>Appointment Needed: {% if reply.appointment_needed %}Yes{% else %}No{% endif %}</p>
                                                     <!-- Add any other information you want to display -->
                                                     <button type="submit" class="btn btn-primary">Payment</button>
+    
                                                 </div>
                                             </div>
                                         </li>
@@ -151,7 +154,7 @@
             </div>
         </div>
     </div>
-
+    
     <div class="container-fluid bg-dark text-light mt-5 py-5">
         <div class="container py-5">
             <div class="row g-5">

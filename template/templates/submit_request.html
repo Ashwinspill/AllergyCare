@@ -111,9 +111,16 @@
                         </div>
                         <div class="card-body">
                             <div class="container">
-                                <form method="post" enctype="multipart/form-data">
+                                <form method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
                                     {% csrf_token %}
-                                    {{ form.as_p }}
+                                    <div class="mb-3">
+                                        <label for="id_image" class="form-label">Image:</label>
+                                        <input type="file" name="image" id="id_image" class="form-control" accept="image/*" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="id_description" class="form-label">Description:</label>
+                                        <textarea name="description" id="id_description" class="form-control" required></textarea>
+                                    </div>
                                     <button type="submit" class="btn btn-primary">Submit Request</button>
                                 </form>
                             </div>
@@ -123,6 +130,32 @@
             </div>
         </div>
     </div>
+    
+    <script>
+        function validateForm() {
+            var imageInput = document.getElementById('id_image');
+            if (imageInput.files.length > 0) {
+                var image = imageInput.files[0];
+                if (image.width > 200 || image.height > 300) {
+                    toastr.error('Image size is too large. Maximum size is 200x300 pixels.');
+                    return false;
+                }
+            }
+            return true;
+        }
+    
+        // Assuming you have Toastr library included
+        function showSuccessToast(message) {
+            toastr.success(message);
+        }
+    
+        // Assuming you have Toastr library included
+        $(document).ready(function () {
+            {% if request.method == 'POST' and form.is_valid %}
+                showSuccessToast('Request submitted successfully!');
+            {% endif %}
+        });
+    </script>
 
     <div class="container-fluid bg-dark text-light mt-5 py-5">
         <div class="container py-5">

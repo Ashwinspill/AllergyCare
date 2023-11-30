@@ -91,10 +91,11 @@
             <div class="row gx-5">
                 <div class="col-lg-6 mb-5 mb-lg-0">
                     <div class="mb-4">
-                        <h5 class="d-inline-block text-primary text-uppercase border-bottom border-5">Appointment</h5>
-                        <h1 class="display-4">Create an Appointment</h1>
+                        <h5 class="d-inline-block text-primary text-uppercase border-bottom border-5">Appointment</h5> 
+                        {% comment %} <h1 class="display-4">Book an Appointment</h1> {% endcomment %}
                     </div>
-                    <p class="mb-5">Prioritize your health by booking an appointment with our experienced medical professionals. Whether you need routine check-ups, specialist consultations, or preventive care, our team is here to ensure your well-being. Take the first step towards a healthier you.</p>
+                    <!-- Replace the text with an image -->
+                    <img src="https://t3.ftcdn.net/jpg/02/60/79/68/360_F_260796882_QyjDubhDDk0RZXV9z7XBEw9AKnWCizXy.jpg" alt="Healthcare Image" class="img-fluid">
                 </div>
                 <div class="col-lg-6">
                     <div class="bg-light text-center rounded p-5">
@@ -219,6 +220,15 @@
 <script src="{% static 'js/main.js' %}"></script>
 <script>
     $(document).ready(function () {
+        // JavaScript to prevent older dates and allow only next 30 days to be selected
+        const dateInput = document.getElementById('date');
+        var today = new Date();
+        var maxDate = new Date(today);
+        maxDate.setDate(today.getDate() + 30); // Allow dates up to the next 30 days
+        dateInput.min = today.toISOString().split("T")[0]; // Set the minimum date to today
+        dateInput.max = maxDate.toISOString().split("T")[0]; // Set the maximum date
+
+        // Your existing code
         $("#doctor-selector, #date-selector").change(function () {
             var doctorId = $("#doctor-selector").val();
             var selectedDate = $("#date-selector").val();
@@ -246,61 +256,50 @@
                 },
             });
         });
-    });
-        // JavaScript to prevent older dates from being selected
-    const dateInput = document.getElementById('date');
-    dateInput.min = new Date().toISOString().split("T")[0]; // Set the minimum date to today
-    
-    function showNotification(type, message) {
-        toastr.options = {
-            "positionClass": "toast-top-right",
-        };
-        toastr[type](message);
-    }
-    
-    $('form').on('submit', function (e) {
-        e.preventDefault();
-        var form = $(this);
-    
-        $.ajax({
-            url: form.attr('action'),
-            type: form.attr('method'),
-            data: form.serialize(),
-            success: function () {
-                // Redirect to the booking_success page upon successful appointment
-                window.location.href = "{% url 'booking_success' %}";
-            },
-            error: function (xhr) {
-                if (xhr.responseJSON && xhr.responseJSON.success === false) {
-                    showNotification('error', xhr.responseJSON.message);
-                }
-            }
-        });
-    });
-    function showSuccessToast(message) {
-        toastr.options = {
-            "closeButton": true,
-            "debug": false,
-            "newestOnTop": false,
-            "progressBar": false,
-            "positionClass": "toast-top-right", // You can adjust the position
-            "preventDuplicates": false,
-            "showDuration": "300",
-            "hideDuration": "1000",
-            "timeOut": "5000",
-            "extendedTimeOut": "1000",
-            "showEasing": "swing",
-            "hideEasing": "linear",
-            "showMethod": "fadeIn",
-            "hideMethod": "fadeOut"
-        };
-        toastr.success(message);
-    }
 
-    function showSuccessToast(message) {
-        toastr.success(message);
-    }
-    </script>
+        // Your existing code
+        $('form').on('submit', function (e) {
+            e.preventDefault();
+            var form = $(this);
+    
+            $.ajax({
+                url: form.attr('action'),
+                type: form.attr('method'),
+                data: form.serialize(),
+                success: function () {
+                    // Redirect to the booking_success page upon successful appointment
+                    window.location.href = "{% url 'booking_success' %}";
+                },
+                error: function (xhr) {
+                    if (xhr.responseJSON && xhr.responseJSON.success === false) {
+                        showNotification('error', xhr.responseJSON.message);
+                    }
+                }
+            });
+        });
+
+        // Your existing code
+        function showSuccessToast(message) {
+            toastr.options = {
+                "closeButton": true,
+                "debug": false,
+                "newestOnTop": false,
+                "progressBar": false,
+                "positionClass": "toast-top-right",
+                "preventDuplicates": false,
+                "showDuration": "300",
+                "hideDuration": "1000",
+                "timeOut": "5000",
+                "extendedTimeOut": "1000",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            };
+            toastr.success(message);
+        }
+    });
+</script>
 </body>
 
 </html>

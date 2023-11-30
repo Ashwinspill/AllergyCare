@@ -70,7 +70,7 @@
                                 Email already exists.
                             </div>
                         </div>
-                        
+
                         <div id="username-toast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
                             <div class="toast-header">
                                 <strong class="me-auto">Username Error</strong>
@@ -98,7 +98,7 @@
                     </div>
                     <div class="mb-3">
                         <label for="dob">Date of birth:</label>
-                        <input type="date" placeholder="Select DOB" name="dob" id="dob" value="1990-01-01" max="" onchange="setDateMax()">
+                        <input type="date" placeholder="Select DOB" name="dob" id="dob" value="1990-01-01" max="{{ current_date }}" onchange="setDateMax()">
                     </div>
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
@@ -168,12 +168,14 @@
         function validateEmail() {
             const emailInput = document.getElementById("email");
             const emailError = document.getElementById("email-error");
-        
-            // Updated email validation pattern to require at least one character before .com
-            const isValid = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}[a-zA-Z]*$/.test(emailInput.value);
-        
+
+            // Updated email validation pattern to allow specific extensions
+            const emailPattern = /^[a-zA-Z0-9._%+-]+@(gmail\.com|ajce\.in|yahoo\.com)$/;
+
+            const isValid = emailPattern.test(emailInput.value);
+
             if (!isValid) {
-                emailError.textContent = "Please enter a valid email address.";
+                emailError.textContent = "Please enter a valid email address with extensions @gmail.com, @ajce.in, @yahoo.com.";
             } else {
                 emailError.textContent = "";
             }
@@ -182,11 +184,11 @@
         function validatePassword() {
             const passwordInput = document.getElementById("password");
             const passwordError = document.getElementById("password-error");
-        
+
             // Validation for password
             // Example: Password should have at least 8 characters and contain at least one number and one special character.
             const isValid = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/.test(passwordInput.value);
-        
+
             if (!isValid) {
                 passwordError.textContent = "Password should have at least 8 characters and contain at least one number and one special character.";
             } else {
@@ -216,7 +218,7 @@
             const isUsernameValid = /^[a-zA-Z0-9]{5,}$/.test(document.getElementById("username").value);
             const isFirstnameValid = /^[A-Z][a-zA-Z\s]*$/.test(document.getElementById("firstname").value.trim());
             const isLastnameValid = /^[A-Z][a-zA-Z\s]*$/.test(document.getElementById("lastname").value.trim());
-            const isEmailValid = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(document.getElementById("email").value);
+            const isEmailValid = /^[a-zA-Z0-9._%+-]+@(gmail\.com|ajce\.in|yahoo\.com)$/.test(document.getElementById("email").value);
             const isPasswordValid = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/.test(document.getElementById("password").value);
             const isConfirmPasswordValid = document.getElementById("password").value === document.getElementById("confirmPassword").value;
 
@@ -238,6 +240,8 @@
             return false;
         }
 
+        // ... (your existing showSuccessToast function and other parts of the script)
+ 
         //function showSuccessToast() {
           //  const successMessage = document.getElementById("registration-success");
           //  successMessage.style.display = "block";
@@ -251,6 +255,11 @@
         const successMessage = document.getElementById("registration-success");
         if (successMessage && successMessage.textContent.trim() !== "") {
             showSuccessToast();
+        }
+
+        function setDateMax() {
+            const currentDate = new Date().toISOString().split("T")[0];
+            document.getElementById("dob").max = currentDate;
         }
 
     </script>

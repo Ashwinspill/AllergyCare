@@ -116,18 +116,14 @@
                         <a href="{% url 'patient_profile' %}" class="nav-item nav-link">My Profile</a>
                         <a href="{% url 'patient_medlist' %}" class="nav-item nav-link">Medicines</a>
                         <a href="{% url 'all_doctors' %}" class="nav-item nav-link">Doctors</a>
-                        <a href="{% url 'patient_replies' %}" class="nav-item nav-link">Replies</a>
-                        {% comment %} <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
+                        {% comment %} <a href="{% url 'patient_replies' %}" class="nav-item nav-link">Replies</a> {% endcomment %}
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Other</a>
                             <div class="dropdown-menu m-0">
-                                <a href="{% url 'phome' %}" class="dropdown-item">Blog Grid</a>
-                                <a href="{% url 'phome' %}" class="dropdown-item">Blog Detail</a>
-                                <a href="{% url 'phome' %}" class="dropdown-item">The Team</a>
-                                <a href="{% url 'phome' %}" class="dropdown-item">Testimonial</a>
-                                <a href="{% url 'phome' %}" class="dropdown-item">Appointment</a>
-                                <a href="{% url 'phome' %}" class="dropdown-item">Search</a>
+                                <a href="{% url 'patient_replies' %}" class="nav-item nav-link">Replies</a>
+                                <a href="{% url 'view_testimonials' %}" class="nav-item nav-link">Testimonials</a>
                             </div>
-                        </div> {% endcomment %}
+                        </div> 
                         <a href="{% url 'logout' %}" class="nav-item nav-link">Logout</a>
                         
                     </div>
