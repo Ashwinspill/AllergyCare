@@ -6,6 +6,8 @@ from django.core.validators import MaxValueValidator
 from PIL import Image  
 from .models import DoctorAdditionalDetails
 from .models import Doctor
+from .models import Testimonial
+
 
 
 
@@ -105,3 +107,12 @@ class AppointmentForm(forms.ModelForm):
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),
         }
+        
+        
+
+class TestimonialForm(forms.ModelForm):
+    class Meta:
+        model = Testimonial
+        fields = ['rating', 'feedback']
+        
+

@@ -48,7 +48,14 @@ urlpatterns = [
     path('booking_success/', views.booking_success, name='booking_success'),
     path('patient_history/<int:patient_id>/', views.patient_history, name='patient_history'),
     path('checkout/', views.checkout, name='checkout'),
-    path('razorpay_payment/', views.razorpay_payment, name='razorpay_payment'),
+    path('submit_testimonial/<int:doctor_id>/', views.submit_testimonial, name='submit_testimonial'),
+    path('doctor_testimonials/<int:doctor_id>/', views.doctor_testimonials, name='doctor_testimonials'),
+    path('testimonials/', views.view_testimonials, name='view_testimonials'),
+    path('payment_success/', views.payment_success, name='payment_success'),
+ 
+
+    
+    
 ] 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

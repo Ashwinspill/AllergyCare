@@ -23,8 +23,8 @@ from .models import CustomUser
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import MedicineForm
 from .models import Medicine
-
-
+import razorpay
+from django.views.decorators.csrf import csrf_exempt
 
 
 # Create your views here.
@@ -679,9 +679,12 @@ def add_to_cart(request, medicine_id):
 #     }
 #     return render(request, 'cart.html', context)
 
+
+from django.http import HttpResponse
+
 @login_required
 def view_cart(request):
-    user = request.user  # Assuming the user is authenticated
+    user = request.user
     cart, created = Cart.objects.get_or_create(user=user)
 
     # Calculate subtotal for each cart item
@@ -705,36 +708,18 @@ def remove_from_cart(request, cart_item_id):
 
     return redirect('view_cart')
 
-@login_required
-def checkout(request):
-    user = request.user  # Assuming the user is authenticated
-    cart, created = Cart.objects.get_or_create(user=user)
 
-    context = {
-        'cart': cart,
-        'total': cart.get_total_price(),
-    }
-    return render(request, 'checkout.html', context)
-
-@login_required
-def razorpay_payment(request):
-    user = request.user  # Assuming the user is authenticated
-    cart, created = Cart.objects.get_or_create(user=user)
-
-    context = {
-        'cart': cart,
-    }
-    return render(request, 'razorpay_payment.html', context)
-
+from decimal import Decimal
 import razorpay
-from django.http import JsonResponse
 
-def create_order(request):
-    # Replace "YOUR_ID" and "YOUR_SECRET" with your actual Razorpay key_id and key_secret
-    client = razorpay.Client(auth=("rzp_test_aWcyAl6q9LJYqx", "j1dFxiB5MzxmkXTMo6IYQlnP"))
+def checkout(request):
+    user = request.user
+    cart, created = Cart.objects.get_or_create(user=user)
+    amount = cart.get_total_price()
+    amount_in_paise = int(amount * 100)  # Convert to integer
 
-    data = {
-        "amount": 5000,  # Amount in paise (e.g., 5000 paise = ₹50.00)
+    DATA = {
+        "amount": amount_in_paise,  # Use the integer value
         "currency": "INR",
         "receipt": "receipt#1",
         "notes": {
@@ -743,9 +728,69 @@ def create_order(request):
         }
     }
 
-    order = client.order.create(data=data)
+    client = razorpay.Client(auth=("rzp_test_aWcyAl6q9LJYqx", "j1dFxiB5MzxmkXTMo6IYQlnP"))
+    payment = client.order.create(data=DATA)
 
-    return JsonResponse({"order_id": order["id"]})
+    context = {
+        'cart': cart,
+        'total': cart.get_total_price(),
+        'amount': amount_in_paise,  # Pass the integer value to the context
+        'payment': payment
+    }
+    return render(request, 'checkout.html', context)
+
+
+from django.contrib import messages
+from django.http import HttpResponse
+from django.shortcuts import render, redirect
+from django.views.decorators.csrf import csrf_exempt
+from .models import CustomUser, Patient, Order
+from .models import CartItem, Cart  # Assuming you have Cart and CartItem models
+from reportlab.pdfgen import canvas
+from decimal import Decimal
+from django.db.models import Sum
+
+@csrf_exempt
+def payment_success(request):
+    user = request.user
+    patient = Patient.objects.get(user=user)
+    cart_items = CartItem.objects.filter(cart__user=user)
+
+    # Calculate total amount paid using aggregate
+    total_amount_paid = cart_items.aggregate(total_amount_paid=Sum('medicine__price'))['total_amount_paid'] or 0
+
+    # Create an order after successful payment
+    order = Order.objects.create(
+        patient=patient,
+        medicine=cart_items.first().medicine if cart_items else None,
+        quantity=sum(cart_item.quantity for cart_item in cart_items),
+        amount_paid=total_amount_paid,
+    )
+
+    # Clear the patient's cart after creating the order
+    cart_items.delete()
+
+    # Generate a PDF bill
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="bill_{order.order_date.strftime("%Y%m%d%H%M%S")}.pdf"'
+
+    # Create PDF
+    p = canvas.Canvas(response)
+    p.setFont("Times-Bold", 16)
+    p.drawString(100, 800, f"Bill for Order ID: {order.id}")
+
+    # Add more information to the PDF as needed
+    # Example:
+    if order.medicine:
+        p.drawString(100, 780, f"Medicine: {order.medicine.name}")
+    p.drawString(100, 760, f"Quantity: {order.quantity}")
+    p.drawString(100, 740, f"Amount Paid: {order.amount_paid}")
+
+    p.showPage()
+    p.save()
+
+    messages.success(request, 'Payment successful! Your order has been placed.')
+    return response
 
 
 
@@ -754,7 +799,6 @@ from .forms import ConsultationRequestForm
 @login_required
 def submit_request(request, doctor_id):
     doctor = get_object_or_404(Doctor, id=doctor_id)
-
     if request.method == 'POST':
         form = ConsultationRequestForm(request.POST, request.FILES)
         if form.is_valid():
@@ -817,12 +861,16 @@ def doctor_consultation(request, request_id):
     return render(request, 'doctor_consultation.html', {'form': form, 'consultation_request': consultation_request, 'replies': replies})
 
 @login_required
+# def patient_replies(request):
+#     # Query the replies for the current patient (you'll need to identify the patient, e.g., using the logged-in user)
+#     patient_replies = Reply.objects.filter(consultation_request__patient=request.user.patient)
+
+#     return render(request, 'patient_replies.html', {'replies': patient_replies})
+
 def patient_replies(request):
-    # Query the replies for the current patient (you'll need to identify the patient, e.g., using the logged-in user)
-    patient_replies = Reply.objects.filter(consultation_request__patient=request.user.patient)
-
-    return render(request, 'patient_replies.html', {'replies': patient_replies})
-
+    replies = Reply.objects.all()  # Assuming you have a queryset of replies
+    context = {'replies': replies}
+    return render(request, 'patient_replies.html', context)
 
 # appointment
 from .models import Appointment, Doctor
@@ -831,72 +879,6 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.http import JsonResponse
-
-# def create_appointment(request):
-#     if request.method == 'POST':
-#         # Get the doctor instance
-#         doctor_id = request.GET.get('doctor_id')
-#         doctor = get_object_or_404(Doctor, id=doctor_id)
-
-#         form = AppointmentForm(request.POST)
-#         if form.is_valid():
-#             appointment = form.save(commit=False)
-#             appointment.doctor = doctor  # Assign the doctor to the appointment
-#             date = appointment.date
-#             time_slot = appointment.time_slot
-
-#             # Check if the slot is available for the selected doctor and date
-#             slot_exists = Appointment.objects.filter(
-#                 doctor=doctor,
-#                 date=date,
-#                 time_slot=time_slot
-#             ).exists()
-
-#             if not slot_exists:
-#                 # Check if the patient already has an appointment on the same day
-#                 existing_appointment = Appointment.objects.filter(
-#                     patient=request.user.patient,  # Assuming you have a user profile for patients
-#                     date=date
-#                 ).first()
-
-#                 if existing_appointment:
-#                     response_data = {'success': False, 'message': 'You already have an appointment on the same day.'}
-#                 else:
-#                     appointment.patient = request.user.patient
-#                     appointment.save()
-
-#                     # Send an email to the user with the appointment details
-#                     subject = 'Appointment Confirmation'
-#                     from_email = 'your_email@example.com'
-#                     to_email = request.user.email
-#                     appointment_data = {
-#                         'appointment': appointment,
-#                     }
-
-#                     html_message = render_to_string('appointment_email.html', appointment_data)
-#                     plain_message = strip_tags(html_message)
-
-#                     send_mail(subject, plain_message, from_email, [to_email], html_message=html_message)
-
-#                     response_data = {'success': True, 'message': 'Appointment successfully booked.'}
-#                     return redirect('booking_success')  # Redirect to the booking success page using the URL name
-#             else:
-#                 response_data = {'success': False, 'message': 'This slot is already booked. Please choose another.'}
-
-#             # Send a toast notification
-#             if not response_data['success']:
-#                 message = response_data['message']
-#                 message_tags = 'error'  # You can customize this based on your styling
-
-#                 return JsonResponse(response_data, status=400)
-#             else:
-#                 # If the appointment was successful, return a success message
-#                 return JsonResponse(response_data)
-
-#     else:
-#         form = AppointmentForm()
-
-#     return render(request, 'create_appointment.html', {'form': form})
 
 @login_required
 def create_appointment(request):
@@ -1035,3 +1017,47 @@ def patient_history(request, patient_id):
     consultation_requests = ConsultationRequest.objects.filter(patient=patient)
     
     return render(request, 'patient_history.html', {'patient': patient, 'appointments': appointments, 'consultation_requests': consultation_requests})
+
+
+
+
+#testimony
+from .models import Testimonial
+from .forms import TestimonialForm  # Create a form for testimonials
+
+@login_required
+def submit_testimonial(request, doctor_id):
+    doctor = get_object_or_404(Doctor, id=doctor_id)
+
+    if request.method == 'POST':
+        form = TestimonialForm(request.POST)
+        if form.is_valid():
+            testimonial = form.save(commit=False)
+            testimonial.doctor = doctor
+            testimonial.patient = request.user.patient  # Assuming you have a Patient model
+            testimonial.save()
+            messages.success(request, 'Testimonial submitted successfully!')
+            return redirect('all_doctors')
+        else:
+            messages.error(request, 'Error submitting testimonial. Please check the form.')
+    else:
+        form = TestimonialForm()
+
+    return render(request, 'submit_testimonial.html', {'form': form, 'doctor': doctor})
+
+
+def view_testimonials(request):
+    testimonials = Testimonial.objects.all()
+    return render(request, 'view_testimonials.html', {'testimonials': testimonials})
+
+
+
+from .models import Doctor, Testimonial
+
+def doctor_testimonials(request, doctor_id):
+    doctor = Doctor.objects.get(pk=doctor_id)
+    testimonials = Testimonial.objects.filter(doctor=doctor)
+
+    return render(request, 'doctor_testimonials.html', {'doctor': doctor, 'testimonials': testimonials})
+
+

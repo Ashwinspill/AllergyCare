@@ -171,3 +171,27 @@ class Appointment(models.Model):
     def __str__(self):
         return f"Appointment with {self.doctor} on {self.date} at {self.time_slot}"
     
+
+    
+    
+class Testimonial(models.Model):
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    rating = models.IntegerField(choices=[(i, i) for i in range(1, 6)])
+    feedback = models.TextField()
+
+    def __str__(self):
+        return f"Testimonial from {self.patient.user.get_full_name()} for Dr. {self.doctor.user.get_full_name()}"
+    
+    
+    
+    
+class Order(models.Model):
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    medicine = models.ForeignKey(Medicine, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+    amount_paid = models.DecimalField(max_digits=10, decimal_places=2)
+    order_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Order on {self.order_date} for {self.patient.user.get_full_name()} - {self.medicine.name}"
