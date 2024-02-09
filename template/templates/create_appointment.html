@@ -229,35 +229,6 @@
         dateInput.max = maxDate.toISOString().split("T")[0]; // Set the maximum date
 
         // Your existing code
-        $("#doctor-selector, #date-selector").change(function () {
-            var doctorId = $("#doctor-selector").val();
-            var selectedDate = $("#date-selector").val();
-    
-            $.ajax({
-                type: "POST",
-                url: "{% url 'get_available_time_slots' %}",
-                data: {
-                    csrfmiddlewaretoken: "{{ csrf_token }}",
-                    doctor_id: doctorId,
-                    selected_date: selectedDate,
-                },
-                success: function (data) {
-                    if ("available_slots" in data) {
-                        var availableSlots = data.available_slots;
-                        var slotsHtml = "<ul>";
-                        availableSlots.forEach(function (slot) {
-                            slotsHtml += "<li>" + slot + "</li>";
-                        });
-                        slotsHtml += "</ul>";
-                        $("#available-slots").html(slotsHtml);
-                    } else {
-                        $("#available-slots").html("No available slots found.");
-                    }
-                },
-            });
-        });
-
-        // Your existing code
         $('form').on('submit', function (e) {
             e.preventDefault();
             var form = $(this);
@@ -266,20 +237,24 @@
                 url: form.attr('action'),
                 type: form.attr('method'),
                 data: form.serialize(),
-                success: function () {
-                    // Redirect to the booking_success page upon successful appointment
-                    window.location.href = "{% url 'booking_success' %}";
+                success: function (data) {
+                    if (data.success) {
+                        // Redirect to the booking_success page upon successful appointment
+                        window.location.href = "{% url 'booking_success' %}";
+                    } else {
+                        // Show error toast notification
+                        showNotification('error', data.message);
+                    }
                 },
                 error: function (xhr) {
-                    if (xhr.responseJSON && xhr.responseJSON.success === false) {
-                        showNotification('error', xhr.responseJSON.message);
-                    }
+                    // Show error toast notification if there's an AJAX error
+                    showNotification('error', 'The slot has been already booked. Please select another slot.');
                 }
             });
         });
 
-        // Your existing code
-        function showSuccessToast(message) {
+        // Function to show Toastr notification
+        function showNotification(type, message) {
             toastr.options = {
                 "closeButton": true,
                 "debug": false,
@@ -296,7 +271,7 @@
                 "showMethod": "fadeIn",
                 "hideMethod": "fadeOut"
             };
-            toastr.success(message);
+            toastr[type](message);
         }
     });
 </script>
