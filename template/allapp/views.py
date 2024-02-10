@@ -28,9 +28,19 @@ from django.views.decorators.csrf import csrf_exempt
 
 
 # Create your views here.
+from .models import Testimonial, Doctor
+from django.shortcuts import render
 
 def index(request):
-    return render(request,'index.html')
+    # Query all Doctor objects
+    doctors = Doctor.objects.all()
+    testimonials = Testimonial.objects.all()
+    
+    # Pass the data to the template
+    context = {'doctors': doctors, 'testimonials': testimonials}
+    
+    # Render the HTML template
+    return render(request, 'index.html', context)
 
 # @login_required
 # def phome(request):
@@ -51,12 +61,23 @@ def index(request):
 #     # return render(request,'phome.html')
 @login_required
 def phome(request):
-    response = render(request, 'phome.html')
+    doctors = Doctor.objects.all()
+    testimonials = Testimonial.objects.all()
+    
+    # Pass the data to the template
+    context = {'doctors': doctors, 'testimonials': testimonials}
+    response = render(request, 'phome.html', context)
     response['Cache-Control'] = 'no-store, must-revalidate'
     return response    
 @login_required
 def dhome(request):
-    response = render(request, 'dhome.html')
+    
+    doctors = Doctor.objects.all()
+    testimonials = Testimonial.objects.all()
+    
+    # Pass the data to the template
+    context = {'doctors': doctors, 'testimonials': testimonials}
+    response = render(request, 'dhome.html', context)
     response['Cache-Control'] = 'no-store, must-revalidate'
     return response    
 
@@ -385,22 +406,34 @@ def patient_profile2(request):
 
     return render(request, 'patient_profile2.html', {'patient': patient, 'form': form})
 
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import get_user_model
+from .models import Testimonial, Order
+
 @login_required
 def admind(request):
     # Query all User objects (using the custom user model) from the database
     User = get_user_model()
     user_profiles = User.objects.all()
     
+    # Query Testimonial objects
+    testimonials = Testimonial.objects.all()
+
+    # Query Order objects
+    orders = Order.objects.all()
+
     # Pass the data to the template
-    context = {'user_profiles': user_profiles}
+    context = {
+        'user_profiles': user_profiles,
+        'testimonials': testimonials,
+        'orders': orders,
+    }
     
     # Render the HTML template
-    # return render(request, 'admind.html', context)
-
-    response = render(request, 'admind.html', {'user_profiles': user_profiles})
-    # response = render(request, 'dhome.html')
+    response = render(request, 'admind.html', context)
     response['Cache-Control'] = 'no-store, must-revalidate'
-    return response   
+    return response
 
 def toggle_active(request, user_id, is_active):
     user = get_object_or_404(CustomUser, id=user_id)
@@ -473,7 +506,7 @@ def google_authenticate(request):
 #     }
 #     return render(request, 'add_medicine.html', context)
 
-
+@login_required
 def add_medicine(request):
     if request.method == 'POST':
         form = MedicineForm(request.POST, request.FILES)
@@ -574,7 +607,6 @@ def fill_additional_details(request):
         form = DoctorAdditionalDetailsForm()
 
     return render(request, 'fill_additional_details.html', {'form': form})
-
 
 from django.http import HttpResponse
 from .models import Doctor, DoctorAdditionalDetails
@@ -711,7 +743,7 @@ def remove_from_cart(request, cart_item_id):
 
 from decimal import Decimal
 import razorpay
-
+@login_required
 def checkout(request):
     user = request.user
     cart, created = Cart.objects.get_or_create(user=user)
@@ -740,6 +772,60 @@ def checkout(request):
     return render(request, 'checkout.html', context)
 
 
+# from django.contrib import messages
+# from django.http import HttpResponse
+# from django.shortcuts import render, redirect
+# from django.views.decorators.csrf import csrf_exempt
+# from .models import CustomUser, Patient, Order
+# from .models import CartItem, Cart  # Assuming you have Cart and CartItem models
+# from reportlab.pdfgen import canvas
+# from decimal import Decimal
+# from django.db.models import Sum
+
+# @csrf_exempt
+# def payment_success(request):
+#     user = request.user
+#     patient = Patient.objects.get(user=user)
+#     cart_items = CartItem.objects.filter(cart__user=user)
+
+#     # Calculate total amount paid using aggregate
+#     total_amount_paid = cart_items.aggregate(total_amount_paid=Sum('medicine__price'))['total_amount_paid'] or 0
+
+#     # Create an order after successful payment
+#     order = Order.objects.create(
+#         patient=patient,
+#         medicine=cart_items.first().medicine if cart_items else None,
+#         quantity=sum(cart_item.quantity for cart_item in cart_items),
+#         amount_paid=total_amount_paid,
+#     )
+
+#     # Clear the patient's cart after creating the order
+#     cart_items.delete()
+
+#     # Generate a PDF bill
+#     response = HttpResponse(content_type='application/pdf')
+#     response['Content-Disposition'] = f'attachment; filename="bill_{order.order_date.strftime("%Y%m%d%H%M%S")}.pdf"'
+
+#     # Create PDF
+#     p = canvas.Canvas(response)
+#     p.setFont("Times-Bold", 16)
+#     p.drawString(100, 800, f"Bill for Order ID: {order.id}")
+
+#     # Add more information to the PDF as needed
+#     # Example:
+#     if order.medicine:
+#         p.drawString(100, 780, f"Medicine: {order.medicine.name}")
+#     p.drawString(100, 760, f"Quantity: {order.quantity}")
+#     p.drawString(100, 740, f"Amount Paid: {order.amount_paid}")
+
+#     p.showPage()
+#     p.save()
+
+#     messages.success(request, 'Payment successful! Your order has been placed.')
+#     return response
+
+
+
 from django.contrib import messages
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
@@ -749,6 +835,7 @@ from .models import CartItem, Cart  # Assuming you have Cart and CartItem models
 from reportlab.pdfgen import canvas
 from decimal import Decimal
 from django.db.models import Sum
+from datetime import datetime
 
 @csrf_exempt
 def payment_success(request):
@@ -776,23 +863,43 @@ def payment_success(request):
 
     # Create PDF
     p = canvas.Canvas(response)
-    p.setFont("Times-Bold", 16)
-    p.drawString(100, 800, f"Bill for Order ID: {order.id}")
 
-    # Add more information to the PDF as needed
-    # Example:
+    # Add header
+    p.setFont("Times-Bold", 16)
+    p.drawString(100, 825, "AllergyCare - Your Allergy Management Solution")
+
+    # Add footer with date
+    p.setFont("Times-Italic", 12)
+    current_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    p.drawString(100, 20, f"Issued on: {current_date}")
+
+    # Add order details
+    p.setFont("Times-Bold", 14)
+    p.drawString(100, 780, f"Bill for Order ID: {order.id}")
+
     if order.medicine:
-        p.drawString(100, 780, f"Medicine: {order.medicine.name}")
-    p.drawString(100, 760, f"Quantity: {order.quantity}")
-    p.drawString(100, 740, f"Amount Paid: {order.amount_paid}")
+        p.drawString(100, 760, f"Medicine: {order.medicine.name}")
+
+    # Add individual medicine details
+    p.setFont("Times-Roman", 12)
+    y_position = 740
+    for cart_item in cart_items:
+        medicine_name = cart_item.medicine.name
+        medicine_price = cart_item.medicine.price
+        medicine_quantity = cart_item.quantity
+        total_cost = medicine_price * medicine_quantity
+        p.drawString(100, y_position, f"{medicine_name} x {medicine_quantity}: ${total_cost}")
+        y_position -= 20
+
+    # Add total amount paid
+    p.setFont("Times-Bold", 14)
+    p.drawString(100, y_position, f"Total Amount Paid: ${total_amount_paid}")
 
     p.showPage()
     p.save()
 
     messages.success(request, 'Payment successful! Your order has been placed.')
     return response
-
-
 
 #online consulting
 from .forms import ConsultationRequestForm
@@ -860,16 +967,50 @@ def doctor_consultation(request, request_id):
 
     return render(request, 'doctor_consultation.html', {'form': form, 'consultation_request': consultation_request, 'replies': replies})
 
-@login_required
+# @login_required
 # def patient_replies(request):
 #     # Query the replies for the current patient (you'll need to identify the patient, e.g., using the logged-in user)
 #     patient_replies = Reply.objects.filter(consultation_request__patient=request.user.patient)
 
 #     return render(request, 'patient_replies.html', {'replies': patient_replies})
 
+# def patient_replies(request):
+#     replies = Reply.objects.all()  # Assuming you have a queryset of replies
+#     context = {'replies': replies}
+#     return render(request, 'patient_replies.html', context)
+
+from .models import Reply
+from django.shortcuts import render
+
+@login_required
 def patient_replies(request):
-    replies = Reply.objects.all()  # Assuming you have a queryset of replies
-    context = {'replies': replies}
+    replies = Reply.objects.all()
+    
+    # Assuming you have a queryset of replies
+    # Update the line below to get the correct consultation_fee
+    amount = replies[0].consultation_fee  # You might need to adjust this based on your model structure
+    
+    amount_in_paise = int(amount * 100)  # Convert to integer
+
+    DATA = {
+        "amount": amount_in_paise,  # Use the integer value
+        "currency": "INR",
+        "receipt": "receipt#1",
+        "notes": {
+            "key1": "value3",
+            "key2": "value2"
+        }
+    }
+
+    client = razorpay.Client(auth=("rzp_test_aWcyAl6q9LJYqx", "j1dFxiB5MzxmkXTMo6IYQlnP"))
+    payment = client.order.create(data=DATA)
+
+    context = {
+        'amount': amount_in_paise,  # Pass the integer value to the context
+        'payment': payment,
+        'replies': replies
+    }
+
     return render(request, 'patient_replies.html', context)
 
 # appointment
@@ -1006,7 +1147,7 @@ def doctor_appointments(request):
 # history
 
 from .models import Appointment, ConsultationRequest
-
+@login_required
 def patient_history(request, patient_id):
     patient = get_object_or_404(Patient, id=patient_id)
     
@@ -1045,7 +1186,7 @@ def submit_testimonial(request, doctor_id):
 
     return render(request, 'submit_testimonial.html', {'form': form, 'doctor': doctor})
 
-
+@login_required
 def view_testimonials(request):
     testimonials = Testimonial.objects.all()
     return render(request, 'view_testimonials.html', {'testimonials': testimonials})
@@ -1053,7 +1194,7 @@ def view_testimonials(request):
 
 
 from .models import Doctor, Testimonial
-
+@login_required
 def doctor_testimonials(request, doctor_id):
     doctor = Doctor.objects.get(pk=doctor_id)
     testimonials = Testimonial.objects.filter(doctor=doctor)
@@ -1061,3 +1202,34 @@ def doctor_testimonials(request, doctor_id):
     return render(request, 'doctor_testimonials.html', {'doctor': doctor, 'testimonials': testimonials})
 
 
+from .forms import ClinicForm
+@login_required
+def add_clinic(request):
+    if request.method == 'POST':
+        form = ClinicForm(request.POST, request.FILES)
+        if form.is_valid():
+            clinic = form.save(commit=False)
+            latitude = request.POST.get('latitude')
+            longitude = request.POST.get('longitude')
+            clinic.location = f"{latitude}, {longitude}"
+            clinic.save()
+            messages.success(request, 'Clinic added successfully!')
+            return redirect('add_clinic')  # Redirect back to the same page after successful submission
+        else:
+            # Print form errors for debugging
+            print(form.errors)
+            # Print POST data for debugging
+            print(request.POST)
+            # Return HttpResponse with form errors for debugging
+            return HttpResponse("Form is not valid. Errors: " + str(form.errors))
+    else:
+        form = ClinicForm()
+    return render(request, 'add_clinic.html', {'form': form})
+
+def success(request):
+    return render(request, 'success.html')
+
+from .models import Clinic
+def clinic_list(request):
+    clinics = Clinic.objects.all()
+    return render(request, 'clinic_list.html', {'clinics': clinics})

@@ -6,6 +6,8 @@ from django.conf.urls.static import static
 from .views import AllDoctorsListView
 from django.contrib.auth.decorators import login_required
 
+
+
 urlpatterns = [
     #path('admin/', admin.site.urls),
     path('', views.index,name="index"),
@@ -52,10 +54,9 @@ urlpatterns = [
     path('doctor_testimonials/<int:doctor_id>/', views.doctor_testimonials, name='doctor_testimonials'),
     path('testimonials/', views.view_testimonials, name='view_testimonials'),
     path('payment_success/', views.payment_success, name='payment_success'),
- 
-
-    
-    
+    path('add_clinic/', views.add_clinic, name='add_clinic'),
+    path('success/', views.success, name='success'),
+    path('clinics/', views.clinic_list, name='clinic_list'),
 ] 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -195,3 +195,15 @@ class Order(models.Model):
 
     def __str__(self):
         return f"Order on {self.order_date} for {self.patient.user.get_full_name()} - {self.medicine.name}"
+
+
+class Clinic(models.Model):
+    clinic_name = models.CharField(max_length=100)
+    contact_number = models.CharField(max_length=15)
+    email = models.EmailField()
+    speciality = models.CharField(max_length=100)
+    location = models.CharField(max_length=100)  # Store latitude and longitude as a single field
+    image = models.ImageField(upload_to='clinic_images/')
+
+    def __str__(self):
+        return self.clinic_name

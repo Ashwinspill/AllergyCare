@@ -116,3 +116,10 @@ class TestimonialForm(forms.ModelForm):
         fields = ['rating', 'feedback']
         
 
+from .models import Clinic
+
+class ClinicForm(forms.ModelForm):
+    class Meta:
+        model = Clinic
+        fields = ['clinic_name', 'contact_number', 'email', 'speciality', 'location', 'image']
+
