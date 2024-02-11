@@ -1233,3 +1233,12 @@ from .models import Clinic
 def clinic_list(request):
     clinics = Clinic.objects.all()
     return render(request, 'clinic_list.html', {'clinics': clinics})
+
+from .models import Thread
+@login_required
+def messages_page(request):
+    threads = Thread.objects.by_user(user=request.user).prefetch_related('chatmessage_thread').order_by('timestamp')
+    context = {
+        'Threads': threads
+    }
+    return render(request, 'messages.html', context)

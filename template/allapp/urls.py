@@ -57,6 +57,7 @@ urlpatterns = [
     path('add_clinic/', views.add_clinic, name='add_clinic'),
     path('success/', views.success, name='success'),
     path('clinics/', views.clinic_list, name='clinic_list'),
+    path('message_page/', views.messages_page, name='messages_page'),
 ] 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
