@@ -34,7 +34,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'jazzmin',
+    # 'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'social_django',
     'allapp',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -75,8 +76,8 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'allcare.wsgi.application'
-
+# WSGI_APPLICATION = 'allcare.wsgi.application'
+ASGI_APPLICATION = 'allcare.asgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
@@ -86,7 +87,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
-}
+} 
 
 
 # Password validation
@@ -180,3 +181,21 @@ LOGOUT_REDIRECT_URL = 'logout_confirmation'
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '827204911738-4n5mo421au1sh75ae8lg0glvji51s3jq.apps.googleusercontent.com'
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
+
+
+
+
+
+# paymnent
+RAZOR_KEY_ID = 'rzp_test_aWcyAl6q9LJYqx'
+RAZOR_KEY_SECRET = 'j1dFxiB5MzxmkXTMo6IYQlnP'
+
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+        # 'CONFIG': {
+        #     'hosts': [('127.0.0.1', 6379)],
+        # }
+    }
+}
