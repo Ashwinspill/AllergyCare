@@ -2,9 +2,10 @@ body,
 html {
   height: 100%;
   margin: 0;
-  background: #7f7fd5;
-  background: -webkit-linear-gradient(to right, #91eae4, #86a8e7, #7f7fd5);
-  background: linear-gradient(to right, #91eae4, #86a8e7, #7f7fd5);
+  /* background: #7f7fd5; */
+  background-image: url('https://ehospital.gov.in/ehospitalsso/assets/assets_new_login/img/abha1-1.jpg');
+  /* background: -webkit-linear-gradient(to right, #91eae4, #86a8e7, #7f7fd5); */
+  /* background: linear-gradient(to right, #91eae4, #86a8e7, #7f7fd5); */
 }
 
 .chat {
