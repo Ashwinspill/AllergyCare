@@ -93,8 +93,6 @@
                 <div class="collapse navbar-collapse" id="navbarCollapse">
                     <div class="navbar-nav ms-auto py-0">
                         <a href="{% url 'dhome' %}" class="nav-item nav-link active">Home</a>
-                        <a href="{% url 'patient_profile2' %}" class="nav-item nav-link">My Profile</a>
-                        <a href="{% url 'logout' %}" class="nav-item nav-link">Logout</a> 
                     </div>
                 </div>
             </nav>
@@ -158,7 +156,7 @@
                                         oninput="validateEmail()" value="{{ user.email }}">
                                     <div class="error-message" id="email-error"></div>
                                 </div>
-                                <button type="submit" class="btn btn-primary btn-update-profile">Update Profile</button>
+                                {% comment %} <button type="submit" class="btn btn-primary btn-update-profile">Update Profile</button> {% endcomment %}
                             </form>
                             <a href="{% url 'fill_additional_details' %}" class="btn btn-primary">Add Additional Details</a>
                         </div>

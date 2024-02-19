@@ -34,6 +34,7 @@
             margin: 20px 0;
             display: flex;
             align-items: center;
+            border: 1px solid #ddd; /* Add border for separation */
         }
 
         .medicine-card img {
@@ -51,6 +52,7 @@
         .medicine-info h2 {
             font-size: 20px;
             margin: 0;
+            color: #007bff; /* Header color */
         }
 
         .medicine-info p {
@@ -73,7 +75,7 @@
             background-color: #333;
             padding-top: 20px;
         }
-    
+
         .sidebar a {
             padding: 10px 25px;
             text-decoration: none;
@@ -81,18 +83,18 @@
             color: white;
             display: block;
         }
-    
+
         .sidebar a:hover {
             background-color: #007bff;
         }
-    
+
         .navbar {
             overflow: hidden;
             background-color: #000;
             color: white;
             padding: 10px 20px;
         }
-    
+
         .navbar a {
             color: white;
             text-decoration: none;
@@ -106,13 +108,7 @@
 
     <div class="sidebar">
         <a href="{% url 'admind' %}" class="custom-button">Home</a>
-    
     </div>
-
-    {% comment %} <div class="navbar">
-        <h1>Admin Dashboard</h1>
-    </div> {% endcomment %}
-
 
     <div class="container">
         {% for medicine in medicines %}

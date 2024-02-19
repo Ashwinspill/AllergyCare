@@ -29,13 +29,13 @@
 
     <!-- Template Stylesheet -->
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
-    
+
     <style>
         body {
             position: relative;
             z-index: 1;
         }
-        
+
         .background {
             /* background-image: url("{% static 'img/profile.jpg' %}");*/ /* Replace 'profile.jpg' with your image file */
             background-size: cover;
@@ -50,7 +50,7 @@
             z-index: 0; /* Place it behind all other content */
             opacity: 0.7; /* Adjust the opacity as needed */
         }
-        
+
         /* Style for the card container */
         .card-container {
             background-color: rgba(255, 255, 255, 0.9); /* Adjust the background color and opacity */
@@ -84,7 +84,7 @@
     <div class="container-fluid sticky-top bg-white shadow-sm" style="z-index: 1;">
         <div class="container">
             <nav class="navbar navbar-expand-lg bg-white navbar-light py-3 py-lg-0">
-                <a href="{% url 'index' %}" class="navbar-brand">
+                <a href="index.html" class="navbar-brand">
                     <h1 class="m-0 text-uppercase text-primary"><i class="fa fa-clinic-medical me-2"></i>AllergyCare</h1>
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
@@ -112,59 +112,6 @@
             </nav>
         </div>
     </div>
-   
-    {% comment %} <div class="container-fluid bg-primary py-5 mb-5 hero-header">
-        <div class="container py-5">
-            <div class="row justify-content-center">
-                <div class="col-lg-8">
-                    <div class="card card-container">
-                        <div class="card-header bg-primary text-white">
-                            <h2 class="mb-0">Edit Doctor Details</h2>
-                        </div>
-                        <div class="card-body profile-form">
-                            <form id="editDoctorForm" method="post" enctype="multipart/form-data">
-                                {% csrf_token %}
-                                
-                                <!-- Doctor Form Fields -->
-                                <div class="mb-3">
-                                    <label for="id_picture">Picture:</label>
-                                    <input type="file" name="picture" id="id_picture" accept="image/*">
-                                    <div class="error-message" id="picture-error"></div>
-                                </div>
-    
-                                <div class="mb-3">
-                                    <label for="id_registration_number">Registration Number:</label>
-                                    <input type="text" name="registration_number" id="id_registration_number">
-                                    <div class="error-message" id="registration-number-error"></div>
-                                </div>
-    
-                                <div class="mb-3">
-                                    <label for="id_experience">Experience:</label>
-                                    <input type="text" name="experience" id="id_experience">
-                                    <div class="error-message" id="experience-error"></div>
-                                </div>
-    
-                                <div class="mb-3">
-                                    <label for="id_specialty">Specialty:</label>
-                                    <input type="text" name="specialty" id="id_specialty">
-                                    <div class="error-message" id="specialty-error"></div>
-                                </div>
-    
-                                <div class="mb-3">
-                                    <label for="id_education">Education:</label>
-                                    <input type="text" name="education" id="id_education">
-                                    <div class="error-message" id="education-error"></div>
-                                </div>
-    
-                                <button type="submit" class="btn btn-primary">Save Changes</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div> {% endcomment %}
-
 
     <div class="container-fluid bg-primary py-5 mb-5 hero-header">
         <div class="container py-5">
@@ -172,45 +119,13 @@
                 <div class="col-lg-8">
                     <div class="card card-container">
                         <div class="card-header bg-primary text-white">
-                            <h2 class="mb-0">Edit Doctor Details</h2>
+                            <h2 class="mb-0">Fill Additional Details</h2>
                         </div>
                         <div class="card-body profile-form">
-                            <form id="editDoctorForm" method="post" enctype="multipart/form-data"
-                                onsubmit="return validateForm()">
+                            <form method="post" enctype="multipart/form-data">
                                 {% csrf_token %}
-
-                                <!-- Doctor Form Fields -->
-                                <div class="mb-3">
-                                    <label for="id_picture">Picture:</label>
-                                    <input type="file" name="picture" id="id_picture" accept="image/*">
-                                    <div class="error-message" id="picture-error"></div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="id_registration_number">Registration Number:</label>
-                                    <input type="text" name="registration_number" id="id_registration_number">
-                                    <div class="error-message" id="registration-number-error"></div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="id_experience">Experience:</label>
-                                    <input type="text" name="experience" id="id_experience">
-                                    <div class="error-message" id="experience-error"></div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="id_specialty">Specialty:</label>
-                                    <input type="text" name="specialty" id="id_specialty">
-                                    <div class="error-message" id="specialty-error"></div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="id_education">Education:</label>
-                                    <input type="text" name="education" id="id_education">
-                                    <div class="error-message" id="education-error"></div>
-                                </div>
-
-                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                                {{ form.as_p }}
+                                <button type="submit" class="btn btn-primary">Save Additional Details</button>
                             </form>
                         </div>
                     </div>
@@ -219,134 +134,9 @@
         </div>
     </div>
 
-    <script>
-        function validateForm() {
-            // Reset error messages
-            document.getElementById("picture-error").textContent = "";
-            document.getElementById("registration-number-error").textContent = "";
-            document.getElementById("experience-error").textContent = "";
-            document.getElementById("specialty-error").textContent = "";
-            document.getElementById("education-error").textContent = "";
 
-            // Validate image dimensions
-            const pictureInput = document.getElementById("id_picture");
-            if (pictureInput.files.length > 0) {
-                const img = new Image();
-                img.src = URL.createObjectURL(pictureInput.files[0]);
-                img.onload = function () {
-                    if (img.width > 200 || img.height > 300) {
-                        document.getElementById("picture-error").textContent =
-                            "Image dimensions should not exceed 200x300 pixels.";
-                    }
-                };
-            }
 
-            // Validate experience length
-            const experienceInput = document.getElementById("id_experience");
-            if (experienceInput.value.length < 7) {
-                document.getElementById("experience-error").textContent =
-                    "Experience should be at least 7 digits long.";
-            }
 
-            // Validate all fields are filled
-            const formFields = ["id_picture", "id_registration_number", "id_experience", "id_specialty", "id_education"];
-            for (const field of formFields) {
-                const value = document.getElementById(field).value.trim();
-                if (value === "") {
-                    document.getElementById(`${field}-error`).textContent = "This field should not be empty.";
-                }
-            }
-
-            // Check if any error messages exist
-            const errorMessages = document.querySelectorAll(".error-message");
-            for (const errorMessage of errorMessages) {
-                if (errorMessage.textContent !== "") {
-                    return false; // Return false if there are validation errors
-                }
-            }
-
-            return true; // Return true if all validations pass
-        }
-    </script>
-    
-    <!-- Add your JavaScript for on-the-go validations here -->
-    <script>
-        document.getElementById('editDoctorForm').addEventListener('submit', function(event) {
-            // Example validation for the picture field
-            const pictureInput = document.getElementById('id_picture');
-            const pictureError = document.getElementById('picture-error');
-            if (pictureInput.files.length === 0) {
-                pictureError.textContent = 'Please upload a picture.';
-                event.preventDefault(); // Prevent form submission
-            } else {
-                pictureError.textContent = '';
-            }
-    
-            // Repeat the above pattern for other fields
-    
-            // Example validation for the registration number field
-            const registrationNumberInput = document.getElementById('id_registration_number');
-            const registrationNumberError = document.getElementById('registration-number-error');
-            if (registrationNumberInput.value.trim() === '') {
-                registrationNumberError.textContent = 'Please enter a registration number.';
-                event.preventDefault(); // Prevent form submission
-            } else {
-                registrationNumberError.textContent = '';
-            }
-    
-            // Repeat the above pattern for other fields
-    
-            // Continue this pattern for other fields
-        });
-    </script>
-    <script>
-        // Validation functions
-        function validatePicture() {
-            const pictureInput = document.getElementById("id_picture");
-            const pictureError = document.getElementById("picture-error");
-    
-            // Reset error message
-            pictureError.textContent = "";
-    
-            // Validate image dimensions
-            if (pictureInput.files.length > 0) {
-                const img = new Image();
-                img.src = URL.createObjectURL(pictureInput.files[0]);
-                img.onload = function () {
-                    if (img.width > 200 || img.height > 300) {
-                        pictureError.textContent = "Image dimensions should not exceed 200x300 pixels.";
-                    }
-                };
-            }
-        }
-    
-        function validateExperience() {
-            const experienceInput = document.getElementById("id_experience");
-            const experienceError = document.getElementById("experience-error");
-    
-            // Reset error message
-            experienceError.textContent = "";
-    
-            // Validate experience length
-            if (experienceInput.value.length < 7) {
-                experienceError.textContent = "Experience should be at least 7 digits long.";
-            }
-        }
-    
-        function validateOnType(elementId, validationFunction) {
-            const inputElement = document.getElementById(elementId);
-            inputElement.addEventListener("input", validationFunction);
-        }
-    
-        // Attach on-type validation to input fields
-        validateOnType("id_picture", validatePicture);
-        validateOnType("id_experience", validateExperience);
-    
-        // Rest of your script
-    </script>
-
-    
-    
     <div class="container-fluid bg-dark text-light mt-5 py-5">
         <div class="container py-5">
             <div class="row g-5">

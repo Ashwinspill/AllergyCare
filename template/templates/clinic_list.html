@@ -142,9 +142,6 @@
                 <div class="collapse navbar-collapse" id="navbarCollapse">
                     <div class="navbar-nav ms-auto py-0">
                         <a href="{% url 'phome' %}" class="nav-item nav-link active">Back</a>
-                        <a href="{% url 'patient_profile' %}" class="nav-item nav-link">My Profile</a>
-                        <a href="{% url 'view_cart' %}" class="nav-item nav-link">Cart</a> 
-                        <a href="{% url 'logout' %}" class="nav-item nav-link">Logout</a> 
                     </div>
                 </div>
             </nav>
@@ -156,7 +153,8 @@
         <div class="clinic-grid">
             {% for clinic in clinics %}
                 <div class="clinic-card">
-                    <img src="{{ clinic.image.url }}" alt="{{ clinic.clinic_name }}">
+                    <!-- Hidden location data attribute -->
+                    <img src="{{ clinic.image.url }}" alt="{{ clinic.clinic_name }}" data-location="{{ clinic.location }}">
                     <div class="clinic-info">
                         <h2>{{ clinic.clinic_name }}</h2>
                         <p>Speciality: {{ clinic.speciality }}</p>
@@ -169,6 +167,8 @@
         </div>
     </div>
 
+    
+
     <div class="container-fluid bg-dark text-light mt-5 py-5">
         <div class="container py-5">
             <div class="row g-5">
@@ -179,7 +179,7 @@
                     <p class="mb-2"><i class="fa fa-envelope text-primary me-3"></i>info@example.com</p>
                     <p class="mb-0"><i class="fa fa-phone-alt text-primary me-3"></i>+012 345 67890</p>
                 </div>
-                <div class="col-lg-3 col-md-6">
+                {% comment %} <div class="col-lg-3 col-md-6">
                     <h4 class="d-inline-block text-primary text-uppercase border-bottom border-5 border-secondary mb-4">Quick Links</h4>
                     <div class="d-flex flex-column justify-content-start">
                         <a class="text-light mb-2" href="#"><i class="fa fa-angle-right me-2"></i>Home</a>
@@ -200,7 +200,7 @@
                         <a class="text-light mb-2" href="#"><i class="fa fa-angle-right me-2"></i>Latest Blog</a>
                         <a class="text-light" href="#"><i class="fa fa-angle-right me-2"></i>Contact Us</a>
                     </div>
-                </div>
+                </div> {% endcomment %}
                 <div class="col-lg-3 col-md-6">
                     <h4 class="d-inline-block text-primary text-uppercase border-bottom border-5 border-secondary mb-4">Newsletter</h4>
                     <form action="">
@@ -262,24 +262,8 @@
         });
     </script> {% endcomment %}
 
-    <script>
-        $(document).ready(function () {
-            $('#search-medicine').on('input', function () {
-                const searchText = $(this).val().toLowerCase();
-                $('.medicine-card').each(function () {
-                    const medicineName = $(this).find('h2').text().toLowerCase();
-                    const medicineInfo = $(this).find('.medicine-info').text().toLowerCase();
-    
-                    // Check if either medicine name or medicine info contains the search text
-                    if (medicineName.includes(searchText) || medicineInfo.includes(searchText)) {
-                        $(this).show();
-                    } else {
-                        $(this).hide();
-                    }
-                });
-            });
-        });
-    </script>
+
+
 </body>
 
 </html>

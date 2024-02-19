@@ -182,12 +182,15 @@
         <a href="#" onclick="toggleTable('patient-table', 'doctor-table')" class="custom-button">Patient Details</a>
         <a href="#" onclick="toggleTable('doctor-table', 'patient-table')" class="custom-button">Doctor Details</a>
         <a href="{% url 'doctor_registration' %}" class="custom-button">Add Doctor</a>
+        <a href="{% url 'add_clinic' %}" class="custom-button">Add Clinic</a>
         <div class="custom-dropdown">
             <button class="custom-button dropdown-button">Medicine</button>
             <div class="custom-dropdown-content">
                 <a href="{% url 'add_medicine' %}">Add Medicine</a>
                 <a href="{% url 'medicine_list' %}">List Medicine</a>
             </div>
+            <a href="#" onclick="toggleTable('testimonial-table', 'patient-table', 'doctor-table', 'order-table')" class="custom-button">Testimonial Details</a>
+            <a href="#" onclick="toggleTable('order-table', 'patient-table', 'doctor-table', 'testimonial-table')" class="custom-button">Order Details</a>
         </div>
     </div>
 
@@ -275,6 +278,58 @@
         </table>
     </div>
 
+    <!-- Container for Testimonial details table -->
+    <div class="table-container" id="testimonial-table" style="display: none;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Doctor</th>
+                    <th>Patient</th>
+                    <th>Rating</th>
+                    <th>Feedback</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for testimonial in testimonials %}
+                <tr>
+                    <td>{{ testimonial.doctor.user.get_full_name }}</td>
+                    <td>{{ testimonial.patient.user.get_full_name }}</td>
+                    <td>{{ testimonial.rating }}</td>
+                    <td>{{ testimonial.feedback }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Container for Order details table -->
+    <div class="table-container" id="order-table" style="display: none;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Patient</th>
+                    <th>Medicine</th>
+                    <th>Quantity</th>
+                    <th>Amount Paid</th>
+                    <th>Order Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>{{ order.patient.user.get_full_name }}</td>
+                    <td>{{ order.medicine.name }}</td>
+                    <td>{{ order.quantity }}</td>
+                    <td>{{ order.amount_paid }}</td>
+                    <td>{{ order.order_date }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         // Function to obtain the CSRF token from cookies
@@ -327,6 +382,58 @@
             if (showTable && hideTable) {
                 showTable.style.display = 'block';
                 hideTable.style.display = 'none';
+            }
+        }
+
+
+        function getCookie(name) {
+            // Function to obtain the CSRF token from cookies
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.startsWith(name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    
+        function toggleActive(userId, isActive) {
+            // Function to toggle active status
+            if (confirm(`Are you sure you want to set this user ${isActive ? 'inactive' : 'active'}?`)) {
+                const csrftoken = getCookie('csrftoken');
+    
+                $.ajax({
+                    type: 'POST',
+                    url: `/toggle-active/${userId}/${isActive}/`,
+                    headers: { "X-CSRFToken": csrftoken },
+                    success: function () {
+                        const toggleButton = document.querySelector(`button.active-toggle-button[data-user-id="${userId}"]`);
+                        if (toggleButton) {
+                            toggleButton.textContent = isActive ? 'Inactive' : 'Active';
+                            toggleButton.style.backgroundColor = isActive ? 'red' : 'green';
+                            isActive = !isActive;
+                        }
+                    },
+                    error: function () {
+                        alert('Failed to toggle active status.');
+                    }
+                });
+            }
+        }
+    
+        function toggleTable(showTableId, ...hideTableIds) {
+            // Function to toggle Testimonial and Order details tables
+            const showTable = document.getElementById(showTableId);
+            const hideTables = hideTableIds.map(id => document.getElementById(id));
+    
+            if (showTable && hideTables.every(table => table)) {
+                showTable.style.display = 'block';
+                hideTables.forEach(table => table.style.display = 'none');
             }
         }
     </script>
