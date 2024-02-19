@@ -71,6 +71,7 @@
                 </div>
                 <div class="col-md-6 text-center text-lg-end">
                     <div class="d-inline-flex align-items-center">
+                        {{languageMenu|safe}}
                         <a class="text-body px-2" href="">
                             <i class="fab fa-facebook-f"></i>
                         </a>
@@ -102,7 +103,7 @@
                 </a>
                 {% if user.is_authenticated %}
 	                <li class="nav-item">
-	                <a class="nav-link"> Welcome, {{ user.first_name }}</a>
+	                <a class="nav-link"> {{phome_welcome}} {{ user.first_name }}</a>
 	                </li>
                 {%endif%} 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
@@ -112,19 +113,20 @@
 
                     <div class="navbar-nav ms-auto py-0">
                         
-                        <a href="{% url 'phome' %}" class="nav-item nav-link active">Home</a>
-                        <a href="{% url 'patient_profile' %}" class="nav-item nav-link">My Profile</a>
-                        <a href="{% url 'patient_medlist' %}" class="nav-item nav-link">Medicines</a>
-                        <a href="{% url 'all_doctors' %}" class="nav-item nav-link">Doctors</a>
+                        <a href="{% url 'phome' %}" class="nav-item nav-link active">{{phome_home}}</a>
+                        <a href="{% url 'all_doctors' %}" class="nav-item nav-link">{{phome_doctor}}</a>
+                        <a href="{% url 'clinic_list' %}" class="nav-item nav-link">{{phome_clinic}}</a>
+                        <a href="{% url 'patient_medlist' %}" class="nav-item nav-link">{{phome_medicines}}</a>
                         {% comment %} <a href="{% url 'patient_replies' %}" class="nav-item nav-link">Replies</a> {% endcomment %}
                         <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Other</a>
+                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">{{phome_other}}</a>
                             <div class="dropdown-menu m-0">
-                                <a href="{% url 'patient_replies' %}" class="nav-item nav-link">Replies</a>
-                                <a href="{% url 'view_testimonials' %}" class="nav-item nav-link">Testimonials</a>
+                                <a href="{% url 'patient_profile' %}" class="nav-item nav-link">{{phome_myprofile}}</a>
+                                <a href="{% url 'patient_replies' %}" class="nav-item nav-link">{{phome_replies}}</a>
+                                <a href="{% url 'view_testimonials' %}" class="nav-item nav-link">{{phome_testimonials}}</a>
                             </div>
                         </div> 
-                        <a href="{% url 'logout' %}" class="nav-item nav-link">Logout</a>
+                        <a href="{% url 'logout' %}" class="nav-item nav-link">{{phome_logout}}</a>
                         
                     </div>
                 </div>
@@ -140,10 +142,10 @@
             <div class="row justify-content-start">
                 <div class="col-lg-8 text-center text-lg-start">
                     <h5 class="d-inline-block text-primary text-uppercase border-bottom border-5" style="border-color: rgba(256, 256, 256, .3) !important;">Welcome To AllergyCare</h5>
-                    <h1 class="display-1 text-white mb-md-4">Best care for your allergies</h1>
+                    <h1 class="display-1 text-white mb-md-4">{{phome_best}}</h1>
                     <div class="pt-2">
-                        <a href="{% url 'patient_medlist' %}" class="btn btn-light rounded-pill py-md-3 px-md-5 mx-2">Medicines</a>
-                        <a href="{% url 'all_doctors' %}" class="btn btn-outline-light rounded-pill py-md-3 px-md-5 mx-2">Appointment</a>
+                        <a href="{% url 'patient_medlist' %}" class="btn btn-light rounded-pill py-md-3 px-md-5 mx-2">{{phome_medicine}}</a>
+                        <a href="{% url 'all_doctors' %}" class="btn btn-outline-light rounded-pill py-md-3 px-md-5 mx-2">{{phome_appointment}}</a>
                     </div>
                 </div>
             </div>
@@ -151,7 +153,7 @@
     </div>
     <!-- Hero End -->
 
-    <!-- Services Start -->
+    {% comment %} <!-- Services Start -->
     <div class="container-fluid py-5">
         <div class="container">
             <div class="text-center mx-auto mb-5" style="max-width: 500px;">
@@ -234,133 +236,75 @@
             </div>
         </div>
     </div>
-    <!-- Services End -->
+    <!-- Services End --> {% endcomment %}
 
-    <!-- Team Start -->
-    <div class="container-fluid py-5">
-        <div class="container">
-            <div class="text-center mx-auto mb-5" style="max-width: 500px;">
-                <h5 class="d-inline-block text-primary text-uppercase border-bottom border-5">Our Doctors</h5>
-                <h1 class="display-4">Qualified Healthcare Professionals</h1>
+     <!-- Team Start -->
+<div class="container-fluid py-5">
+    <div class="container">
+        <div class="text-center mx-auto mb-5" style="max-width: 500px;">
+            <h5 class="d-inline-block text-primary text-uppercase border-bottom border-5">{{phome_odoctors}}</h5>
+            <h1 class="display-4">{{phome_qhp}}</h1>
+        </div>
+        <div class="owl-carousel team-carousel position-relative">
+            {% for doctor in doctors %}
+            <div class="team-item">
+                <div class="row g-0 bg-light rounded overflow-hidden">
+                    <div class="col-12 col-sm-5 h-100">
+                        <img class="img-fluid h-100" src="{{ doctor.doctoradditionaldetails.picture.url }}" style="object-fit: cover;">
+                    </div>
+                    <div class="col-12 col-sm-7 h-100 d-flex flex-column">
+                        <div class="mt-auto p-4">
+                            <h3>{{ doctor.first_name }} {{ doctor.last_name }}</h3>
+                            <h6 class="fw-normal fst-italic text-primary mb-4">{{ doctor.doctoradditionaldetails.specialty }}</h6>
+                            <p class="m-0">{{ doctor.doctoradditionaldetails.education }}</p>
+                        </div>
+                        <div class="d-flex mt-auto border-top p-4">
+                            <!-- Add social media or other links if needed -->
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="owl-carousel team-carousel position-relative">
-                <div class="team-item">
-                    <div class="row g-0 bg-light rounded overflow-hidden">
-                        <div class="col-12 col-sm-5 h-100">
-                            <img class="img-fluid h-100" src="img/team-1.jpg" style="object-fit: cover;">
-                        </div>
-                        <div class="col-12 col-sm-7 h-100 d-flex flex-column">
-                            <div class="mt-auto p-4">
-                                <h3>Doctor Name</h3>
-                                <h6 class="fw-normal fst-italic text-primary mb-4">Cardiology Specialist</h6>
-                                <p class="m-0">Dolor lorem eos dolor duo eirmod sea. Dolor sit magna rebum clita rebum dolor</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<!-- Team End -->
+<!-- Testimonial Start -->
+<div class="container-fluid py-5">
+    <div class="container">
+        <div class="text-center mx-auto mb-5" style="max-width: 500px;">
+            <h5 class="d-inline-block text-primary text-uppercase border-bottom border-5">{{phome_tmnls}}</h5>
+            <h1 class="display-4">Patients Say About Our Doctors</h1>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="owl-carousel testimonial-carousel">
+                    {% for testimonial in testimonials %}
+                    <div class="testimonial-item text-center">
+                        <div class="mb-5">
+                            <div class="position-absolute top-100 start-50 translate-middle d-flex align-items-center justify-content-center bg-white rounded-circle" style="width: 60px; height: 60px;">
+                                <i class="fa fa-quote-left fa-2x text-primary"></i>
                             </div>
-                            <div class="d-flex mt-auto border-top p-4">
-                                <a class="btn btn-lg btn-primary btn-lg-square rounded-circle me-3" href="#"><i class="fab fa-twitter"></i></a>
-                                <a class="btn btn-lg btn-primary btn-lg-square rounded-circle me-3" href="#"><i class="fab fa-facebook-f"></i></a>
-                                <a class="btn btn-lg btn-primary btn-lg-square rounded-circle" href="#"><i class="fab fa-linkedin-in"></i></a>
-                            </div>
                         </div>
+                        <p class="fs-5 fw-normal">{{ testimonial.feedback }}</p>
+                        <div class="rating">
+                            {% for star in ''|ljust:testimonial.rating %}
+                                <i class="fas fa-star text-warning"></i>
+                            {% endfor %}
+                        </div>
+                        <hr class="w-25 mx-auto">
+                        <h3>{{ testimonial.doctor.user.get_full_name }}</h3>
                     </div>
-                </div>
-                <div class="team-item">
-                    <div class="row g-0 bg-light rounded overflow-hidden">
-                        <div class="col-12 col-sm-5 h-100">
-                            <img class="img-fluid h-100" src="img/team-2.jpg" style="object-fit: cover;">
-                        </div>
-                        <div class="col-12 col-sm-7 h-100 d-flex flex-column">
-                            <div class="mt-auto p-4">
-                                <h3>Doctor Name</h3>
-                                <h6 class="fw-normal fst-italic text-primary mb-4">Cardiology Specialist</h6>
-                                <p class="m-0">Dolor lorem eos dolor duo eirmod sea. Dolor sit magna rebum clita rebum dolor</p>
-                            </div>
-                            <div class="d-flex mt-auto border-top p-4">
-                                <a class="btn btn-lg btn-primary btn-lg-square rounded-circle me-3" href="#"><i class="fab fa-twitter"></i></a>
-                                <a class="btn btn-lg btn-primary btn-lg-square rounded-circle me-3" href="#"><i class="fab fa-facebook-f"></i></a>
-                                <a class="btn btn-lg btn-primary btn-lg-square rounded-circle" href="#"><i class="fab fa-linkedin-in"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="team-item">
-                    <div class="row g-0 bg-light rounded overflow-hidden">
-                        <div class="col-12 col-sm-5 h-100">
-                            <img class="img-fluid h-100" src="img/team-3.jpg" style="object-fit: cover;">
-                        </div>
-                        <div class="col-12 col-sm-7 h-100 d-flex flex-column">
-                            <div class="mt-auto p-4">
-                                <h3>Doctor Name</h3>
-                                <h6 class="fw-normal fst-italic text-primary mb-4">Cardiology Specialist</h6>
-                                <p class="m-0">Dolor lorem eos dolor duo eirmod sea. Dolor sit magna rebum clita rebum dolor</p>
-                            </div>
-                            <div class="d-flex mt-auto border-top p-4">
-                                <a class="btn btn-lg btn-primary btn-lg-square rounded-circle me-3" href="#"><i class="fab fa-twitter"></i></a>
-                                <a class="btn btn-lg btn-primary btn-lg-square rounded-circle me-3" href="#"><i class="fab fa-facebook-f"></i></a>
-                                <a class="btn btn-lg btn-primary btn-lg-square rounded-circle" href="#"><i class="fab fa-linkedin-in"></i></a>
-                            </div>
-                        </div>
-                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
     </div>
-    <!-- Team End -->
+</div>
+<!-- Testimonial End --> 
 
 
-    <!-- Testimonial Start -->
-    <div class="container-fluid py-5">
-        <div class="container">
-            <div class="text-center mx-auto mb-5" style="max-width: 500px;">
-                <h5 class="d-inline-block text-primary text-uppercase border-bottom border-5">Testimonial</h5>
-                <h1 class="display-4">Patients Say About Our Services</h1>
-            </div>
-            <div class="row justify-content-center">
-                <div class="col-lg-8">
-                    <div class="owl-carousel testimonial-carousel">
-                        <div class="testimonial-item text-center">
-                            <div class="position-relative mb-5">
-                                <img class="img-fluid rounded-circle mx-auto" src="img/testimonial-1.jpg" alt="">
-                                <div class="position-absolute top-100 start-50 translate-middle d-flex align-items-center justify-content-center bg-white rounded-circle" style="width: 60px; height: 60px;">
-                                    <i class="fa fa-quote-left fa-2x text-primary"></i>
-                                </div>
-                            </div>
-                            <p class="fs-4 fw-normal">Dolores sed duo clita tempor justo dolor et stet lorem kasd labore dolore lorem ipsum. At lorem lorem magna ut et, nonumy et labore et tempor diam tempor erat. Erat dolor rebum sit ipsum.</p>
-                            <hr class="w-25 mx-auto">
-                            <h3>Patient Name</h3>
-                            <h6 class="fw-normal text-primary mb-3">Profession</h6>
-                        </div>
-                        <div class="testimonial-item text-center">
-                            <div class="position-relative mb-5">
-                                <img class="img-fluid rounded-circle mx-auto" src="img/testimonial-2.jpg" alt="">
-                                <div class="position-absolute top-100 start-50 translate-middle d-flex align-items-center justify-content-center bg-white rounded-circle" style="width: 60px; height: 60px;">
-                                    <i class="fa fa-quote-left fa-2x text-primary"></i>
-                                </div>
-                            </div>
-                            <p class="fs-4 fw-normal">Dolores sed duo clita tempor justo dolor et stet lorem kasd labore dolore lorem ipsum. At lorem lorem magna ut et, nonumy et labore et tempor diam tempor erat. Erat dolor rebum sit ipsum.</p>
-                            <hr class="w-25 mx-auto">
-                            <h3>Patient Name</h3>
-                            <h6 class="fw-normal text-primary mb-3">Profession</h6>
-                        </div>
-                        <div class="testimonial-item text-center">
-                            <div class="position-relative mb-5">
-                                <img class="img-fluid rounded-circle mx-auto" src="img/testimonial-3.jpg" alt="">
-                                <div class="position-absolute top-100 start-50 translate-middle d-flex align-items-center justify-content-center bg-white rounded-circle" style="width: 60px; height: 60px;">
-                                    <i class="fa fa-quote-left fa-2x text-primary"></i>
-                                </div>
-                            </div>
-                            <p class="fs-4 fw-normal">Dolores sed duo clita tempor justo dolor et stet lorem kasd labore dolore lorem ipsum. At lorem lorem magna ut et, nonumy et labore et tempor diam tempor erat. Erat dolor rebum sit ipsum.</p>
-                            <hr class="w-25 mx-auto">
-                            <h3>Patient Name</h3>
-                            <h6 class="fw-normal text-primary mb-3">Profession</h6>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Testimonial End -->
-
-
+{% comment %} 
     <!-- Blog Start -->
     <div class="container-fluid py-5">
         <div class="container">
@@ -433,20 +377,20 @@
         </div>
     </div>
     <!-- Blog End -->
-    
+     {% endcomment %}
 
     <!-- Footer Start -->
     <div class="container-fluid bg-dark text-light mt-5 py-5">
         <div class="container py-5">
             <div class="row g-5">
                 <div class="col-lg-3 col-md-6">
-                    <h4 class="d-inline-block text-primary text-uppercase border-bottom border-5 border-secondary mb-4">Get In Touch</h4>
-                    <p class="mb-4">No dolore ipsum accusam no lorem. Invidunt sed clita kasd clita et et dolor sed dolor</p>
+                    <h4 class="d-inline-block text-primary text-uppercase border-bottom border-5 border-secondary mb-4">{{phome_git}}</h4>
+                    <p class="mb-4">{{phome_ps}}</p>
                     <p class="mb-2"><i class="fa fa-map-marker-alt text-primary me-3"></i>123 Street, New York, USA</p>
-                    <p class="mb-2"><i class="fa fa-envelope text-primary me-3"></i>info@example.com</p>
-                    <p class="mb-0"><i class="fa fa-phone-alt text-primary me-3"></i>+012 345 67890</p>
+                    <p class="mb-2"><i class="fa fa-envelope text-primary me-3"></i>allergycare163@gmail.com</p>
+                    <p class="mb-0"><i class="fa fa-phone-alt text-primary me-3"></i>+91 7592048618 </p>
                 </div>
-                <div class="col-lg-3 col-md-6">
+                {% comment %} <div class="col-lg-3 col-md-6">
                     <h4 class="d-inline-block text-primary text-uppercase border-bottom border-5 border-secondary mb-4">Quick Links</h4>
                     <div class="d-flex flex-column justify-content-start">
                         <a class="text-light mb-2" href="#"><i class="fa fa-angle-right me-2"></i>Home</a>
@@ -467,16 +411,16 @@
                         <a class="text-light mb-2" href="#"><i class="fa fa-angle-right me-2"></i>Latest Blog</a>
                         <a class="text-light" href="#"><i class="fa fa-angle-right me-2"></i>Contact Us</a>
                     </div>
-                </div>
+                </div> {% endcomment %}
                 <div class="col-lg-3 col-md-6">
-                    <h4 class="d-inline-block text-primary text-uppercase border-bottom border-5 border-secondary mb-4">Newsletter</h4>
+                    <h4 class="d-inline-block text-primary text-uppercase border-bottom border-5 border-secondary mb-4">{{phome_newsletter}}</h4>
                     <form action="">
                         <div class="input-group">
                             <input type="text" class="form-control p-3 border-0" placeholder="Your Email Address">
                             <button class="btn btn-primary">Sign Up</button>
                         </div>
                     </form>
-                    <h6 class="text-primary text-uppercase mt-4 mb-3">Follow Us</h6>
+                    <h6 class="text-primary text-uppercase mt-4 mb-3">{{phome_follow}}</h6>
                     <div class="d-flex">
                         <a class="btn btn-lg btn-primary btn-lg-square rounded-circle me-2" href="#"><i class="fab fa-twitter"></i></a>
                         <a class="btn btn-lg btn-primary btn-lg-square rounded-circle me-2" href="#"><i class="fab fa-facebook-f"></i></a>
