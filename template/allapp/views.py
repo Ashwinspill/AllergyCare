@@ -25,6 +25,7 @@ from .forms import MedicineForm
 from .models import Medicine
 import razorpay
 from django.views.decorators.csrf import csrf_exempt
+from . import candy
 
 
 # Create your views here.
@@ -66,7 +67,7 @@ def phome(request):
     
     # Pass the data to the template
     context = {'doctors': doctors, 'testimonials': testimonials}
-    response = render(request, 'phome.html', context)
+    response = candy.render(request, 'phome.html', context)
     response['Cache-Control'] = 'no-store, must-revalidate'
     return response    
 @login_required
@@ -1236,7 +1237,7 @@ def clinic_list(request):
 
 from .models import Thread
 @login_required
-def messages_page(request):
+def message_page(request):
     threads = Thread.objects.by_user(user=request.user).prefetch_related('chatmessage_thread').order_by('timestamp')
     context = {
         'Threads': threads

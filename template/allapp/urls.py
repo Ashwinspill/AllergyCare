@@ -5,6 +5,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from .views import AllDoctorsListView
 from django.contrib.auth.decorators import login_required
+from allapp import candy
 
 
 
@@ -16,7 +17,7 @@ urlpatterns = [
     path('login/',views.login,name="login"),
     path('signup/',views.signup,name="signup"),
     path('signup1/',views.signup1,name="signup1"),  #doctor signup
-    path('phome/', views.phome, name='phome'),
+    *candy.path('phome/', views.phome, name='phome'),
     path('dhome/', views.dhome, name='dhome'),
     path('test/', views.test, name='test'),
     path('logout/', views.logout, name='logout'), 
@@ -57,7 +58,7 @@ urlpatterns = [
     path('add_clinic/', views.add_clinic, name='add_clinic'),
     path('success/', views.success, name='success'),
     path('clinics/', views.clinic_list, name='clinic_list'),
-    path('message_page/', views.messages_page, name='messages_page'),
+    path('message_page/', views.message_page, name='message_page'),
 ] 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
