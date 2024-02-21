@@ -113,40 +113,45 @@
     </div>
 
     {% if form.errors %}
-            <div class="alert alert-danger" role="alert">
-                <strong>Error:</strong> There are some issues with the form. Please correct them.
-            </div>
-        {% endif %}
+        <div class="alert alert-danger" role="alert">
+            <strong>Error:</strong> There are some issues with the form. Please correct them.
+        </div>
+    {% endif %}
     <!-- Container for Registration Form and Map -->
     <div class="container">
         <h2>Add Clinics </h2>
         <h3>Clinic form</h3>
-        
-        <form method="post" class="registration-form" enctype="multipart/form-data">
+
+        <form id="clinic-form" method="post" class="registration-form" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="form-group">
                 <label for="clinic_name">Clinic Name:</label>
                 <input type="text" id="clinic_name" name="clinic_name" required>
+                <div class="error-message" id="clinic_name_error"></div>
             </div>
 
             <div class="form-group">
                 <label for="contact_number">Contact Number:</label>
                 <input type="text" id="contact_number" name="contact_number" required>
+                <div class="error-message" id="contact_number_error"></div>
             </div>
 
             <div class="form-group">
                 <label for="email">Email:</label>
                 <input type="email" id="email" name="email" required>
+                <div class="error-message" id="email_error"></div>
             </div>
 
             <div class="form-group">
                 <label for="speciality">Speciality:</label>
                 <input type="text" id="speciality" name="speciality" required>
+                <div class="error-message" id="speciality_error"></div>
             </div>
 
             <div class="form-group">
                 <label for="image">Image:</label>
                 <input type="file" id="image" name="image" accept="image/*" required>
+                <div class="error-message" id="image_error"></div>
             </div>
 
             <!-- Map Container -->
@@ -155,6 +160,7 @@
             <div class="form-group" id="location-label">
                 <label for="location">Location:</label>
                 <input type="text" id="location" name="location" required placeholder="Select from the map">
+                <div class="error-message" id="location_error"></div>
             </div>
 
             <!-- Latitude and Longitude Fields -->
@@ -167,19 +173,122 @@
     </div>
     <div class="toast-container">
         {% if messages %}
-        <ul class="messages">
-            {% for message in messages %}
-            <li class="{{ message.tags }}">{{ message }}</li>
-            {% endfor %}
-        </ul>
+            <ul class="messages">
+                {% for message in messages %}
+                    <li class="{{ message.tags }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
         {% endif %}
         {% if success_message %}
-        <ul class="messages">
-            <li class="success">{{ success_message }}</li>
-        </ul>
+            <ul class="messages">
+                <li class="success">{{ success_message }}</li>
+            </ul>
         {% endif %}
     </div>
 
+    <!-- Include Leaflet and Control Geocoder scripts -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-control-geocoder@1.13.0/dist/Control.Geocoder.js"></script>
+
+    <!-- Add your JavaScript code here -->
+    <script>
+        // Validation functions
+        function validateClinicName() {
+            const clinicNameInput = document.getElementById("clinic_name");
+            const clinicNameError = document.getElementById("clinic_name_error");
+
+            // Validation for clinic name
+            // Example: Clinic name should have the first letter capitalized.
+            const isValid = /^[A-Z][a-zA-Z\s]*$/.test(clinicNameInput.value.trim());
+
+            if (!isValid) {
+                clinicNameError.textContent = "Clinic name should start with a capital letter.";
+            } else {
+                clinicNameError.textContent = "";
+            }
+        }
+
+        function validateContactNumber() {
+            const contactNumberInput = document.getElementById("contact_number");
+            const contactNumberError = document.getElementById("contact_number_error");
+
+            // Validation for contact number
+            // Example: Contact number should have 10 digits and start with 7, 8, or 9.
+            const isValid = /^[7-9][0-9]{9}$/.test(contactNumberInput.value.trim());
+
+            if (!isValid) {
+                contactNumberError.textContent = "Please enter a valid 10-digit contact number starting with 7, 8, or 9.";
+            } else {
+                contactNumberError.textContent = "";
+            }
+        }
+
+        function validateEmail() {
+            const emailInput = document.getElementById("email");
+            const emailError = document.getElementById("email_error");
+
+            // Updated email validation pattern to allow specific extensions
+            const emailPattern = /^[a-zA-Z0-9._%+-]+@(gmail\.com|yahoo\.in|gmail\.in|mca\.ajce\.org)$/;
+
+            const isValid = emailPattern.test(emailInput.value.trim());
+
+            if (!isValid) {
+                emailError.textContent = "Please enter a valid email address with extensions @gmail.com, @yahoo.in, @gmail.in, @mca.ajce.org.";
+            } else {
+                emailError.textContent = "";
+            }
+        }
+
+        function validateSpeciality() {
+            const specialityInput = document.getElementById("speciality");
+            const specialityError = document.getElementById("speciality_error");
+
+            // Validation for speciality
+            // Example: Speciality should have the first letter capitalized.
+            const isValid = /^[A-Z][a-zA-Z\s]*$/.test(specialityInput.value.trim());
+
+            if (!isValid) {
+                specialityError.textContent = "Speciality should start with a capital letter.";
+            } else {
+                specialityError.textContent = "";
+            }
+        }
+
+        function validateImage() {
+            const imageInput = document.getElementById("image");
+            const imageError = document.getElementById("image_error");
+
+            // Validation for image
+            // Example: Image should not be empty.
+            if (imageInput.files.length === 0) {
+                imageError.textContent = "Please select an image.";
+            } else {
+                imageError.textContent = "";
+            }
+        }
+
+        function validateLocation() {
+            const locationInput = document.getElementById("location");
+            const locationError = document.getElementById("location_error");
+
+            // Validation for location
+            // Example: Location should not be empty.
+            if (locationInput.value.trim() === "") {
+                locationError.textContent = "Please select a location from the map.";
+            } else {
+                locationError.textContent = "";
+            }
+        }
+
+        // Event listeners for input fields
+        document.getElementById("clinic_name").addEventListener("input", validateClinicName);
+        document.getElementById("contact_number").addEventListener("input", validateContactNumber);
+        document.getElementById("email").addEventListener("input", validateEmail);
+        document.getElementById("speciality").addEventListener("input", validateSpeciality);
+        document.getElementById("image").addEventListener("change", validateImage);
+        document.getElementById("location").addEventListener("input", validateLocation);
+    </script>
+    
     <!-- Include Leaflet and Control Geocoder scripts -->
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-control-geocoder@1.13.0/dist/Control.Geocoder.js"></script>
@@ -226,97 +335,6 @@
             document.getElementById('latitude').value = e.latlng.lat;
             document.getElementById('longitude').value = e.latlng.lng;
         });
-
-
-        
-        // Submit form using AJAX
-        $('#clinic-form').on('submit', function(e) {
-            e.preventDefault();
-            var form = $(this);
-    
-            $.ajax({
-                url: form.attr('action'),
-                type: form.attr('method'),
-                data: form.serialize(),
-                success: function(data) {
-                    if (data.success) {
-                        // Show success toast notification
-                        showNotification('success', 'Clinic added successfully!');
-                        // Reset the form
-                        document.getElementById("clinic-form").reset();
-                    } else {
-                        // Show error toast notification
-                        showNotification('error', 'Failed to add clinic. Please try again.');
-                    }
-                },
-                error: function(xhr, textStatus, errorThrown) {
-                    // Show error toast notification if there's an AJAX error
-                    showNotification('error', 'Failed to add clinic. Please try again.');
-                }
-            });
-        });
-
-        // Function to show Toastr notification
-        function showNotification(type, message) {
-            toastr.options = {
-                "closeButton": true,
-                "debug": false,
-                "newestOnTop": false,
-                "progressBar": false,
-                "positionClass": "toast-top-right",
-                "preventDuplicates": false,
-                "showDuration": "300",
-                "hideDuration": "1000",
-                "timeOut": "5000",
-                "extendedTimeOut": "1000",
-                "showEasing": "swing",
-                "hideEasing": "linear",
-                "showMethod": "fadeIn",
-                "hideMethod": "fadeOut"
-            };
-            toastr[type](message);
-        }
-
-        const messages = document.querySelectorAll('.messages li');
-        const inactiveMessage = document.getElementById('inactive-account-message');
-    
-        messages.forEach(function (message) {
-            const messageText = message.textContent;
-            const messageClass = message.getAttribute('class');
-    
-            if (messageClass === 'success') {
-                showToast(messageText, 'success');
-            } else if (messageClass === 'error') {
-                showToast(messageText, 'error');
-            }
-        });
-    
-        function showToast(message, type) {
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.textContent = message;
-            document.querySelector('.toast-container').appendChild(toast);
-    
-            setTimeout(function () {
-                toast.style.opacity = '1';
-            }, 100);
-    
-            setTimeout(function () {
-                toast.style.opacity = '0';
-            }, 3000);
-    
-            setTimeout(function () {
-                toast.remove();
-            }, 3500);
-        }
-    
-        // Check for the inactive account message and display it
-        if (inactiveMessage.style.display !== 'none') {
-            showToast(inactiveMessage.textContent, 'error');
-        }
-
-
-
     </script>
 </body>
 </html>
