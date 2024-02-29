@@ -117,9 +117,17 @@ class TestimonialForm(forms.ModelForm):
         
 
 from .models import Clinic
+#clinic works
+# class ClinicForm(forms.ModelForm):
+#     class Meta:
+#         model = Clinic
+#         fields = ['clinic_name', 'contact_number', 'email', 'speciality', 'location', 'image']
 
 class ClinicForm(forms.ModelForm):
     class Meta:
         model = Clinic
-        fields = ['clinic_name', 'contact_number', 'email', 'speciality', 'location', 'image']
+        fields = ['clinic_name', 'contact_number', 'email', 'speciality', 'location', 'image', 'doctors']
 
+    def __init__(self, *args, **kwargs):
+        super(ClinicForm, self).__init__(*args, **kwargs)
+        self.fields['doctors'].widget = forms.CheckboxSelectMultiple()

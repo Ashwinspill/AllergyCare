@@ -1204,7 +1204,54 @@ def doctor_testimonials(request, doctor_id):
 
 
 from .forms import ClinicForm
-@login_required
+#clinic works
+# @login_required
+# def add_clinic(request):
+#     if request.method == 'POST':
+#         form = ClinicForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             clinic = form.save(commit=False)
+#             latitude = request.POST.get('latitude')
+#             longitude = request.POST.get('longitude')
+#             clinic.location = f"{latitude}, {longitude}"
+#             clinic.save()
+#             messages.success(request, 'Clinic added successfully!')
+#             return redirect('add_clinic')  # Redirect back to the same page after successful submission
+#         else:
+#             # Print form errors for debugging
+#             print(form.errors)
+#             # Print POST data for debugging
+#             print(request.POST)
+#             # Return HttpResponse with form errors for debugging
+#             return HttpResponse("Form is not valid. Errors: " + str(form.errors))
+#     else:
+#         form = ClinicForm()
+#     return render(request, 'add_clinic.html', {'form': form})
+
+# @login_required
+# def add_clinic(request):
+#     if request.method == 'POST':
+#         form = ClinicForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             clinic = form.save(commit=False)
+#             latitude = request.POST.get('latitude')
+#             longitude = request.POST.get('longitude')
+#             clinic.location = f"{latitude}, {longitude}"
+#             clinic.save()
+#             form.save_m2m()  # Save many-to-many relationships
+#             messages.success(request, 'Clinic added successfully!')
+#             return redirect('add_clinic')  # Redirect back to the same page after successful submission
+#         else:
+#             # Print form errors for debugging
+#             print(form.errors)
+#             # Print POST data for debugging
+#             print(request.POST)
+#             # Return HttpResponse with form errors for debugging
+#             return HttpResponse("Form is not valid. Errors: " + str(form.errors))
+#     else:
+#         form = ClinicForm()
+#     return render(request, 'add_clinic.html', {'form': form})
+
 def add_clinic(request):
     if request.method == 'POST':
         form = ClinicForm(request.POST, request.FILES)
@@ -1213,7 +1260,17 @@ def add_clinic(request):
             latitude = request.POST.get('latitude')
             longitude = request.POST.get('longitude')
             clinic.location = f"{latitude}, {longitude}"
-            clinic.save()
+            
+            # Process selected doctors
+            doctors_ids = request.POST.getlist('doctors')  # Get the list of selected doctors' IDs
+            clinic.save()  # Save the clinic first to get its ID
+            
+            # Associate selected doctors with the clinic
+            for doctor_id in doctors_ids:
+                doctor = Doctor.objects.get(pk=doctor_id)
+                clinic.doctors.add(doctor)
+            
+            clinic.save()  # Save the clinic again after adding doctors
             messages.success(request, 'Clinic added successfully!')
             return redirect('add_clinic')  # Redirect back to the same page after successful submission
         else:
@@ -1225,12 +1282,27 @@ def add_clinic(request):
             return HttpResponse("Form is not valid. Errors: " + str(form.errors))
     else:
         form = ClinicForm()
-    return render(request, 'add_clinic.html', {'form': form})
+        doctors = Doctor.objects.all()  # Retrieve all doctors
+    return render(request, 'add_clinic.html', {'form': form, 'doctors': doctors})
+
+
+#clinic_details
+def clinic_detail(request, clinic_id):
+    clinic = get_object_or_404(Clinic, pk=clinic_id)
+    return render(request, 'clinic_detail.html', {'clinic': clinic})
+
+def view_location(request, clinic_id):
+    clinic = get_object_or_404(Clinic, pk=clinic_id)
+    latitude, longitude = clinic.location.split(',')
+    google_maps_url = f"https://www.google.com/maps?q={latitude},{longitude}"
+    return redirect(google_maps_url)
+
 
 def success(request):
     return render(request, 'success.html')
 
 from .models import Clinic
+@login_required
 def clinic_list(request):
     clinics = Clinic.objects.all()
     return render(request, 'clinic_list.html', {'clinics': clinics})
