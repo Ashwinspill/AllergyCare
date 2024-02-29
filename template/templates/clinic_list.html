@@ -121,11 +121,9 @@
         .clinic-info p {
             margin: 5px 0;
         }
-
-
-
     </style>
 </head>
+
 <body>
     <div class="background"></div>
 
@@ -148,122 +146,109 @@
         </div>
     </div>
    
-    <div class="container">
-        <h1>List of All Clinics</h1>
-        <div class="clinic-grid">
-            {% for clinic in clinics %}
-                <div class="clinic-card">
-                    <!-- Hidden location data attribute -->
-                    <img src="{{ clinic.image.url }}" alt="{{ clinic.clinic_name }}" data-location="{{ clinic.location }}">
-                    <div class="clinic-info">
-                        <h2>{{ clinic.clinic_name }}</h2>
-                        <p>Speciality: {{ clinic.speciality }}</p>
-                        <p>Email: {{ clinic.email }}</p>
-                        <p>Contact Number: {{ clinic.contact_number }}</p>
-                        <!-- Add other clinic information as needed -->
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-    </div>
-
-    
-
-    <div class="container-fluid bg-dark text-light mt-5 py-5">
+    <div class="container-fluid bg-primary py-5 mb-5 hero-header">
         <div class="container py-5">
-            <div class="row g-5">
-                <div class="col-lg-3 col-md-6">
-                    <h4 class="d-inline-block text-primary text-uppercase border-bottom border-5 border-secondary mb-4">Get In Touch</h4>
-                    <p class="mb-4">No dolore ipsum accusam no lorem. Invidunt sed clita kasd clita et et dolor sed dolor</p>
-                    <p class="mb-2"><i class="fa fa-map-marker-alt text-primary me-3"></i>123 Street, New York, USA</p>
-                    <p class="mb-2"><i class="fa fa-envelope text-primary me-3"></i>info@example.com</p>
-                    <p class="mb-0"><i class="fa fa-phone-alt text-primary me-3"></i>+012 345 67890</p>
-                </div>
-                {% comment %} <div class="col-lg-3 col-md-6">
-                    <h4 class="d-inline-block text-primary text-uppercase border-bottom border-5 border-secondary mb-4">Quick Links</h4>
-                    <div class="d-flex flex-column justify-content-start">
-                        <a class="text-light mb-2" href="#"><i class="fa fa-angle-right me-2"></i>Home</a>
-                        <a class="text-light mb-2" href="#"><i class="fa fa-angle-right me-2"></i>About Us</a>
-                        <a class="text-light mb-2" href="#"><i class="fa fa-angle-right me-2"></i>Our Services</a>
-                        <a class="text-light mb-2" href="#"><i class="fa fa-angle-right me-2"></i>Meet The Team</a>
-                        <a class="text-light mb-2" href="#"><i class="fa fa-angle-right me-2"></i>Latest Blog</a>
-                        <a class="text-light" href="#"><i class="fa fa-angle-right me-2"></i>Contact Us</a>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6">
-                    <h4 class="d-inline-block text-primary text-uppercase border-bottom border-5 border-secondary mb-4">Popular Links</h4>
-                    <div class="d-flex flex-column justify-content-start">
-                        <a class="text-light mb-2" href="#"><i class="fa fa-angle-right me-2"></i>Home</a>
-                        <a class="text-light mb-2" href="#"><i class="fa fa-angle-right me-2"></i>About Us</a>
-                        <a class="text-light mb-2" href="#"><i class="fa fa-angle-right me-2"></i>Our Services</a>
-                        <a class="text-light mb-2" href="#"><i class="fa fa-angle-right me-2"></i>Meet The Team</a>
-                        <a class="text-light mb-2" href="#"><i class="fa fa-angle-right me-2"></i>Latest Blog</a>
-                        <a class="text-light" href="#"><i class="fa fa-angle-right me-2"></i>Contact Us</a>
-                    </div>
-                </div> {% endcomment %}
-                <div class="col-lg-3 col-md-6">
-                    <h4 class="d-inline-block text-primary text-uppercase border-bottom border-5 border-secondary mb-4">Newsletter</h4>
-                    <form action="">
-                        <div class="input-group">
-                            <input type="text" class="form-control p-3 border-0" placeholder="Your Email Address">
-                            <button class="btn btn-primary">Sign Up</button>
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card card-container">
+                        <div class="card-header bg-primary text-white">
+                            <h2 class="mb-0">Clinics</h2>
                         </div>
-                    </form>
-                    <h6 class="text-primary text-uppercase mt-4 mb-3">Follow Us</h6>
-                    <div class="d-flex">
-                        <a class="btn btn-lg btn-primary btn-lg-square rounded-circle me-2" href="#"><i class="fab fa-twitter"></i></a>
-                        <a class="btn btn-lg btn-primary btn-lg-square rounded-circle me-2" href="#"><i class="fab fa-facebook-f"></i></a>
-                        <a class="btn btn-lg btn-primary btn-lg-square rounded-circle me-2" href="#"><i class="fab fa-linkedin-in"></i></a>
-                        <a class="btn btn-lg btn-primary btn-lg-square rounded-circle" href="#"><i class="fab fa-instagram"></i></a>
+                        <div class="card-body">
+                            <div class="container">
+                                <div class="row">
+                                    {% for clinic in clinics %}
+                                        <div class="clinic-card col-md-4"> <!-- Adjust column size to fit three clinics per row -->
+                                            <!-- Hidden location data attribute -->
+                                            <img src="{{ clinic.image.url }}" alt="{{ clinic.clinic_name }}" data-location="{{ clinic.location }}">
+                                            <div class="clinic-info">
+                                                <h2>{{ clinic.clinic_name }}</h2>
+                                                <p>Speciality: {{ clinic.speciality }}</p>
+                                                <p>Email: {{ clinic.email }}</p>
+                                                <p>Contact Number: {{ clinic.contact_number }}</p>
+                                                <!-- Add other clinic information as needed -->
+                                                <a href="{% url 'clinic_detail' clinic.id %}" class="btn btn-primary">View Details</a>
+                                            </div>
+                                        </div>
+                                        {% if forloop.counter|divisibleby:3 and not forloop.last %}
+                                            </div><div class="row"> <!-- Close the current row and start a new row -->
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <!-- ... (Your footer section remains the same) ... -->
-
-    <!-- Back to Top -->
-    <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
-
-    <!-- JavaScript Libraries -->
-    <!-- JavaScript Libraries -->
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{% static 'lib/easing/easing.min.js' %}"></script>
-    <script src="{% static 'lib/waypoints/waypoints.min.js' %}"></script>
-    <script src="{% static 'lib/owlcarousel/owl.carousel.min.js' %}"></script>
-    <script src="{% static 'lib/tempusdominus/js/moment.min.js' %}"></script>
-    <script src="{% static 'lib/tempusdominus/js/moment-timezone.min.js' %}"></script>
-    <script src="{% static 'lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js' %}"></script>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    <!-- ... (Your JavaScript library references remain the same) ... -->
-
-    <!-- Template Javascript -->
-    <script src="{% static 'js/main.js' %}"></script>
-    <script src="{% static 'js/refresh_on_back.js' %}"></script>
-
-    {% comment %} <script>
-        $(document).ready(function () {
-            $('#search-medicine').on('input', function () {
-                const searchText = $(this).val().toLowerCase();
-                $('.medicine-card').each(function () {
-                    const medicineName = $(this).find('h2').text().toLowerCase();
-                    if (medicineName.includes(searchText)) {
-                        $(this).show();
-                    } else {
-                        $(this).hide();
-                    }
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Function to calculate distance between two points
+            function calculateDistance(lat1, lon1, lat2, lon2) {
+                const R = 6371; // Radius of the earth in km
+                const dLat = deg2rad(lat2 - lat1);
+                const dLon = deg2rad(lon2 - lon1);
+                const a =
+                    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+                    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                const d = R * c; // Distance in km
+                return d;
+            }
+    
+            function deg2rad(deg) {
+                return deg * (Math.PI / 180);
+            }
+    
+            // Function to get user's current location
+            function getUserLocation(callback) {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        callback(position.coords.latitude, position.coords.longitude);
+                    }, function(error) {
+                        console.error('Error getting user location:', error);
+                        alert('Error getting user location. Please try again later.');
+                    });
+                } else {
+                    alert('Geolocation is not supported by this browser.');
+                }
+            }
+    
+            // Event listener for nearest clinics button
+            document.getElementById('nearest-clinics-btn').addEventListener('click', function() {
+                getUserLocation(function(userLat, userLng) {
+                    const clinicCards = document.querySelectorAll('.clinic-card');
+                    // Convert NodeList to Array
+                    const clinicArray = Array.from(clinicCards);
+    
+                    // Sort clinics by distance
+                    clinicArray.sort(function(a, b) {
+                        const aLocation = a.querySelector('img').getAttribute('data-location').split(',');
+                        const bLocation = b.querySelector('img').getAttribute('data-location').split(',');
+                        const distanceA = calculateDistance(userLat, userLng, parseFloat(aLocation[0]), parseFloat(aLocation[1]));
+                        const distanceB = calculateDistance(userLat, userLng, parseFloat(bLocation[0]), parseFloat(bLocation[1]));
+                        return distanceA - distanceB;
+                    });
+    
+                    // Reorder clinic cards based on sorted array
+                    const clinicGrid = document.querySelector('.clinic-grid');
+                    clinicGrid.innerHTML = '';
+                    clinicArray.forEach(function(clinic) {
+                        clinicGrid.appendChild(clinic);
+                    });
                 });
             });
+    
+            // Event listener for all clinics button
+            document.getElementById('all-clinics-btn').addEventListener('click', function() {
+                // Reload the page to reset the clinics to their original order
+                location.reload();
+            });
         });
-    </script> {% endcomment %}
-
-
-
+    </script>
 </body>
 
 </html>
