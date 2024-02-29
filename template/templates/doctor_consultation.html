@@ -88,6 +88,42 @@
         .add-to-cart-button:hover {
             background-color: #0056b3;
         }
+
+
+        .consultation-form {
+            text-align: center;
+        }
+
+        /* Style for patient name */
+        .patient-name {
+            margin-top: 20px;
+            font-size: 24px;
+        }
+
+        /* Style for patient image container */
+        .patient-image-container {
+            margin-top: 20px;
+        }
+
+        /* Style for patient image */
+        .patient-image {
+            width: 200px;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        /* Hover effect for patient image */
+        .patient-image:hover {
+            transform: scale(1.05);
+        }
+
+        /* Style for submit button */
+        .submit-button {
+            margin-top: 20px;
+            padding: 10px 30px;
+            font-size: 18px;
+        }
     </style>
 </head>
 <body>
@@ -114,28 +150,35 @@
         </div>
     </div>
    
-    <div class="container-fluid bg-primary py-5 mb-5 hero-header">
-        <div class="container py-5">
-            <div class="row justify-content-center">
-                <div class="col-lg-8">
-                    <div class="card card-container">
-                        <div class="card-header bg-primary text-white">
-                            <h2 class="mb-0">Consultation</h2>
-                        </div>
-                        <div class="card-body">
-                            <div class="container">
-                                <form method="post" enctype="multipart/form-data">
-                                    {% csrf_token %}
-                                    {{ form.as_p }}
-                                    <button type="submit" class="btn btn-primary">Submit Consultation</button>
-                                </form>
-                            </div>
+<!-- doctor_consultation.html -->
+<div class="container-fluid bg-primary py-5 mb-5 hero-header">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card card-container">
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="mb-0">Consultation</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="container consultation-form">
+                            <form method="post" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <!-- Display patient name -->
+                                <h3 class="patient-name">Patient: {{ consultation_request.patient.first_name }}</h3>
+                                <!-- Display patient image -->
+                                <div class="patient-image-container">
+                                    <img src="{{ consultation_request.image.url }}" alt="Patient Image" class="patient-image">
+                                </div>
+                                {{ form.as_p }}
+                                <button type="submit" class="btn btn-primary submit-button">Submit Consultation</button>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
 
     <div class="container-fluid bg-dark text-light mt-5 py-5">
