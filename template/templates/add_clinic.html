@@ -154,6 +154,16 @@
                 <div class="error-message" id="image_error"></div>
             </div>
 
+            <!-- Doctor Selection -->
+            <div class="form-group">
+                <label for="doctors">Doctors:</label>
+                <select id="doctors" name="doctors" multiple>
+                    {% for doctor in doctors %}
+                        <option value="{{ doctor.id }}">{{ doctor.first_name }} {{ doctor.last_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
             <!-- Map Container -->
             <div id="map-container"></div>
 
@@ -171,6 +181,8 @@
             <button class="submit-button" type="submit">Submit</button>
         </form>
     </div>
+
+
     <div class="toast-container">
         {% if messages %}
             <ul class="messages">
@@ -287,7 +299,7 @@
         document.getElementById("speciality").addEventListener("input", validateSpeciality);
         document.getElementById("image").addEventListener("change", validateImage);
         document.getElementById("location").addEventListener("input", validateLocation);
-    </script>
+    </script> 
     
     <!-- Include Leaflet and Control Geocoder scripts -->
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>

@@ -36,7 +36,6 @@
         }
         
         .background {
-            /* background-image: url("{% static 'img/profile.jpg' %}");*/ /* Replace 'profile.jpg' with your image file */
             background-size: cover;
             background-position: center;
             filter: blur(5px); /* Adjust the blur amount as needed */
@@ -136,10 +135,15 @@
         }
     </style>
 
-    <div class="container-fluid bg-primary py-5 mb-5 hero-header">
+    {% comment %} <div class="container-fluid bg-primary py-5 mb-5 hero-header">
         <div class="container py-5">
             <div class="bg-white p-4 rounded shadow">
                 <h1>All Testimonials</h1>
+                <div class="filter-buttons">
+                    <a href="#" class="btn btn-primary filter-button" data-filter="positive">Positive</a>
+                    <a href="#" class="btn btn-danger filter-button" data-filter="negative">Negative</a>
+                    <a href="#" class="btn btn-secondary filter-button" data-filter="all">Show All</a>
+                </div>
                 {% if testimonials %}
                     <table>
                         <thead>
@@ -149,17 +153,25 @@
                                 <th>From</th>
                                 <th>For Doctor</th>
                                 <th>Doctor Image</th>
+                                <th>Sentiment Score</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for testimonial in testimonials %}
-                                <tr>
+                                <tr class="testimonial-row" data-sentiment="{{ testimonial.sentiment }}">
                                     <td>{{ testimonial.rating }}</td>
                                     <td>{{ testimonial.feedback }}</td>
                                     <td>{{ testimonial.patient.user.get_full_name }}</td>
                                     <td>{{ testimonial.doctor.user.get_full_name }}</td>
                                     <td>
                                         <img src="{{ testimonial.doctor.doctoradditionaldetails.picture.url }}" alt="{{ testimonial.doctor.user.get_full_name }}">
+                                    </td>
+                                    <td>
+                                        {% if testimonial.sentiment_score %}
+                                            {{ testimonial.sentiment_score }}
+                                        {% else %}
+                                            Not analyzed
+                                        {% endif %}
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -170,12 +182,104 @@
                 {% endif %}
             </div>
         </div>
-    </div>
-{% endblock %}
+    </div> {% endcomment %}
 
+
+    <div class="container-fluid bg-primary py-5 mb-5 hero-header">
+        <div class="container py-5">
+            <div class="bg-white p-4 rounded shadow">
+                <h1>All Testimonials</h1>
+                <div class="filter-buttons">
+                    <button class="btn btn-primary filter-button" data-filter="positive">Positive</button>
+                    <button class="btn btn-danger filter-button" data-filter="negative">Negative</button>
+                    <button class="btn btn-secondary filter-button" data-filter="all">Show All</button>
+                </div>
+                
+                {% if testimonials %}
+                    <!-- All Testimonials Table -->
+                    <table id="all-testimonials-table">
+                        <thead>
+                            <tr>
+                                <th>Rating</th>
+                                <th>Feedback</th>
+                                <th>From</th>
+                                <th>For Doctor</th>
+                                <th>Doctor Image</th>
+                                <th>Sentiment Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for testimonial in testimonials %}
+                                <tr class="testimonial-row" data-sentiment="{{ testimonial.sentiment }}">
+                                    <td>{{ testimonial.rating }}</td>
+                                    <td>{{ testimonial.feedback }}</td>
+                                    <td>{{ testimonial.patient.user.get_full_name }}</td>
+                                    <td>{{ testimonial.doctor.user.get_full_name }}</td>
+                                    <td>
+                                        <img src="{{ testimonial.doctor.doctoradditionaldetails.picture.url }}" alt="{{ testimonial.doctor.user.get_full_name }}">
+                                    </td>
+                                    <td>
+                                        {% if testimonial.sentiment_score %}
+                                            {{ testimonial.sentiment_score }}
+                                        {% else %}
+                                            Not analyzed
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <!-- End of All Testimonials Table -->
+    
+                    <!-- Positive Testimonials Table (Initially Hidden) -->
+                    <table id="positive-testimonials-table" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>Rating</th>
+                                <th>Feedback</th>
+                                <th>From</th>
+                                <th>For Doctor</th>
+                                <th>Doctor Image</th>
+                                <th>Sentiment Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Positive testimonials will be dynamically added here -->
+                        </tbody>
+                    </table>
+                    <!-- End of Positive Testimonials Table -->
+    
+                    <!-- Negative Testimonials Table (Initially Hidden) -->
+                    <table id="negative-testimonials-table" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>Rating</th>
+                                <th>Feedback</th>
+                                <th>From</th>
+                                <th>For Doctor</th>
+                                <th>Doctor Image</th>
+                                <th>Sentiment Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Negative testimonials will be dynamically added here -->
+                        </tbody>
+                    </table>
+                    <!-- End of Negative Testimonials Table -->
+                {% else %}
+                    <p>No testimonials available.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% endblock %}
+
+    <!-- Footer Section -->
     <div class="container-fluid bg-dark text-light mt-5 py-5">
         <div class="container py-5">
             <div class="row g-5">
+                <!-- Contact Info -->
                 <div class="col-lg-3 col-md-6">
                     <h4 class="d-inline-block text-primary text-uppercase border-bottom border-5 border-secondary mb-4">Get In Touch</h4>
                     <p class="mb-4">No dolore ipsum accusam no lorem. Invidunt sed clita kasd clita et et dolor sed dolor</p>
@@ -183,7 +287,7 @@
                     <p class="mb-2"><i class="fa fa-envelope text-primary me-3"></i>info@example.com</p>
                     <p class="mb-0"><i class="fa fa-phone-alt text-primary me-3"></i>+012 345 67890</p>
                 </div>
-     >
+                <!-- Newsletter -->
                 <div class="col-lg-3 col-md-6">
                     <h4 class="d-inline-block text-primary text-uppercase border-bottom border-5 border-secondary mb-4">Newsletter</h4>
                     <form action="">
@@ -203,12 +307,10 @@
             </div>
         </div>
     </div>
-    <!-- ... (Your footer section remains the same) ... -->
 
     <!-- Back to Top -->
     <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
 
-    <!-- JavaScript Libraries -->
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -223,22 +325,62 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    <!-- ... (Your JavaScript library references remain the same) ... -->
-
     <!-- Template Javascript -->
     <script src="{% static 'js/main.js' %}"></script>
     <script src="{% static 'js/refresh_on_back.js' %}"></script>
 
+    {% comment %} <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterButtons = document.querySelectorAll('.filter-button');
+            const testimonialRows = document.querySelectorAll('.testimonial-row');
+    
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const filter = this.dataset.filter;
+                    testimonialRows.forEach(row => {
+                        if (filter === 'positive' && row.dataset.sentiment === 'positive') {
+                            row.style.display = 'table-row';
+                        } else if (filter === 'negative' && row.dataset.sentiment === 'negative') {
+                            row.style.display = 'table-row';
+                        } else if (filter === 'all') {
+                            row.style.display = 'table-row';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                });
+            });
+        });
+    </script> {% endcomment %}
+
     <script>
-        $(document).ready(function () {
-            $('#search-medicine').on('input', function () {
-                const searchText = $(this).val().toLowerCase();
-                $('.medicine-card').each(function () {
-                    const medicineName = $(this).find('h2').text().toLowerCase();
-                    if (medicineName.includes(searchText)) {
-                        $(this).show();
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterButtons = document.querySelectorAll('.filter-button');
+            const testimonialRows = document.querySelectorAll('.testimonial-row');
+
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const filter = this.dataset.filter;
+                    testimonialRows.forEach(row => {
+                        if (filter === 'positive' || filter === 'negative') {
+                            if (row.dataset.sentiment === filter) {
+                                row.style.display = 'table-row';
+                            } else {
+                                row.style.display = 'none';
+                            }
+                        } else {
+                            row.style.display = 'table-row';
+                        }
+                    });
+
+                    // Toggle display of tables based on filter
+                    if (filter === 'positive' || filter === 'negative') {
+                        document.getElementById(`${filter}-testimonials-table`).style.display = 'table';
+                        document.getElementById('all-testimonials-table').style.display = 'none';
                     } else {
-                        $(this).hide();
+                        document.getElementById('positive-testimonials-table').style.display = 'none';
+                        document.getElementById('negative-testimonials-table').style.display = 'none';
+                        document.getElementById('all-testimonials-table').style.display = 'table';
                     }
                 });
             });
