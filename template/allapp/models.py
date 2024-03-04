@@ -184,8 +184,7 @@ class Testimonial(models.Model):
     def __str__(self):
         return f"Testimonial from {self.patient.user.get_full_name()} for Dr. {self.doctor.user.get_full_name()}"
     
-    
-    
+
     
 class Order(models.Model):
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE)

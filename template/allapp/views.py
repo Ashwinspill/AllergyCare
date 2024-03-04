@@ -1187,9 +1187,47 @@ def submit_testimonial(request, doctor_id):
 
     return render(request, 'submit_testimonial.html', {'form': form, 'doctor': doctor})
 
+#NLP work
+# @login_required
+# def view_testimonials(request):
+#     testimonials = Testimonial.objects.all()
+#     return render(request, 'view_testimonials.html', {'testimonials': testimonials})
+
+
+from textblob import TextBlob
+
+def analyze_sentiment(feedback):
+    """
+    Analyzes the sentiment of the given feedback using TextBlob.
+    Returns a tuple containing the sentiment score and label.
+    """
+    # Create a TextBlob object
+    blob = TextBlob(feedback)
+    
+    # Get the sentiment score (-1 for negative, 0 for neutral, 1 for positive)
+    sentiment_score = blob.sentiment.polarity
+    
+    # Determine the sentiment label
+    if sentiment_score > 0:
+        sentiment_label = 'Positive'
+    elif sentiment_score < 0:
+        sentiment_label = 'Negative'
+    else:
+        sentiment_label = 'Neutral'
+    
+    return sentiment_score, sentiment_label
+
+
 @login_required
 def view_testimonials(request):
     testimonials = Testimonial.objects.all()
+    
+    # Analyze sentiment for each testimonial
+    for testimonial in testimonials:
+        sentiment_score, sentiment_label = analyze_sentiment(testimonial.feedback)
+        testimonial.sentiment_score = sentiment_score
+        testimonial.sentiment_label = sentiment_label
+    
     return render(request, 'view_testimonials.html', {'testimonials': testimonials})
 
 
@@ -1315,3 +1353,8 @@ def message_page(request):
         'Threads': threads
     }
     return render(request, 'messages.html', context)
+
+
+@login_required
+def quiz(request):
+    return render(request, 'quiz.html')

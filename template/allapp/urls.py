@@ -61,6 +61,7 @@ urlpatterns = [
     path('message_page/', views.message_page, name='message_page'),
     path('clinic/<int:clinic_id>/', views.clinic_detail, name='clinic_detail'),
     path('view_location/<int:clinic_id>/', views.view_location, name='view_location'),
+    path('quiz/', views.quiz, name='quiz'),
 ] 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
