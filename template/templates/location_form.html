@@ -1,3 +1,21 @@
+{% comment %} <!-- location_form.html -->
+<form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label for="latitude" class="form-label">Latitude</label>
+        <input type="text" class="form-control" id="latitude" name="latitude" required>
+    </div>
+    <div class="mb-3">
+        <label for="longitude" class="form-label">Longitude</label>
+        <input type="text" class="form-control" id="longitude" name="longitude" required>
+    </div>
+    <div class="mb-3">
+        <a href="https://www.gps-coordinates.net/" target="_blank">GET YOUR LOCATION!</a>
+    </div>
+    <button type="submit" class="btn btn-primary">Find Nearest Clinic</button>
+</form> {% endcomment %}
+
+
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -152,31 +170,26 @@
                 <div class="col-lg-8">
                     <div class="card card-container">
                         <div class="card-header bg-primary text-white">
-                            <h2 class="mb-0">Clinics</h2><a href="{% url 'find_nearest_clinic' %}" class="btn btn-primary">Find Nearest Clinic</a>
-                         
+                            <h2 class="mb-0">Find Nearest Clinic</h2>
                         </div>
-                        <div class="card-body">
-                            <div class="container">
-                                <div class="row">
-                                    {% for clinic in clinics %}
-                                        <div class="clinic-card col-md-4"> <!-- Adjust column size to fit three clinics per row -->
-                                            <!-- Hidden location data attribute -->
-                                            <img src="{{ clinic.image.url }}" alt="{{ clinic.clinic_name }}" data-location="{{ clinic.location }}">
-                                            <div class="clinic-info">
-                                                <h2>{{ clinic.clinic_name }}</h2>
-                                                <p>Speciality: {{ clinic.speciality }}</p>
-                                                <p>Email: {{ clinic.email }}</p>
-                                                <p>Contact Number: {{ clinic.contact_number }}</p>
-                                                <!-- Add other clinic information as needed -->
-                                                <a href="{% url 'clinic_detail' clinic.id %}" class="btn btn-primary">View Details</a>
-                                            </div>
-                                        </div>
-                                        {% if forloop.counter|divisibleby:3 and not forloop.last %}
-                                            </div><div class="row"> <!-- Close the current row and start a new row -->
-                                        {% endif %}
-                                    {% endfor %}
+                        <div class="card-body profile-form">
+                            <form method="post" onsubmit="return validateLocationForm()">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    <label for="latitude" class="form-label">Latitude</label>
+                                    <input type="text" class="form-control" id="latitude" name="latitude" required>
                                 </div>
-                            </div>
+                                <div class="mb-3">
+                                    <label for="longitude" class="form-label">Longitude</label>
+                                    <input type="text" class="form-control" id="longitude" name="longitude" required>
+                                </div>
+                                <div class="mb-3">
+                                    <a href="https://www.gps-coordinates.net/" target="_blank">GET YOUR LOCATION!</a>
+                                </div>
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary btn-update-profile">Find Nearest Clinic</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
