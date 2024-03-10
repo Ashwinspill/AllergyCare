@@ -1104,7 +1104,7 @@ def create_appointment(request):
                 ).first()
 
                 if existing_appointment:
-                    response_data = {'success': False, 'message': 'You already have an appointment on the same day.'}
+                    messages.error(request, 'You already have an appointment on the same day.')
                 else:
                     appointment.patient = patient
                     appointment.save()
@@ -1125,17 +1125,7 @@ def create_appointment(request):
                     # Redirect to the booking_success page upon successful appointment
                     return redirect('booking_success')
             else:
-                response_data = {'success': False, 'message': 'This slot is already booked. Please choose another.'}
-
-            # Send a toast notification
-            if not response_data['success']:
-                message = response_data['message']
-                message_tags = 'error'  # You can customize this based on your styling
-
-                return JsonResponse(response_data, status=400)
-            else:
-                # If the appointment was successful, return a success message
-                return JsonResponse(response_data)
+                messages.error(request, 'This slot is already booked. Please choose another.')
 
     else:
         form = AppointmentForm()
