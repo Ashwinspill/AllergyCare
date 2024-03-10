@@ -412,6 +412,36 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 from .models import Testimonial, Order
 
+# @login_required
+# def admind(request):
+#     # Query all User objects (using the custom user model) from the database
+#     User = get_user_model()
+#     user_profiles = User.objects.all()
+    
+#     # Query Testimonial objects
+#     testimonials = Testimonial.objects.all()
+    
+#     # Perform sentiment analysis for each testimonial
+#     for testimonial in testimonials:
+#         sentiment_score, sentiment_label = analyze_sentiment(testimonial.feedback)
+#         testimonial.sentiment_score = sentiment_score
+#         testimonial.sentiment_label = sentiment_label
+
+#     # Query Order objects
+#     orders = Order.objects.all()
+
+#     # Pass the data to the template
+#     context = {
+#         'user_profiles': user_profiles,
+#         'testimonials': testimonials,
+#         'orders': orders,
+#     }
+    
+#     # Render the HTML template
+#     response = render(request, 'admind.html', context)
+#     response['Cache-Control'] = 'no-store, must-revalidate'
+#     return response
+
 @login_required
 def admind(request):
     # Query all User objects (using the custom user model) from the database
@@ -420,6 +450,21 @@ def admind(request):
     
     # Query Testimonial objects
     testimonials = Testimonial.objects.all()
+    
+    # Perform sentiment analysis for each testimonial and filter based on sentiment
+    filtered_testimonials = []
+    for testimonial in testimonials:
+        sentiment_score, sentiment_label = analyze_sentiment(testimonial.feedback)
+        testimonial.sentiment_score = sentiment_score
+        testimonial.sentiment_label = sentiment_label
+        
+        # Filter testimonials based on sentiment
+        if request.GET.get('sentiment') == 'positive' and sentiment_score > 0:
+            filtered_testimonials.append(testimonial)
+        elif request.GET.get('sentiment') == 'negative' and sentiment_score < 0:
+            filtered_testimonials.append(testimonial)
+        elif not request.GET.get('sentiment'):
+            filtered_testimonials.append(testimonial)
 
     # Query Order objects
     orders = Order.objects.all()
@@ -427,7 +472,7 @@ def admind(request):
     # Pass the data to the template
     context = {
         'user_profiles': user_profiles,
-        'testimonials': testimonials,
+        'filtered_testimonials': filtered_testimonials,
         'orders': orders,
     }
     
@@ -435,6 +480,7 @@ def admind(request):
     response = render(request, 'admind.html', context)
     response['Cache-Control'] = 'no-store, must-revalidate'
     return response
+
 
 def toggle_active(request, user_id, is_active):
     user = get_object_or_404(CustomUser, id=user_id)
@@ -1076,8 +1122,8 @@ def create_appointment(request):
 
                     send_mail(subject, plain_message, from_email, [to_email], html_message=html_message)
 
-                    response_data = {'success': True, 'message': 'Appointment successfully booked.'}
-                    return redirect('booking_success')  # Redirect to the booking success page using the URL name
+                    # Redirect to the booking_success page upon successful appointment
+                    return redirect('booking_success')
             else:
                 response_data = {'success': False, 'message': 'This slot is already booked. Please choose another.'}
 
@@ -1095,6 +1141,7 @@ def create_appointment(request):
         form = AppointmentForm()
 
     return render(request, 'create_appointment.html', {'form': form})
+    
     
 @login_required   
 def booking_success(request):
@@ -1187,11 +1234,6 @@ def submit_testimonial(request, doctor_id):
 
     return render(request, 'submit_testimonial.html', {'form': form, 'doctor': doctor})
 
-#NLP work
-# @login_required
-# def view_testimonials(request):
-#     testimonials = Testimonial.objects.all()
-#     return render(request, 'view_testimonials.html', {'testimonials': testimonials})
 
 
 from textblob import TextBlob
@@ -1242,54 +1284,8 @@ def doctor_testimonials(request, doctor_id):
 
 
 from .forms import ClinicForm
-#clinic works
-# @login_required
-# def add_clinic(request):
-#     if request.method == 'POST':
-#         form = ClinicForm(request.POST, request.FILES)
-#         if form.is_valid():
-#             clinic = form.save(commit=False)
-#             latitude = request.POST.get('latitude')
-#             longitude = request.POST.get('longitude')
-#             clinic.location = f"{latitude}, {longitude}"
-#             clinic.save()
-#             messages.success(request, 'Clinic added successfully!')
-#             return redirect('add_clinic')  # Redirect back to the same page after successful submission
-#         else:
-#             # Print form errors for debugging
-#             print(form.errors)
-#             # Print POST data for debugging
-#             print(request.POST)
-#             # Return HttpResponse with form errors for debugging
-#             return HttpResponse("Form is not valid. Errors: " + str(form.errors))
-#     else:
-#         form = ClinicForm()
-#     return render(request, 'add_clinic.html', {'form': form})
 
-# @login_required
-# def add_clinic(request):
-#     if request.method == 'POST':
-#         form = ClinicForm(request.POST, request.FILES)
-#         if form.is_valid():
-#             clinic = form.save(commit=False)
-#             latitude = request.POST.get('latitude')
-#             longitude = request.POST.get('longitude')
-#             clinic.location = f"{latitude}, {longitude}"
-#             clinic.save()
-#             form.save_m2m()  # Save many-to-many relationships
-#             messages.success(request, 'Clinic added successfully!')
-#             return redirect('add_clinic')  # Redirect back to the same page after successful submission
-#         else:
-#             # Print form errors for debugging
-#             print(form.errors)
-#             # Print POST data for debugging
-#             print(request.POST)
-#             # Return HttpResponse with form errors for debugging
-#             return HttpResponse("Form is not valid. Errors: " + str(form.errors))
-#     else:
-#         form = ClinicForm()
-#     return render(request, 'add_clinic.html', {'form': form})
-
+@login_required
 def add_clinic(request):
     if request.method == 'POST':
         form = ClinicForm(request.POST, request.FILES)
@@ -1358,3 +1354,54 @@ def message_page(request):
 @login_required
 def quiz(request):
     return render(request, 'quiz.html')
+
+
+
+
+# from django.shortcuts import render
+# from .models import Clinic
+# from .utils import find_nearest_clinic
+
+# def find_nearest_clinic_view(request):
+#     if request.method == 'POST':
+#         latitude = float(request.POST.get('latitude'))
+#         longitude = float(request.POST.get('longitude'))
+#         clinic_locations = [(float(lat), float(lon)) for lat, lon in [clinic.location.split(',') for clinic in Clinic.objects.all()]]
+#         nearest_clinic, min_distance = find_nearest_clinic(latitude, longitude, clinic_locations)
+#         return render(request, 'nearest_clinic.html', {'nearest_clinic': nearest_clinic, 'min_distance': min_distance})
+#     return render(request, 'location_form.html')
+
+
+
+
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseBadRequest
+from .utils import find_nearest_clinic
+from .models import Clinic
+
+@login_required
+def find_nearest_clinic_view(request):
+    if request.method == 'POST':
+        # Get the latitude and longitude from the form POST data
+        latitude_str = request.POST.get('latitude')
+        longitude_str = request.POST.get('longitude')
+
+        # Validate latitude and longitude inputs
+        try:
+            latitude = float(latitude_str)
+            longitude = float(longitude_str)
+        except ValueError:
+            return HttpResponseBadRequest("Invalid latitude or longitude value")
+
+        # Get clinic locations and names
+        clinic_data = [(clinic.clinic_name, float(clinic.location.split(',')[0]), float(clinic.location.split(',')[1])) for clinic in Clinic.objects.all()]
+
+        # Call the utility function to find the nearest clinic
+        nearest_clinic, min_distance, clinic_name = find_nearest_clinic(latitude, longitude, clinic_data)
+        
+        # Pass the data to the template
+        return render(request, 'nearest_clinic.html', {'nearest_clinic': nearest_clinic, 'min_distance': min_distance, 'clinic_name': clinic_name})
+    else:
+        return render(request, 'location_form.html')
+
