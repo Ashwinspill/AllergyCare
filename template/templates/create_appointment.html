@@ -228,7 +228,7 @@
         dateInput.min = today.toISOString().split("T")[0]; // Set the minimum date to today
         dateInput.max = maxDate.toISOString().split("T")[0]; // Set the maximum date
 
-        // Your existing code
+        // Submit form using AJAX
         $('form').on('submit', function (e) {
             e.preventDefault();
             var form = $(this);
@@ -243,38 +243,18 @@
                         window.location.href = "{% url 'booking_success' %}";
                     } else {
                         // Show error toast notification
-                        showNotification('error', data.message);
+                        toastr.error(data.message);
                     }
                 },
                 error: function (xhr) {
                     // Show error toast notification if there's an AJAX error
-                    showNotification('error', 'The slot has been already booked. Please select another slot.');
+                    toastr.error('The slot has been already booked. Please select another slot.');
                 }
             });
         });
-
-        // Function to show Toastr notification
-        function showNotification(type, message) {
-            toastr.options = {
-                "closeButton": true,
-                "debug": false,
-                "newestOnTop": false,
-                "progressBar": false,
-                "positionClass": "toast-top-right",
-                "preventDuplicates": false,
-                "showDuration": "300",
-                "hideDuration": "1000",
-                "timeOut": "5000",
-                "extendedTimeOut": "1000",
-                "showEasing": "swing",
-                "hideEasing": "linear",
-                "showMethod": "fadeIn",
-                "hideMethod": "fadeOut"
-            };
-            toastr[type](message);
-        }
     });
 </script>
+
 </body>
 
 </html>

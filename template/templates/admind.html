@@ -279,7 +279,14 @@
     </div>
 
     <!-- Container for Testimonial details table -->
-    <div class="table-container" id="testimonial-table" style="display: none;">
+   <!-- Display testimonials with sentiment scores -->
+   <div class="table-container" id="testimonial-table" style="display: none;">
+    <div>
+        <button onclick="filterSentiment('positive')">Positive Sentiment</button>
+        <button onclick="filterSentiment('negative')">Negative Sentiment</button>
+    </div>
+    
+    <!-- Display testimonials with sentiment scores -->
         <table>
             <thead>
                 <tr>
@@ -287,15 +294,17 @@
                     <th>Patient</th>
                     <th>Rating</th>
                     <th>Feedback</th>
+                    <th>Sentiment Score</th>
                 </tr>
             </thead>
             <tbody>
-                {% for testimonial in testimonials %}
-                <tr>
+                {% for testimonial in filtered_testimonials %}
+                <tr class="{% if testimonial.sentiment_label == 'Positive' %}positive{% elif testimonial.sentiment_label == 'Negative' %}negative{% endif %}">
                     <td>{{ testimonial.doctor.user.get_full_name }}</td>
                     <td>{{ testimonial.patient.user.get_full_name }}</td>
                     <td>{{ testimonial.rating }}</td>
                     <td>{{ testimonial.feedback }}</td>
+                    <td>{{ testimonial.sentiment_score }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
