@@ -63,6 +63,8 @@ urlpatterns = [
     path('view_location/<int:clinic_id>/', views.view_location, name='view_location'),
     path('quiz/', views.quiz, name='quiz'),
     path('find_nearest_clinic/', views.find_nearest_clinic_view, name='find_nearest_clinic'),
-] 
+    path('view_appointments/', views.view_appointments, name='view_appointments'),
+    path('cancel_appointment/<int:appointment_id>/', views.cancel_appointment, name='cancel_appointment'),
+]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

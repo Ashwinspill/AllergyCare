@@ -1137,6 +1137,37 @@ def create_appointment(request):
 def booking_success(request):
     return render(request, 'booking_success.html')
 
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
+from .models import Appointment
+
+@login_required
+def view_appointments(request):
+    patient = request.user.patient
+    appointments = Appointment.objects.filter(patient=patient)
+    return render(request, 'view_appointments.html', {'appointments': appointments})
+
+@login_required
+def cancel_appointment(request, appointment_id):
+    appointment = get_object_or_404(Appointment, pk=appointment_id)
+    doctor = appointment.doctor
+
+    # Send cancellation email to the doctor
+    subject = f'Appointment Cancelled - {appointment}'
+    message = f'The appointment with {doctor} scheduled for {appointment.date} at {appointment.time_slot} has been cancelled.'
+    from_email = 'your_email@example.com'
+    to_email = doctor.email
+    send_mail(subject, message, from_email, [to_email])
+
+    # Delete the appointment
+    appointment.delete()
+
+    return redirect('view_appointments')
+
+
+
+
 @login_required
 def appointment_detail(request, appointment_id):
     appointment = get_object_or_404(Appointment, id=appointment_id)
