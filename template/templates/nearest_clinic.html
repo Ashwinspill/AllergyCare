@@ -178,7 +178,7 @@
                         <div class="card-body profile-form">
                             <h1>Nearest Clinic</h1>
                             {% if nearest_clinic %}
-                                <img src="{{ nearest_clinic.image.url }}" alt="{{ nearest_clinic.clinic_name }}" class="img-fluid mb-3">
+                                <img src="{{ nearest_clinic.clinic.image.url }}" alt="{{ nearest_clinic.clinic_name }}" class="img-fluid mb-3">
                                 <p>The nearest clinic is <span id="nearestClinicName" style="color: red; font-weight: bold;">{{ clinic_name }}</span></p>
                                 <p>The distance to the nearest clinic is: <span id="nearestClinicDistance" style="color: blue; font-weight: bold;">{{ min_distance }} kilometers</span></p>
                             {% else %}
