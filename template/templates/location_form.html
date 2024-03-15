@@ -164,7 +164,7 @@
         </div>
     </div>
    
-    <div class="container-fluid bg-primary py-5 mb-5 hero-header">
+    {% comment %} <div class="container-fluid bg-primary py-5 mb-5 hero-header">
         <div class="container py-5">
             <div class="row justify-content-center">
                 <div class="col-lg-8">
@@ -196,7 +196,66 @@
             </div>
         </div>
     </div>
+     {% endcomment %}
+
+
+     <div class="container-fluid bg-primary py-5 mb-5 hero-header">
+        <div class="container py-5">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card card-container">
+                        <div class="card-header bg-primary text-white">
+                            <h2 class="mb-0">Find Nearest Clinic</h2>
+                        </div>
+                        <div class="card-body profile-form">
+                            <form method="post" onsubmit="return validateLocationForm()">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    <label for="latitude" class="form-label">Latitude</label>
+                                    <input type="text" class="form-control" id="latitude" name="latitude" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="longitude" class="form-label">Longitude</label>
+                                    <input type="text" class="form-control" id="longitude" name="longitude" required>
+                                </div>
+                                {% comment %} <div id="locationDisplay"></div> <!-- Display latitude and longitude here --> {% endcomment %}
+                                <div class="mb-3">
+                                    <button type="button" class="btn btn-primary btn-update-profile" onclick="getLocation()">Get Location</button>
+                                </div>
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary btn-update-profile">Find Nearest Clinic</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     
+    <script>
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition);
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+    
+        function showPosition(position) {
+            var latitude = position.coords.latitude;
+            var longitude = position.coords.longitude;
+    
+            var latitudeInput = document.getElementById("latitude");
+            var longitudeInput = document.getElementById("longitude");
+    
+            latitudeInput.value = latitude;
+            longitudeInput.value = longitude;
+    
+            var locationDisplay = document.getElementById("locationDisplay");
+            locationDisplay.innerHTML = "Latitude: " + latitude + "<br>Longitude: " + longitude;
+        }
+    </script>
 
 </body>
 
