@@ -748,15 +748,7 @@ def add_to_cart(request, medicine_id):
 
     return redirect('view_cart')  # Redirect to the cart view after adding the item
 
-# @login_required
-# def view_cart(request):
-#     user = request.user  # Assuming the user is authenticated
-#     cart, created = Cart.objects.get_or_create(user=user)
 
-#     context = {
-#         'cart': cart,
-#     }
-#     return render(request, 'cart.html', context)
 
 
 from django.http import HttpResponse
@@ -817,59 +809,6 @@ def checkout(request):
         'payment': payment
     }
     return render(request, 'checkout.html', context)
-
-
-# from django.contrib import messages
-# from django.http import HttpResponse
-# from django.shortcuts import render, redirect
-# from django.views.decorators.csrf import csrf_exempt
-# from .models import CustomUser, Patient, Order
-# from .models import CartItem, Cart  # Assuming you have Cart and CartItem models
-# from reportlab.pdfgen import canvas
-# from decimal import Decimal
-# from django.db.models import Sum
-
-# @csrf_exempt
-# def payment_success(request):
-#     user = request.user
-#     patient = Patient.objects.get(user=user)
-#     cart_items = CartItem.objects.filter(cart__user=user)
-
-#     # Calculate total amount paid using aggregate
-#     total_amount_paid = cart_items.aggregate(total_amount_paid=Sum('medicine__price'))['total_amount_paid'] or 0
-
-#     # Create an order after successful payment
-#     order = Order.objects.create(
-#         patient=patient,
-#         medicine=cart_items.first().medicine if cart_items else None,
-#         quantity=sum(cart_item.quantity for cart_item in cart_items),
-#         amount_paid=total_amount_paid,
-#     )
-
-#     # Clear the patient's cart after creating the order
-#     cart_items.delete()
-
-#     # Generate a PDF bill
-#     response = HttpResponse(content_type='application/pdf')
-#     response['Content-Disposition'] = f'attachment; filename="bill_{order.order_date.strftime("%Y%m%d%H%M%S")}.pdf"'
-
-#     # Create PDF
-#     p = canvas.Canvas(response)
-#     p.setFont("Times-Bold", 16)
-#     p.drawString(100, 800, f"Bill for Order ID: {order.id}")
-
-#     # Add more information to the PDF as needed
-#     # Example:
-#     if order.medicine:
-#         p.drawString(100, 780, f"Medicine: {order.medicine.name}")
-#     p.drawString(100, 760, f"Quantity: {order.quantity}")
-#     p.drawString(100, 740, f"Amount Paid: {order.amount_paid}")
-
-#     p.showPage()
-#     p.save()
-
-#     messages.success(request, 'Payment successful! Your order has been placed.')
-#     return response
 
 
 
@@ -1082,6 +1021,8 @@ def create_appointment(request):
         form_data['patient_email'] = patient.email
 
         form = AppointmentForm(form_data)
+        
+
         
         if form.is_valid():
             appointment = form.save(commit=False)
