@@ -93,27 +93,14 @@
                 <div class="collapse navbar-collapse" id="navbarCollapse">
                     <div class="navbar-nav ms-auto py-0">
                         <a href="{% url 'dhome' %}" class="nav-item nav-link active">Home</a>
-                        <a href="{% url 'patient_profile' %}" class="nav-item nav-link">My Profile</a>
-                        <a href="service.html" class="nav-item nav-link">Service</a>
-                        <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
-                            <div class="dropdown-menu m-0">
-                                <a href="blog.html" class="dropdown-item">Blog Grid</a>
-                                <a href="detail.html" class="dropdown-item">Blog Detail</a>
-                                <a href="team.html" class="dropdown-item">The Team</a>
-                                <a href="testimonial.html" class="dropdown-item">Testimonial</a>
-                                <a href="appointment.html" class="dropdown-item">Appointment</a>
-                                <a href="search.html" class="dropdown-item">Search</a>
-                            </div>
-                        </div>
-                        <a href="{% url 'logout' %}" class="nav-item nav-link">Logout</a> 
+                        <a href="{% url 'patient_profile2' %}" class="nav-item nav-link">My Profile</a>
                     </div>
                 </div>
             </nav>
         </div>
     </div>
 
-    <div class="container-fluid bg-primary py-5 mb-5 hero-header">
+    {% comment %} <div class="container-fluid bg-primary py-5 mb-5 hero-header">
         <div class="container py-5">
             <div class="row justify-content-center">
                 <div class="col-lg-8">
@@ -132,7 +119,158 @@
                 </div>
             </div>
         </div>
+    </div> {% endcomment %}
+
+    <div class="container-fluid bg-primary py-5 mb-5 hero-header">
+        <div class="container py-5">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card card-container">
+                        <div class="card-header bg-primary text-white">
+                            <h2 class="mb-0">Fill Additional Details</h2>
+                        </div>
+                        <div class="card-body profile-form">
+                            <form method="post" enctype="multipart/form-data" onsubmit="return validateProfileForm()">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    <label for="picture" class="form-label">Picture</label>
+                                    <input type="file" class="form-control" id="picture" name="picture" accept="image/jpeg, image/png" onchange="validatePicture()">
+                                    <div class="error-message" id="picture-error"></div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="registration_number" class="form-label">Registration Number</label>
+                                    <input type="text" class="form-control" id="registration_number" name="registration_number" required oninput="validateRegistrationNumber()">
+                                    <div class="error-message" id="registration_number-error"></div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="experience" class="form-label">Experience</label>
+                                    <input type="number" class="form-control" id="experience" name="experience" required oninput="validateExperience()">
+                                    <div class="error-message" id="experience-error"></div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="speciality" class="form-label">Speciality</label>
+                                    <input type="text" class="form-control" id="speciality" name="speciality" required oninput="validateSpeciality()">
+                                    <div class="error-message" id="speciality-error"></div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="id_education" class="form-label">Education</label>
+                                    <input type="text" class="form-control" id="id_education" name="education" required
+                                        oninput="validateEducation()" value="{{ user.education }}">
+                                    <div class="error-message" id="education-error"></div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Save Additional Details</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+    
+    <script>
+        function validatePicture() {
+            const pictureInput = document.getElementById("picture");
+            const pictureError = document.getElementById("picture-error");
+    
+            // Check if a file is selected
+            if (pictureInput.files.length === 0) {
+                pictureError.textContent = "Please select an image.";
+                return;
+            }
+    
+            // Check if the file type is valid (JPG or PNG)
+            const acceptedTypes = ["image/jpeg", "image/png"];
+            if (!acceptedTypes.includes(pictureInput.files[0].type)) {
+                pictureError.textContent = "Please select a JPG or PNG image.";
+                return;
+            }
+    
+            pictureError.textContent = "";
+        }
+    
+        function validateRegistrationNumber() {
+            const registrationNumberInput = document.getElementById("registration_number");
+            const registrationNumberError = document.getElementById("registration_number-error");
+    
+            // Validation for registration number (7 digits)
+            const isValid = /^\d{7}$/.test(registrationNumberInput.value);
+    
+            if (!isValid) {
+                registrationNumberError.textContent = "Registration number must contain 7 digits.";
+            } else {
+                registrationNumberError.textContent = "";
+            }
+        }
+    
+        function validateExperience() {
+            const experienceInput = document.getElementById("experience");
+            const experienceError = document.getElementById("experience-error");
+    
+            // Check if the value is a valid number
+            const isValid = /^\d+$/.test(experienceInput.value);
+    
+            if (!isValid) {
+                experienceError.textContent = "Experience must be a valid number.";
+            } else {
+                experienceError.textContent = "";
+            }
+        }
+    
+        function validateSpeciality() {
+            const specialityInput = document.getElementById("speciality");
+            const specialityError = document.getElementById("speciality-error");
+    
+            // Validation for speciality (First letter capital)
+            const isValid = /^[A-Z][a-zA-Z\s]*$/.test(specialityInput.value);
+    
+            if (!isValid) {
+                specialityError.textContent = "Speciality must start with a capital letter.";
+            } else {
+                specialityError.textContent = "";
+            }
+        }
+        function validateEducation() {
+            const educationInput = document.getElementById("id_education");
+            const educationError = document.getElementById("education-error");
+    
+            // Validation for education
+            // Example: Education field should not be empty.
+            const isValid = educationInput.value.trim() !== "";
+    
+            if (!isValid) {
+                educationError.textContent = "Education field should not be empty.";
+            } else {
+                educationError.textContent = "";
+            }
+        }
+    
+        function validateProfileForm() {
+            validatePicture();
+            validateRegistrationNumber();
+            validateExperience();
+            validateSpeciality();
+            validateEducation();
+    
+            // Check for empty fields
+            const inputs = document.querySelectorAll("input[required]");
+            for (const input of inputs) {
+                if (input.value.trim() === "") {
+                    const errorElement = document.getElementById(`${input.id}-error`);
+                    errorElement.textContent = "This field is required.";
+                }
+            }
+    
+            // Check if any error messages exist
+            const errorMessages = document.querySelectorAll(".error-message");
+            for (const errorMessage of errorMessages) {
+                if (errorMessage.textContent !== "") {
+                    return false; // Return false if there are validation errors
+                }
+            }
+    
+            return true; // Return true if all validations pass
+        }
+    </script>
 
 
 

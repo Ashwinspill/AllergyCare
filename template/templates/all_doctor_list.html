@@ -125,7 +125,7 @@
                                                             <h2>Name: {{ doctor.first_name }} {{ doctor.last_name }}</h2>
                                                             <p>Email: {{ doctor.email }}</p>
                                                             <p>Date of Birth: {{ doctor.dob }}</p>
-                                                            <p>ID: {{ doctor.user_id }}</p>
+                                                            {% comment %} <p>ID: {{ doctor.user_id }}</p> {% endcomment %}
                                                         {% endif %}
                                                         {% if additional_details %}
                                                             <p>Registration Number: {{ additional_details.registration_number }}</p>

@@ -214,21 +214,7 @@
     <script src="{% static 'js/main.js' %}"></script>
     <script src="{% static 'js/refresh_on_back.js' %}"></script>
 
-    {% comment %} <script>
-        $(document).ready(function () {
-            $('#search-medicine').on('input', function () {
-                const searchText = $(this).val().toLowerCase();
-                $('.medicine-card').each(function () {
-                    const medicineName = $(this).find('h2').text().toLowerCase();
-                    if (medicineName.includes(searchText)) {
-                        $(this).show();
-                    } else {
-                        $(this).hide();
-                    }
-                });
-            });
-        });
-    </script> {% endcomment %}
+
 
     <script>
         $(document).ready(function () {
