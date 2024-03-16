@@ -1,0 +1,133 @@
+{% block content %}
+<style>
+    /* Container for the sidebar and main content */
+    .container {
+        display: flex;
+        background: url('https://images.rawpixel.com/image_800/czNmcy1wcml2YXRlL3Jhd3BpeGVsX2ltYWdlcy93ZWJzaXRlX2NvbnRlbnQvbHIvcm0zNzNiYXRjaDE1LTIxNy0wMS5qcGc.jpg') center/cover no-repeat; /* Replace with your medicine-related background image URL */
+    }
+
+    /* Sidebar styles */
+    .sidebar {
+        width: 250px;
+        background-color: #333;
+        padding-top: 20px;
+        min-height: 100vh;
+    }
+
+    .sidebar a {
+        padding: 10px 25px;
+        text-decoration: none;
+        font-size: 18px;
+        color: white;
+        display: block;
+    }
+
+    .sidebar a:hover {
+        background-color: #007bff;
+    }
+
+    /* Main content styles */
+    .main-content {
+        flex: 1;
+        padding: 20px;
+    }
+
+    /* Form container styles */
+    .medicine-form-container {
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white background */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border-radius: 5px;
+    }
+
+    /* Form title styles */
+    .form-title {
+        font-size: 24px;
+        text-align: center;
+        color: #007bff;
+        margin-bottom: 20px;
+    }
+
+    /* Medicine form styles */
+    .medicine-form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Form group styles */
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-label {
+        font-weight: bold;
+    }
+
+    /* Submit button styles */
+    .form-submit-button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+
+    .form-submit-button:hover {
+        background-color: #0056b3;
+    }
+</style>
+
+<div class="container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a href="{% url 'admind' %}" class="custom-button">Home</a>
+    </div>
+
+    <!-- Main content -->
+    <div class="main-content">
+        <div class="navbar">
+            <h1>Admin Dashboard</h1>
+        </div>
+
+        <!-- Medicine form container -->
+        <div class="medicine-form-container">
+            <h2 class="form-title">Add a New Medicine</h2>
+            <form method="post" enctype="multipart/form-data" class="medicine-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="{{ form.name.id_for_label }}" class="form-label">Medicine Name:</label>
+                    {{ form.name }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.price.id_for_label }}" class="form-label">Price:</label>
+                    {{ form.price }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.content.id_for_label }}" class="form-label">Content:</label>
+                    {{ form.content }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.company_name.id_for_label }}" class="form-label">Company Name:</label>
+                    {{ form.company_name }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.medicine_info.id_for_label }}" class="form-label">Medicine Info:</label>
+                    {{ form.medicine_info }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.med_image.id_for_label }}" class="form-label">Medicine Image:</label>
+                    {{ form.med_image }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.quantity.id_for_label }}" class="form-label">Quantity:</label>
+                    {{ form.quantity }}
+                </div>
+                <button type="submit" class="form-submit-button">Add Medicine</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
