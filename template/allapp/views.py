@@ -24,6 +24,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from .forms import MedicineForm
 from .models import Medicine
 import razorpay
+from django.db import transaction
 from django.views.decorators.csrf import csrf_exempt
 from . import candy
 
@@ -823,6 +824,82 @@ from decimal import Decimal
 from django.db.models import Sum
 from datetime import datetime
 
+# @csrf_exempt
+# def payment_success(request):
+#     user = request.user
+#     patient = Patient.objects.get(user=user)
+#     cart_items = CartItem.objects.filter(cart__user=user)
+
+#     # Calculate total amount paid using aggregate
+#     total_amount_paid = cart_items.aggregate(total_amount_paid=Sum('medicine__price'))['total_amount_paid'] or 0
+
+#     # Create an order after successful payment
+#     order = Order.objects.create(
+#         patient=patient,
+#         medicine=cart_items.first().medicine if cart_items else None,
+#         quantity=sum(cart_item.quantity for cart_item in cart_items),
+#         amount_paid=total_amount_paid,
+#     )
+
+#     # Clear the patient's cart after creating the order
+#     cart_items.delete()
+
+#     # Generate a PDF bill
+#     response = HttpResponse(content_type='application/pdf')
+#     response['Content-Disposition'] = f'attachment; filename="bill_{order.order_date.strftime("%Y%m%d%H%M%S")}.pdf"'
+
+#     # Create PDF
+#     p = canvas.Canvas(response)
+
+#     # Add header
+#     p.setFont("Times-Bold", 16)
+#     p.drawString(100, 825, "AllergyCare - Your Allergy Management Solution")
+
+#     # Add footer with date
+#     p.setFont("Times-Italic", 12)
+#     current_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+#     p.drawString(100, 20, f"Issued on: {current_date}")
+
+#     # Add order details
+#     p.setFont("Times-Bold", 14)
+#     p.drawString(100, 780, f"Bill for Order ID: {order.id}")
+
+#     if order.medicine:
+#         p.drawString(100, 760, f"Medicine: {order.medicine.name}")
+
+#     # Add individual medicine details
+#     p.setFont("Times-Roman", 12)
+#     y_position = 740
+#     for cart_item in cart_items:
+#         medicine_name = cart_item.medicine.name
+#         medicine_price = cart_item.medicine.price
+#         medicine_quantity = cart_item.quantity
+#         total_cost = medicine_price * medicine_quantity
+#         p.drawString(100, y_position, f"{medicine_name} x {medicine_quantity}: ${total_cost}")
+#         y_position -= 20
+
+#     # Add total amount paid
+#     p.setFont("Times-Bold", 14)
+#     p.drawString(100, y_position, f"Total Amount Paid: ${total_amount_paid}")
+
+#     p.showPage()
+#     p.save()
+
+#     messages.success(request, 'Payment successful! Your order has been placed.')
+#     return response
+
+
+from io import BytesIO
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet
+from django.http import HttpResponse
+from django.db.models import Sum
+from django.utils import timezone
+from .models import CartItem, Order, Medicine, Cart  # Import necessary models
+from reportlab.lib.units import inch
+
 @csrf_exempt
 def payment_success(request):
     user = request.user
@@ -835,54 +912,64 @@ def payment_success(request):
     # Create an order after successful payment
     order = Order.objects.create(
         patient=patient,
-        medicine=cart_items.first().medicine if cart_items else None,
-        quantity=sum(cart_item.quantity for cart_item in cart_items),
         amount_paid=total_amount_paid,
     )
+
+    # Add individual items to the order
+    for cart_item in cart_items:
+        order.orderitem_set.create(
+            medicine=cart_item.medicine,
+            quantity=cart_item.quantity,
+            subtotal=cart_item.subtotal(),
+        )
 
     # Clear the patient's cart after creating the order
     cart_items.delete()
 
-    # Generate a PDF bill
+    # Create PDF bill
+    buffer = BytesIO()
+    pdf = SimpleDocTemplate(buffer, pagesize=letter)
+    styles = getSampleStyleSheet()
+
+    data = []
+    data.append(["Medicine", "Quantity", "Price", "Subtotal"])
+
+    for order_item in order.orderitem_set.all():
+        data.append([order_item.medicine.name, order_item.quantity, order_item.medicine.price, order_item.subtotal])
+
+    # Create table with thicker borders
+    table = Table(data)
+    table.setStyle(TableStyle([('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                               ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                               ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                               ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                               ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                               ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                               ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                               ('BOX', (0, 0), (-1, -1), 2, colors.black)]))  # Thick border
+
+    # Increase table size
+    table._argW[0] = 2.5 * inch  # Adjust width of the first column
+    table._argW[1] = 1.5 * inch  # Adjust width of the second column
+    table._argW[2] = 1 * inch    # Adjust width of the third column
+    table._argW[3] = 1.5 * inch  # Adjust width of the fourth column
+
+    # Add table to PDF
+    pdf_title = Paragraph("AllergyCare - Your Allergy Management Solution", styles['Title'])
+    pdf_issued_date = Paragraph(f"Issued on: {timezone.now().strftime('%Y-%m-%d %H:%M:%S')}", styles['Italic'])
+    pdf_total_amount_paid = Paragraph(f"Total Amount Paid: Rs.{total_amount_paid}", styles['BodyText'])
+
+    elements = [pdf_title, pdf_issued_date, table, pdf_total_amount_paid]
+    pdf.build(elements)
+
+    # Get PDF content
+    pdf_data = buffer.getvalue()
+    buffer.close()
+
+    # Prepare response
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="bill_{order.order_date.strftime("%Y%m%d%H%M%S")}.pdf"'
-
-    # Create PDF
-    p = canvas.Canvas(response)
-
-    # Add header
-    p.setFont("Times-Bold", 16)
-    p.drawString(100, 825, "AllergyCare - Your Allergy Management Solution")
-
-    # Add footer with date
-    p.setFont("Times-Italic", 12)
-    current_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    p.drawString(100, 20, f"Issued on: {current_date}")
-
-    # Add order details
-    p.setFont("Times-Bold", 14)
-    p.drawString(100, 780, f"Bill for Order ID: {order.id}")
-
-    if order.medicine:
-        p.drawString(100, 760, f"Medicine: {order.medicine.name}")
-
-    # Add individual medicine details
-    p.setFont("Times-Roman", 12)
-    y_position = 740
-    for cart_item in cart_items:
-        medicine_name = cart_item.medicine.name
-        medicine_price = cart_item.medicine.price
-        medicine_quantity = cart_item.quantity
-        total_cost = medicine_price * medicine_quantity
-        p.drawString(100, y_position, f"{medicine_name} x {medicine_quantity}: ${total_cost}")
-        y_position -= 20
-
-    # Add total amount paid
-    p.setFont("Times-Bold", 14)
-    p.drawString(100, y_position, f"Total Amount Paid: ${total_amount_paid}")
-
-    p.showPage()
-    p.save()
+    response.write(pdf_data)
 
     messages.success(request, 'Payment successful! Your order has been placed.')
     return response
@@ -1103,6 +1190,8 @@ def cancel_appointment(request, appointment_id):
 
     # Delete the appointment
     appointment.delete()
+    
+    messages.success(request, 'Booking has been cancelled.')
 
     return redirect('view_appointments')
 
