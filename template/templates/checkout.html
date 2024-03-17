@@ -88,6 +88,33 @@
         .add-to-cart-button:hover {
             background-color: #0056b3;
         }
+
+
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            pointer-events: none;
+        }
+        
+        .toast {
+            background-color: #333;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        
+        .toast.success {
+            background-color: #28a745;
+        }
+        
+        .toast.error {
+            background-color: #dc3545;
+        }
     </style>
 </head>
 <body>
@@ -286,22 +313,6 @@
             }, 3500);
         }
     </script> 
-
-    <script>
-        $(document).ready(function () {
-            $('#search-medicine').on('input', function () {
-                const searchText = $(this).val().toLowerCase();
-                $('.medicine-card').each(function () {
-                    const medicineName = $(this).find('h2').text().toLowerCase();
-                    if (medicineName.includes(searchText)) {
-                        $(this).show();
-                    } else {
-                        $(this).hide();
-                    }
-                });
-            });
-        });
-    </script>
 
 
 </body>
