@@ -139,6 +139,9 @@
         .clinic-info p {
             margin: 5px 0;
         }
+        .invisible {
+            display: none;
+        }
     </style>
 </head>
 
@@ -164,6 +167,7 @@
         </div>
     </div>
    
+
     {% comment %} <div class="container-fluid bg-primary py-5 mb-5 hero-header">
         <div class="container py-5">
             <div class="row justify-content-center">
@@ -177,14 +181,15 @@
                                 {% csrf_token %}
                                 <div class="mb-3">
                                     <label for="latitude" class="form-label">Latitude</label>
-                                    <input type="text" class="form-control" id="latitude" name="latitude" required>
+                                    <input type="text" class="form-control" id="latitude" name="latitude" required readonly>
                                 </div>
                                 <div class="mb-3">
                                     <label for="longitude" class="form-label">Longitude</label>
-                                    <input type="text" class="form-control" id="longitude" name="longitude" required>
+                                    <input type="text" class="form-control" id="longitude" name="longitude" required readonly>
                                 </div>
+                                <div id="locationDisplay"></div> <!-- Display latitude and longitude here --> 
                                 <div class="mb-3">
-                                    <a href="https://www.gps-coordinates.net/" target="_blank">GET YOUR LOCATION!</a>
+                                    <button type="button" class="btn btn-primary btn-update-profile" onclick="getLocation()">Get Location</button>
                                 </div>
                                 <div class="d-grid">
                                     <button type="submit" class="btn btn-primary btn-update-profile">Find Nearest Clinic</button>
@@ -195,11 +200,34 @@
                 </div>
             </div>
         </div>
-    </div>
-     {% endcomment %}
+    </div> 
 
+    
+    <script>
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition);
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+    
+        function showPosition(position) {
+            var latitude = position.coords.latitude;
+            var longitude = position.coords.longitude;
+    
+            var latitudeInput = document.getElementById("latitude");
+            var longitudeInput = document.getElementById("longitude");
+    
+            latitudeInput.value = latitude;
+            longitudeInput.value = longitude;
+    
+            var locationDisplay = document.getElementById("locationDisplay");
+            locationDisplay.innerHTML = "Latitude: " + latitude + "<br>Longitude: " + longitude;
+        }
+    </script> {% endcomment %}
 
-     <div class="container-fluid bg-primary py-5 mb-5 hero-header">
+    <div class="container-fluid bg-primary py-5 mb-5 hero-header">
         <div class="container py-5">
             <div class="row justify-content-center">
                 <div class="col-lg-8">
@@ -212,13 +240,16 @@
                                 {% csrf_token %}
                                 <div class="mb-3">
                                     <label for="latitude" class="form-label">Latitude</label>
-                                    <input type="text" class="form-control" id="latitude" name="latitude" required>
+                                    <input type="text" class="form-control" id="latitude" name="latitude" required readonly>
                                 </div>
                                 <div class="mb-3">
                                     <label for="longitude" class="form-label">Longitude</label>
-                                    <input type="text" class="form-control" id="longitude" name="longitude" required>
+                                    <input type="text" class="form-control" id="longitude" name="longitude" required readonly>
                                 </div>
-                                {% comment %} <div id="locationDisplay"></div> <!-- Display latitude and longitude here --> {% endcomment %}
+                                <div class="mb-3">
+                                    <label for="locationName" class="form-label">Location Name</label>
+                                    <input type="text" class="form-control" id="locationName" name="locationName" readonly>
+                                </div>
                                 <div class="mb-3">
                                     <button type="button" class="btn btn-primary btn-update-profile" onclick="getLocation()">Get Location</button>
                                 </div>
@@ -248,12 +279,27 @@
     
             var latitudeInput = document.getElementById("latitude");
             var longitudeInput = document.getElementById("longitude");
+            var locationNameInput = document.getElementById("locationName");
     
             latitudeInput.value = latitude;
             longitudeInput.value = longitude;
     
-            var locationDisplay = document.getElementById("locationDisplay");
-            locationDisplay.innerHTML = "Latitude: " + latitude + "<br>Longitude: " + longitude;
+            // Using OpenStreetMap's Nominatim API to get location name
+            var apiUrl = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`;
+    
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.display_name) {
+                        locationNameInput.value = data.display_name;
+                    } else {
+                        alert('Location name not found');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching location:', error);
+                    alert('Failed to fetch location name');
+                });
         }
     </script>
 
