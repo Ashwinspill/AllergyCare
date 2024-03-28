@@ -105,7 +105,6 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarCollapse">
                     <div class="navbar-nav ms-auto py-0">
-                        {% comment %} <a href="{% url 'dhome' %}" class="nav-item nav-link active">Home</a> {% endcomment %}
                         <a href="{% url 'dhome' %}" class="nav-item nav-link">Home</a> 
                     </div>
                 </div>
@@ -113,7 +112,7 @@
         </div>
     </div>
    
-    <div class="container-fluid bg-primary py-5 mb-5 hero-header">
+    {% comment %} <div class="container-fluid bg-primary py-5 mb-5 hero-header">
         <div class="container py-5">
             <div class="bg-white p-4 rounded shadow"> <!-- Add this white background div -->
                 <h1>Your Appointments</h1>
@@ -137,7 +136,127 @@
                 </table>
             </div>
         </div>
+    </div>  {% endcomment %}
+
+    {% comment %} <div class="container-fluid bg-primary py-5 mb-5 hero-header">
+        <div class="container py-5">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card card-container">
+                        <div class="card-header bg-primary text-white">
+                            <h2 class="mb-0">Your Appointments</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="container">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Patient Name</th>
+                                            <th>Date</th>
+                                            <th>Time Slot</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for appointment in appointments %}
+                                        <tr>
+                                            <td>{{ appointment.patient_name }}</td>
+                                            <td>{{ appointment.date }}</td>
+                                            <td>{{ appointment.time_slot }}</td>
+                                            <td>
+                                                <form method="post">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="appointment_id" value="{{ appointment.id }}">
+                                                    <td>
+                                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#rescheduleModal">Reschedule</button>
+                                                    </td>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> {% endcomment %}
+
+    <div class="container-fluid bg-primary py-5 mb-5 hero-header">
+        <div class="container py-5">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card card-container">
+                        <div class="card-header bg-primary text-white">
+                            <h2 class="mb-0">Your Appointments</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="container">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Patient Name</th>
+                                            <th>Date</th>
+                                            <th>Time Slot</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for appointment in appointments %}
+                                        <tr>
+                                            <td>{{ appointment.patient_name }}</td>
+                                            <td>{{ appointment.date }}</td>
+                                            <td>{{ appointment.time_slot }}</td>
+                                            <td>
+                                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#rescheduleModal{{ appointment.id }}">Reschedule</button>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+    
+    {% for appointment in appointments %}
+    <!-- Modal for rescheduling appointment -->
+    <div class="modal fade" id="rescheduleModal{{ appointment.id }}" tabindex="-1" aria-labelledby="rescheduleModalLabel{{ appointment.id }}" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="rescheduleModalLabel">Reschedule Appointment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="{% url 'reschedule_appointment' appointment.id %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="newDate" class="form-label">New Date:</label>
+                            <input type="date" class="form-control" id="newDate" name="date" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newTimeSlot" class="form-label">New Time Slot:</label>
+                            <select class="form-select" id="newTimeSlot" name="time_slot" required>
+                                <option value="10:00 AM - 11:00 AM">10:00 AM - 11:00 AM</option>
+                                <option value="12:00 PM - 1:00 PM">12:00 PM - 1:00 PM</option>
+                                <option value="2:00 PM - 3:00 PM">2:00 PM - 3:00 PM</option>
+                                <option value="4:00 PM - 5:00 PM">4:00 PM - 5:00 PM</option>
+                                <option value="6:00 PM - 7:00 PM">6:00 PM - 7:00 PM</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Reschedule</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
 
 
     <div class="container-fluid bg-dark text-light mt-5 py-5">
@@ -213,4 +332,5 @@
     </script>
 </body>
 
-</html>
+</html> 
+
