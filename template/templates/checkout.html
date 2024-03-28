@@ -166,6 +166,17 @@
                                 {% endfor %}
                             </ul>
                             <p>Total Amount: {{ total }}</p>
+                            <h3>Delivery Address</h3>
+                            {% if address %}
+                                <p>Name: {{ address.name }}</p>
+                                <p>Mobile Number: {{ address.mobile_number }}</p>
+                                <p>Pin Code: {{ address.pin_code }}</p>
+                                <p>Address: {{ address.address }}</p>
+                                <p>District: {{ address.district }}</p>
+                                <p>State: {{ address.state }}</p>
+                            {% else %}
+                                <p>No address found.</p>
+                            {% endif %}
                             <form action="{% url 'payment_success' %}" method="POST">
                                 {% csrf_token %}
                                 <script
