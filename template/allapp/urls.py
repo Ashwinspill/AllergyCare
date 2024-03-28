@@ -65,6 +65,9 @@ urlpatterns = [
     path('find_nearest_clinic/', views.find_nearest_clinic_view, name='find_nearest_clinic'),
     path('view_appointments/', views.view_appointments, name='view_appointments'),
     path('cancel_appointment/<int:appointment_id>/', views.cancel_appointment, name='cancel_appointment'),
+    path('reschedule/<int:appointment_id>/', views.reschedule_appointment, name='reschedule_appointment'),
+    path('take_leave/', views.take_leave, name='take_leave'),
+    path('submit_address/', views.submit_address, name='submit_address'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -656,6 +656,7 @@ def fill_additional_details(request):
 
     return render(request, 'fill_additional_details.html', {'form': form})
 
+
 from django.http import HttpResponse
 from .models import Doctor, DoctorAdditionalDetails
 @login_required
@@ -768,6 +769,38 @@ def view_cart(request):
     }
     return render(request, 'cart.html', context)
 
+from .models import Address
+
+@login_required
+def submit_address(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        mobile_number = request.POST.get('mobile_number')
+        pin_code = request.POST.get('pin_code')
+        address_text = request.POST.get('address')
+        district = request.POST.get('district')
+        state = request.POST.get('state')
+
+        # Get the current user
+        user = request.user
+
+        # Create the address object
+        address_obj = Address.objects.create(
+            patient=user,
+            name=name,
+            mobile_number=mobile_number,
+            pin_code=pin_code,
+            address=address_text,
+            district=district,
+            state=state
+        )
+        
+        # Redirect to the cart page
+        return redirect('view_cart')
+     
+    return render(request, 'cart.html')
+
+
 @login_required
 def remove_from_cart(request, cart_item_id):
     cart_item = CartItem.objects.get(pk=cart_item_id)
@@ -802,12 +835,15 @@ def checkout(request):
 
     client = razorpay.Client(auth=("rzp_test_aWcyAl6q9LJYqx", "j1dFxiB5MzxmkXTMo6IYQlnP"))
     payment = client.order.create(data=DATA)
+    
+    address = Address.objects.filter(patient=user).first()
 
     context = {
         'cart': cart,
         'total': cart.get_total_price(),
         'amount': amount_in_paise,  # Pass the integer value to the context
-        'payment': payment
+        'payment': payment,
+        'address': address,
     }
     return render(request, 'checkout.html', context)
 
@@ -824,70 +860,6 @@ from decimal import Decimal
 from django.db.models import Sum
 from datetime import datetime
 
-# @csrf_exempt
-# def payment_success(request):
-#     user = request.user
-#     patient = Patient.objects.get(user=user)
-#     cart_items = CartItem.objects.filter(cart__user=user)
-
-#     # Calculate total amount paid using aggregate
-#     total_amount_paid = cart_items.aggregate(total_amount_paid=Sum('medicine__price'))['total_amount_paid'] or 0
-
-#     # Create an order after successful payment
-#     order = Order.objects.create(
-#         patient=patient,
-#         medicine=cart_items.first().medicine if cart_items else None,
-#         quantity=sum(cart_item.quantity for cart_item in cart_items),
-#         amount_paid=total_amount_paid,
-#     )
-
-#     # Clear the patient's cart after creating the order
-#     cart_items.delete()
-
-#     # Generate a PDF bill
-#     response = HttpResponse(content_type='application/pdf')
-#     response['Content-Disposition'] = f'attachment; filename="bill_{order.order_date.strftime("%Y%m%d%H%M%S")}.pdf"'
-
-#     # Create PDF
-#     p = canvas.Canvas(response)
-
-#     # Add header
-#     p.setFont("Times-Bold", 16)
-#     p.drawString(100, 825, "AllergyCare - Your Allergy Management Solution")
-
-#     # Add footer with date
-#     p.setFont("Times-Italic", 12)
-#     current_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-#     p.drawString(100, 20, f"Issued on: {current_date}")
-
-#     # Add order details
-#     p.setFont("Times-Bold", 14)
-#     p.drawString(100, 780, f"Bill for Order ID: {order.id}")
-
-#     if order.medicine:
-#         p.drawString(100, 760, f"Medicine: {order.medicine.name}")
-
-#     # Add individual medicine details
-#     p.setFont("Times-Roman", 12)
-#     y_position = 740
-#     for cart_item in cart_items:
-#         medicine_name = cart_item.medicine.name
-#         medicine_price = cart_item.medicine.price
-#         medicine_quantity = cart_item.quantity
-#         total_cost = medicine_price * medicine_quantity
-#         p.drawString(100, y_position, f"{medicine_name} x {medicine_quantity}: ${total_cost}")
-#         y_position -= 20
-
-#     # Add total amount paid
-#     p.setFont("Times-Bold", 14)
-#     p.drawString(100, y_position, f"Total Amount Paid: ${total_amount_paid}")
-
-#     p.showPage()
-#     p.save()
-
-#     messages.success(request, 'Payment successful! Your order has been placed.')
-#     return response
-
 
 from io import BytesIO
 from reportlab.lib import colors
@@ -899,7 +871,7 @@ from django.db.models import Sum
 from django.utils import timezone
 from .models import CartItem, Order, Medicine, Cart  # Import necessary models
 from reportlab.lib.units import inch
-
+@login_required
 @csrf_exempt
 def payment_success(request):
     user = request.user
@@ -1233,13 +1205,13 @@ def get_available_time_slots(request):
     return JsonResponse({"error": "Invalid request"}, status=400)
 
 
-@login_required
-def doctor_appointments(request):
-    # Assuming you're using the logged-in doctor to filter appointments
-    doctor = request.user.doctor
-    appointments = Appointment.objects.filter(doctor=doctor)
+# @login_required
+# def doctor_appointments(request):
+#     # Assuming you're using the logged-in doctor to filter appointments
+#     doctor = request.user.doctor
+#     appointments = Appointment.objects.filter(doctor=doctor)
 
-    return render(request, 'doctor_appointments.html', {'appointments': appointments})
+#     return render(request, 'doctor_appointments.html', {'appointments': appointments})
 
 
 
@@ -1288,6 +1260,7 @@ def submit_testimonial(request, doctor_id):
 
 
 from textblob import TextBlob
+
 
 def analyze_sentiment(feedback):
     """
@@ -1372,17 +1345,19 @@ def add_clinic(request):
 
 
 #clinic_details
+@login_required
 def clinic_detail(request, clinic_id):
     clinic = get_object_or_404(Clinic, pk=clinic_id)
     return render(request, 'clinic_detail.html', {'clinic': clinic})
 
+@login_required
 def view_location(request, clinic_id):
     clinic = get_object_or_404(Clinic, pk=clinic_id)
     latitude, longitude = clinic.location.split(',')
     google_maps_url = f"https://www.google.com/maps?q={latitude},{longitude}"
     return redirect(google_maps_url)
 
-
+@login_required
 def success(request):
     return render(request, 'success.html')
 
@@ -1455,4 +1430,79 @@ def find_nearest_clinic_view(request):
         return render(request, 'nearest_clinic.html', {'nearest_clinic': nearest_clinic, 'min_distance': min_distance, 'clinic_name': clinic_name})
     else:
         return render(request, 'location_form.html')
+
+
+from .models import Appointment
+from .forms import AppointmentForm, LeaveForm
+
+def doctor_appointments(request):
+    appointments = Appointment.objects.filter(doctor=request.user.doctor)
+
+    if request.method == 'POST':
+        if 'reschedule' in request.POST:
+            # Handle appointment rescheduling
+            appointment_id = request.POST.get('appointment_id')
+            appointment = Appointment.objects.get(pk=appointment_id)
+            form = AppointmentForm(request.POST, instance=appointment)
+            if form.is_valid():
+                form.save()
+                return redirect('doctor_appointments')
+        elif 'take_leave' in request.POST:
+            # Handle taking leave
+            form = LeaveForm(request.POST)
+            if form.is_valid():
+                leave_date = form.cleaned_data['leave_date']
+                # Logic to shift appointments to another date or mark them as canceled
+                # Update the appointments accordingly
+                return redirect('doctor_appointments')
+
+    else:
+        form = AppointmentForm()
+        leave_form = LeaveForm()
+
+    context = {
+        'appointments': appointments,
+        'form': form,
+        'leave_form': leave_form
+    }
+    return render(request, 'doctor_appointments.html', context)
+
+
+from .forms import AppointmentForm, LeaveForm
+
+def reschedule_appointment(request, appointment_id):
+    appointment = Appointment.objects.get(pk=appointment_id)
+
+    if request.method == 'POST':
+        form = AppointmentForm(request.POST, instance=appointment)
+        if form.is_valid():
+            form.save()
+            return redirect('doctor_appointments')
+
+    else:
+        form = AppointmentForm(instance=appointment)
+
+    context = {
+        'form': form,
+        'appointment': appointment
+    }
+    return render(request, 'reschedule_appointment.html', context)
+
+def take_leave(request):
+    if request.method == 'POST':
+        form = LeaveForm(request.POST)
+        if form.is_valid():
+            leave_date = form.cleaned_data['leave_date']
+            # Logic to shift appointments to another date or mark them as canceled
+            # Update the appointments accordingly
+            return redirect('doctor_appointments')
+
+    else:
+        form = LeaveForm()
+
+    context = {
+        'form': form
+    }
+    return render(request, 'take_leave.html', context)
+
 
