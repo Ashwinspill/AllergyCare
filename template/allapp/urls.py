@@ -66,7 +66,6 @@ urlpatterns = [
     path('view_appointments/', views.view_appointments, name='view_appointments'),
     path('cancel_appointment/<int:appointment_id>/', views.cancel_appointment, name='cancel_appointment'),
     path('reschedule/<int:appointment_id>/', views.reschedule_appointment, name='reschedule_appointment'),
-    path('take_leave/', views.take_leave, name='take_leave'),
     path('submit_address/', views.submit_address, name='submit_address'),
 ]
 if settings.DEBUG:

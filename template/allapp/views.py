@@ -1433,7 +1433,7 @@ def find_nearest_clinic_view(request):
 
 
 from .models import Appointment
-from .forms import AppointmentForm, LeaveForm
+from .forms import AppointmentForm
 
 def doctor_appointments(request):
     appointments = Appointment.objects.filter(doctor=request.user.doctor)
@@ -1447,38 +1447,68 @@ def doctor_appointments(request):
             if form.is_valid():
                 form.save()
                 return redirect('doctor_appointments')
-        elif 'take_leave' in request.POST:
-            # Handle taking leave
-            form = LeaveForm(request.POST)
-            if form.is_valid():
-                leave_date = form.cleaned_data['leave_date']
-                # Logic to shift appointments to another date or mark them as canceled
-                # Update the appointments accordingly
-                return redirect('doctor_appointments')
 
     else:
         form = AppointmentForm()
-        leave_form = LeaveForm()
 
     context = {
         'appointments': appointments,
-        'form': form,
-        'leave_form': leave_form
+        'form': form
     }
     return render(request, 'doctor_appointments.html', context)
 
+# def reschedule_appointment(request, appointment_id):
+#     appointment = get_object_or_404(Appointment, pk=appointment_id)
 
-from .forms import AppointmentForm, LeaveForm
+#     if request.method == 'POST':
+#         form = AppointmentForm(request.POST, instance=appointment)
+#         if form.is_valid():
+#             # Update the appointment date and time slot
+#             appointment.date = form.cleaned_data['date']
+#             appointment.time_slot = form.cleaned_data['time_slot']
+#             appointment.save()
+            
+#              # Send email notification
+#             send_reschedule_email(appointment.patient_email, appointment.doctor.name, appointment.date)
+            
+#             return redirect('doctor_appointments')
+#     else:
+#         form = AppointmentForm(instance=appointment)
+
+#     context = {
+#         'form': form,
+#         'appointment': appointment
+#     }
+#     return render(request, 'reschedule_appointment.html', context)
+
+
+# def send_reschedule_email(patient_email, doctor_name, new_date):
+#     subject = 'Appointment Rescheduled'
+#     message = f'Your appointment with Dr. {doctor_name} has been rescheduled to {new_date} due to an emergency.'
+#     sender_email = settings.EMAIL_HOST_USER
+#     send_mail(subject, message, sender_email, [patient_email])
+
+from django.core.mail import send_mail
+from django.conf import settings
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Appointment
+from .forms import AppointmentForm
 
 def reschedule_appointment(request, appointment_id):
-    appointment = Appointment.objects.get(pk=appointment_id)
+    appointment = get_object_or_404(Appointment, pk=appointment_id)
 
     if request.method == 'POST':
         form = AppointmentForm(request.POST, instance=appointment)
         if form.is_valid():
-            form.save()
+            # Update the appointment date and time slot
+            appointment.date = form.cleaned_data['date']
+            appointment.time_slot = form.cleaned_data['time_slot']
+            appointment.save()
+            
+            # Send email notification
+            send_reschedule_email(appointment.patient_email, appointment.doctor.name, appointment.date)
+            
             return redirect('doctor_appointments')
-
     else:
         form = AppointmentForm(instance=appointment)
 
@@ -1488,21 +1518,13 @@ def reschedule_appointment(request, appointment_id):
     }
     return render(request, 'reschedule_appointment.html', context)
 
-def take_leave(request):
-    if request.method == 'POST':
-        form = LeaveForm(request.POST)
-        if form.is_valid():
-            leave_date = form.cleaned_data['leave_date']
-            # Logic to shift appointments to another date or mark them as canceled
-            # Update the appointments accordingly
-            return redirect('doctor_appointments')
-
-    else:
-        form = LeaveForm()
-
-    context = {
-        'form': form
-    }
-    return render(request, 'take_leave.html', context)
-
-
+def send_reschedule_email(patient_email, doctor_name, new_date):
+    subject = 'Appointment Rescheduled'
+    message = f'Your appointment with Dr. {doctor_name} has been rescheduled to {new_date} due to an emergency.'
+    sender_email = settings.EMAIL_HOST_USER
+    
+    try:
+        send_mail(subject, message, sender_email, [patient_email])
+    except Exception as e:
+        # Log or handle the error
+        print(f"Error sending email: {e}")
