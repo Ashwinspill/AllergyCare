@@ -224,7 +224,7 @@
         </div>
     </div>
     
-    {% for appointment in appointments %}
+    {% comment %} {% for appointment in appointments %}
     <!-- Modal for rescheduling appointment -->
     <div class="modal fade" id="rescheduleModal{{ appointment.id }}" tabindex="-1" aria-labelledby="rescheduleModalLabel{{ appointment.id }}" aria-hidden="true">
         <div class="modal-dialog">
@@ -256,7 +256,74 @@
             </div>
         </div>
     </div>
+    {% endfor %} {% endcomment %}
+
+    <!-- Modal for rescheduling appointment -->
+    {% for appointment in appointments %}
+    <div class="modal fade" id="rescheduleModal{{ appointment.id }}" tabindex="-1" aria-labelledby="rescheduleModalLabel{{ appointment.id }}" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="rescheduleModalLabel">Reschedule Appointment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="rescheduleForm{{ appointment.id }}" method="post" action="{% url 'reschedule_appointment' appointment.id %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="newDate" class="form-label">New Date:</label>
+                            <input type="date" class="form-control" id="newDate{{ appointment.id }}" name="date" min="{{ tomorrow }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newTimeSlot" class="form-label">New Time Slot:</label>
+                            <select class="form-select" id="newTimeSlot{{ appointment.id }}" name="time_slot" required>
+                                <option value="10:00 AM - 11:00 AM">10:00 AM - 11:00 AM</option>
+                                <option value="12:00 PM - 1:00 PM">12:00 PM - 1:00 PM</option>
+                                <option value="2:00 PM - 3:00 PM">2:00 PM - 3:00 PM</option>
+                                <option value="4:00 PM - 5:00 PM">4:00 PM - 5:00 PM</option>
+                                <option value="6:00 PM - 7:00 PM">6:00 PM - 7:00 PM</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Reschedule</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
     {% endfor %}
+
+    <script>
+        // Get tomorrow's date
+        var tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1); // Add 1 day
+        var tomorrowFormatted = tomorrow.toISOString().split('T')[0]; // Format as yyyy-mm-dd
+
+        // Set min attribute of date input fields
+        var dateInputs = document.querySelectorAll('input[type="date"]');
+        dateInputs.forEach(function(input) {
+            input.min = tomorrowFormatted;
+        });
+
+        // Check for appointment conflicts
+        {% for appointment in appointments %}
+        var form = document.getElementById('rescheduleForm{{ appointment.id }}');
+        form.addEventListener('submit', function(event) {
+            var selectedDate = document.getElementById('newDate{{ appointment.id }}').value;
+            var selectedTimeSlot = document.getElementById('newTimeSlot{{ appointment.id }}').value;
+            var appointmentDate = '{{ appointment.date }}'; // Get appointment date from Django template
+            var appointmentTimeSlot = '{{ appointment.time_slot }}'; // Get appointment time slot from Django template
+
+            if (selectedDate === appointmentDate && selectedTimeSlot === appointmentTimeSlot) {
+                // Prevent form submission
+                event.preventDefault();
+
+                // Show toast message for appointment conflict
+                var toast = new bootstrap.Toast(document.getElementById('conflictToast{{ appointment.id }}'));
+                toast.show();
+            }
+        });
+        {% endfor %}
+    </script>
 
 
     <div class="container-fluid bg-dark text-light mt-5 py-5">
