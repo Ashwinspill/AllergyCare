@@ -155,9 +155,9 @@
             <div id="inactive-account-message" class="toast error" style="display: none;">Your account is inactive. Please contact support.</div>
             <p class="forgot-password"><a href="{% url 'forget_password' %}">Forgot your password?</a></p>
             <p class="signup">Don't have an account? <a href="{% url 'signup' %}">Sign Up</a></p>
-            <a class="google-signin" href="{% url 'social:begin' 'google-oauth2' %}">
+            {% comment %} <a class="google-signin" href="{% url 'social:begin' 'google-oauth2' %}">
                 <span class="google-logo">G</span> Google Signin
-            </a> 
+            </a>  {% endcomment %}
             <div class="home-button">
                 <a href="{% url 'index' %}" title="Home">Home</a>
             </div>
