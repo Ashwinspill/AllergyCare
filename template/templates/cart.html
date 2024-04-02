@@ -113,7 +113,7 @@
         </div>
     </div>
 
-<!-- Address Modal -->
+{% comment %} <!-- Address Modal -->
 <div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -153,7 +153,163 @@
             </div>
         </div>
     </div>
-</div>
+</div> {% endcomment %}
+
+    <!-- Address Modal -->
+    <div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addressModalLabel">Add Address</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="{% url 'submit_address' %}" onsubmit="return validateAddressForm()">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                            <div class="error-message" id="name-error"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="mobile_number" class="form-label">Mobile Number</label>
+                            <input type="tel" class="form-control" id="mobile_number" name="mobile_number" required>
+                            <div class="error-message" id="mobile_number-error"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="pin_code" class="form-label">Pin Code</label>
+                            <input type="text" class="form-control" id="pin_code" name="pin_code" required>
+                            <div class="error-message" id="pin_code-error"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Address</label>
+                            <textarea class="form-control" id="address" name="address" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="district" class="form-label">District</label>
+                            <input type="text" class="form-control" id="district" name="district" required>
+                            <div class="error-message" id="district-error"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="state" class="form-label">State</label>
+                            <input type="text" class="form-control" id="state" name="state" required>
+                            <div class="error-message" id="state-error"></div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Attach event listeners for on-type validation
+        document.getElementById("name").addEventListener("input", function () {
+            validateName(this.value, "name-error");
+        });
+
+        document.getElementById("mobile_number").addEventListener("input", function () {
+            validateMobileNumber(this.value, "mobile_number-error");
+        });
+
+        document.getElementById("pin_code").addEventListener("input", function () {
+            validatePinCode(this.value, "pin_code-error");
+        });
+
+        document.getElementById("district").addEventListener("input", function () {
+            validateDistrict(this.value, "district-error");
+        });
+
+        document.getElementById("state").addEventListener("input", function () {
+            validateState(this.value, "state-error");
+        });
+
+        // Validation functions
+        function validateName(name, errorId) {
+            const namePattern = /^[A-Z][a-zA-Z\s]*$/;
+            const errorElement = document.getElementById(errorId);
+        
+            if (name === "") {
+                errorElement.textContent = "Name should not be blank";
+            } else if (!namePattern.test(name)) {
+                errorElement.textContent = "Name should start with a capital letter";
+            } else {
+                errorElement.textContent = "";
+            }
+        }
+
+        function validateMobileNumber(number, errorId) {
+            const errorElement = document.getElementById(errorId);
+        
+            if (!/^\d{10}$/.test(number)) {
+                errorElement.textContent = "Mobile number should contain exactly 10 digits";
+            } else {
+                errorElement.textContent = "";
+            }
+        }
+
+        function validatePinCode(pinCode, errorId) {
+            const errorElement = document.getElementById(errorId);
+        
+            if (!/^\d{6}$/.test(pinCode)) {
+                errorElement.textContent = "Pin code should contain exactly 6 digits";
+            } else {
+                errorElement.textContent = "";
+            }
+        }
+
+        function validateDistrict(district, errorId) {
+            const namePattern = /^[A-Z][a-zA-Z\s]*$/;
+            const errorElement = document.getElementById(errorId);
+        
+            if (district === "") {
+                errorElement.textContent = "District should not be blank";
+            } else if (!namePattern.test(district)) {
+                errorElement.textContent = "District should start with a capital letter";
+            } else {
+                errorElement.textContent = "";
+            }
+        }
+
+        function validateState(state, errorId) {
+            const namePattern = /^[A-Z][a-zA-Z\s]*$/;
+            const errorElement = document.getElementById(errorId);
+        
+            if (state === "") {
+                errorElement.textContent = "State should not be blank";
+            } else if (!namePattern.test(state)) {
+                errorElement.textContent = "State should start with a capital letter";
+            } else {
+                errorElement.textContent = "";
+            }
+        }
+
+        // Function to validate the address form
+        function validateAddressForm() {
+            const name = document.getElementById("name").value.trim();
+            const mobileNumber = document.getElementById("mobile_number").value.trim();
+            const pinCode = document.getElementById("pin_code").value.trim();
+            const district = document.getElementById("district").value.trim();
+            const state = document.getElementById("state").value.trim();
+
+            // Perform individual field validations
+            validateName(name, "name-error");
+            validateMobileNumber(mobileNumber, "mobile_number-error");
+            validatePinCode(pinCode, "pin_code-error");
+            validateDistrict(district, "district-error");
+            validateState(state, "state-error");
+
+            // Check if any validation errors exist
+            const errorMessages = document.querySelectorAll(".error-message");
+            for (const errorMessage of errorMessages) {
+                if (errorMessage.textContent !== "") {
+                    return false; // Return false if there are validation errors
+                }
+            }
+
+            return true; // Return true if all validations pass
+        }
+    </script>
    
     <div class="container-fluid bg-primary py-5 mb-5 hero-header">
         <div class="container py-5">
