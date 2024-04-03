@@ -67,6 +67,8 @@ urlpatterns = [
     path('cancel_appointment/<int:appointment_id>/', views.cancel_appointment, name='cancel_appointment'),
     path('reschedule/<int:appointment_id>/', views.reschedule_appointment, name='reschedule_appointment'),
     path('submit_address/', views.submit_address, name='submit_address'),
+    path('allergy-types/', views.allergy_types, name='allergy_types'),
+     path('outdoor-allergy-types/', views.outdoor_allergy_types, name='outdoor_allergy_types'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

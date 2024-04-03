@@ -1488,9 +1488,38 @@ def doctor_appointments(request):
 #     sender_email = settings.EMAIL_HOST_USER
 #     send_mail(subject, message, sender_email, [patient_email])
 
+# from django.core.mail import send_mail
+# from django.conf import settings
+# from django.shortcuts import render, get_object_or_404, redirect
+# from .models import Appointment
+# from .forms import AppointmentForm
+
+# def reschedule_appointment(request, appointment_id):
+#     appointment = get_object_or_404(Appointment, pk=appointment_id)
+
+#     if request.method == 'POST':
+#         form = AppointmentForm(request.POST, instance=appointment)
+#         if form.is_valid():
+#             # Update the appointment date and time slot
+#             appointment.date = form.cleaned_data['date']
+#             appointment.time_slot = form.cleaned_data['time_slot']
+#             appointment.save()
+             
+#             return redirect('doctor_appointments')
+#     else:
+#         form = AppointmentForm(instance=appointment)
+
+#     context = {
+#         'form': form,
+#         'appointment': appointment
+#     }
+#     return render(request, 'reschedule_appointment.html', context)
+
+
 from django.core.mail import send_mail
 from django.conf import settings
 from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
 from .models import Appointment
 from .forms import AppointmentForm
 
@@ -1505,8 +1534,8 @@ def reschedule_appointment(request, appointment_id):
             appointment.time_slot = form.cleaned_data['time_slot']
             appointment.save()
             
-            # Send email notification
-            send_reschedule_email(appointment.patient_email, appointment.doctor.name, appointment.date)
+            # Send email notification to the patient
+            send_reschedule_email(appointment.patient_email, appointment.doctor.first_name, appointment.date)
             
             return redirect('doctor_appointments')
     else:
@@ -1528,3 +1557,12 @@ def send_reschedule_email(patient_email, doctor_name, new_date):
     except Exception as e:
         # Log or handle the error
         print(f"Error sending email: {e}")
+        
+        
+        
+def allergy_types(request):
+    return render(request, 'allergy_types.html')
+
+
+def outdoor_allergy_types(request):
+    return render(request, 'outdoor_allergy_types.html')
