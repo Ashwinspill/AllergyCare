@@ -68,7 +68,10 @@ urlpatterns = [
     path('reschedule/<int:appointment_id>/', views.reschedule_appointment, name='reschedule_appointment'),
     path('submit_address/', views.submit_address, name='submit_address'),
     path('allergy-types/', views.allergy_types, name='allergy_types'),
-     path('outdoor-allergy-types/', views.outdoor_allergy_types, name='outdoor_allergy_types'),
+    path('outdoor-allergy-types/', views.outdoor_allergy_types, name='outdoor_allergy_types'),
+    path('indoor-allergy-types/', views.indoor_allergy_types, name='indoor_allergy_types'),
+    path('food-allergy-types/', views.food_allergy_types, name='food_allergy_types'),
+    path('skin-allergy-types/', views.skin_allergy_types, name='skin_allergy_types'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1566,3 +1566,12 @@ def allergy_types(request):
 
 def outdoor_allergy_types(request):
     return render(request, 'outdoor_allergy_types.html')
+
+def indoor_allergy_types(request):
+    return render(request, 'indoor_allergy_types.html')
+
+def food_allergy_types(request):
+    return render(request, 'food_allergy_types.html')
+
+def skin_allergy_types(request):
+    return render(request, 'skin_allergy_types.html')
