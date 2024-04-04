@@ -1058,13 +1058,89 @@ def patient_replies(request):
 
     return render(request, 'patient_replies.html', context)
 
-# appointment
+#appointment
+# from .models import Appointment, Doctor
+# from .forms import AppointmentForm
+# from django.core.mail import send_mail
+# from django.template.loader import render_to_string
+# from django.utils.html import strip_tags
+# from django.http import JsonResponse
+
+# @login_required
+# def create_appointment(request):
+#     if request.method == 'POST':
+#         # Get the doctor instance
+#         doctor_id = request.GET.get('doctor_id')
+#         doctor = get_object_or_404(Doctor, id=doctor_id)
+
+#         # Automatically populate patient name and email
+#         patient = request.user.patient
+#         form_data = request.POST.copy()
+#         form_data['patient_name'] = f"{patient.first_name} {patient.last_name}"
+#         form_data['patient_email'] = patient.email
+
+#         form = AppointmentForm(form_data)
+        
+
+        
+#         if form.is_valid():
+#             appointment = form.save(commit=False)
+#             appointment.doctor = doctor  # Assign the doctor to the appointment
+#             date = appointment.date
+#             time_slot = appointment.time_slot
+
+#             # Check if the slot is available for the selected doctor and date
+#             slot_exists = Appointment.objects.filter(
+#                 doctor=doctor,
+#                 date=date,
+#                 time_slot=time_slot
+#             ).exists()
+
+#             if not slot_exists:
+#                 # Check if the patient already has an appointment on the same day
+#                 existing_appointment = Appointment.objects.filter(
+#                     patient=patient,
+#                     date=date
+#                 ).first()
+
+#                 if existing_appointment:
+#                     messages.error(request, 'You already have an appointment on the same day.')
+#                 else:
+#                     appointment.patient = patient
+#                     appointment.save()
+
+#                     # Send an email to the user with the appointment details
+#                     subject = 'Appointment Confirmation'
+#                     from_email = 'your_email@example.com'
+#                     to_email = patient.email
+#                     appointment_data = {
+#                         'appointment': appointment,
+#                     }
+
+#                     html_message = render_to_string('appointment_email.html', appointment_data)
+#                     plain_message = strip_tags(html_message)
+
+#                     send_mail(subject, plain_message, from_email, [to_email], html_message=html_message)
+
+#                     # Redirect to the booking_success page upon successful appointment
+#                     return redirect('booking_success')
+#             else:
+#                 messages.error(request, 'This slot is already booked. Please choose another.')
+
+#     else:
+#         form = AppointmentForm()
+
+#     return render(request, 'create_appointment.html', {'form': form})
+
+from django.utils.html import strip_tags
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
 from .models import Appointment, Doctor
 from .forms import AppointmentForm
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
-from django.utils.html import strip_tags
-from django.http import JsonResponse
+
 
 @login_required
 def create_appointment(request):
@@ -1076,16 +1152,16 @@ def create_appointment(request):
         # Automatically populate patient name and email
         patient = request.user.patient
         form_data = request.POST.copy()
-        form_data['patient_name'] = f"{patient.first_name} {patient.last_name}"
+        form_data['patient_name'] = f"{patient.first_name} {patient.last_name}"  # Concatenate first name and last name
         form_data['patient_email'] = patient.email
 
         form = AppointmentForm(form_data)
         
-
-        
         if form.is_valid():
             appointment = form.save(commit=False)
             appointment.doctor = doctor  # Assign the doctor to the appointment
+            appointment.patient_name = form_data['patient_name']  # Set patient_name from form_data
+            appointment.patient_email = form_data['patient_email']  # Set patient_email from form_data
             date = appointment.date
             time_slot = appointment.time_slot
 
@@ -1106,10 +1182,31 @@ def create_appointment(request):
                 if existing_appointment:
                     messages.error(request, 'You already have an appointment on the same day.')
                 else:
+                    # Process payment and create appointment
+                    amount = int(5 * 100)  # Example amount in paise
+                    
+                    # Generate Razorpay payment order
+                    client = razorpay.Client(auth=("rzp_test_aWcyAl6q9LJYqx", "j1dFxiB5MzxmkXTMo6IYQlnP"))
+                    payment = client.order.create(data={
+                        "amount": amount,
+                        "currency": "INR",
+                        "receipt": "appointment_" + str(appointment.pk),  # Unique receipt identifier
+                        "notes": {
+                            "patient_name": form_data['patient_name'],  # Use the concatenated full name
+                            "appointment_date": str(date),
+                            "appointment_time": time_slot,
+                            "doctor_name": f"{doctor.first_name} {doctor.last_name}"  # Concatenate doctor's first name and last name
+                        }
+                    })
+                    
+                    # Pass payment ID to the template for Razorpay checkout
+                    payment_id = payment['id']
+
+                    # Save appointment after successful payment
                     appointment.patient = patient
                     appointment.save()
 
-                    # Send an email to the user with the appointment details
+                    # Send email confirmation
                     subject = 'Appointment Confirmation'
                     from_email = 'your_email@example.com'
                     to_email = patient.email
@@ -1131,7 +1228,9 @@ def create_appointment(request):
         form = AppointmentForm()
 
     return render(request, 'create_appointment.html', {'form': form})
-    
+
+
+
     
 @login_required   
 def booking_success(request):
