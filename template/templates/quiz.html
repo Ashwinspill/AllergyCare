@@ -146,97 +146,230 @@
         </div>
     </div>
 
-    
-   <div class="container-fluid bg-primary py-5 mb-5 hero-header">
-    <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="card card-container">
-                    <div class="card-header bg-primary text-white">
-                        <h2 class="mb-0">Allergy Quiz</h2>
-                    </div>
-                    <div class="card-body">
-                        <form id="quizForm">
-                            <div class="question" id="question1">
-                                <h3>Do you regularly suffer from sore or watery eyes, puffy eyes, itchy eyes, runny nose, blocked nose or bouts of sneezing?</h3>
-                                <div class="options">
-                                    <label><input type="radio" name="q1" value="yes"> Yes</label>
-                                    <label><input type="radio" name="q1" value="no"> No</label>
+
+
+    <div class="container-fluid bg-primary py-5 mb-5 hero-header">
+        <div class="container py-5">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card card-container">
+                        <div class="card-header bg-primary text-white">
+                            <h2 class="mb-0">Allergy Quiz</h2>
+                        </div>
+                        <div class="card-body">
+                            <form id="quizForm" method="POST">
+                                {% csrf_token %}
+                                <div class="question" id="question1">
+                                    <h3>Do you regularly suffer from sore or watery eyes, puffy eyes, itchy eyes, runny nose, blocked nose or bouts of sneezing?</h3>
+                                    <div class="options">
+                                        <label><input type="radio" name="q1" value="yes"> Yes</label>
+                                        <label><input type="radio" name="q1" value="no"> No</label>
+                                    </div>
+                                    {% comment %} <button type="button" class="btn btn-primary back-btn" data-back="question5">Back</button> {% endcomment %}
+                                    <button type="button" class="btn btn-primary next-btn" data-next="question2">Next</button>
                                 </div>
-                                <button type="button" class="btn btn-primary back-btn" data-back="question5">Back</button>
-                                <button type="button" class="btn btn-primary next-btn" data-next="question2">Next</button>
-                            </div>
-                            <div class="question d-none" id="question2">
-                                <h3>Do your symptoms generally get better or worse when you spend time outdoors?</h3>
-                                <div class="options">
-                                    <label><input type="radio" name="q2" value="yes"> Yes</label>
-                                    <label><input type="radio" name="q2" value="no"> No</label>
+                                <div class="question d-none" id="question2">
+                                    <h3>Do your symptoms generally get better or worse when you spend time outdoors?</h3>
+                                    <div class="options">
+                                        <label><input type="radio" name="q2" value="yes"> Yes</label>
+                                        <label><input type="radio" name="q2" value="no"> No</label>
+                                    </div>
+                                    <button type="button" class="btn btn-primary back-btn" data-back="question1">Back</button>
+                                    <button type="button" class="btn btn-primary next-btn" data-next="question3">Next</button>
                                 </div>
-                                <button type="button" class="btn btn-primary back-btn" data-back="question5">Back</button>
-                                <button type="button" class="btn btn-primary next-btn" data-next="question3">Next</button>
-                            </div>
-                            <!-- Add more questions similarly -->
-                            <div class="question d-none" id="question3">
-                                <h3>What time of year do you experience these symptoms?</h3>
-                                <div class="options">
-                                    <label><input type="radio" name="q3" value="all_year"> All Year</label>
-                                    <label><input type="radio" name="q3" value="certain_seasons"> Certain Seasons</label>
+                                <!-- Add more questions similarly -->
+                                <div class="question d-none" id="question3">
+                                    <h3>What time of year do you experience these symptoms?</h3>
+                                    <div class="options">
+                                        <label><input type="radio" name="q3" value="all_year"> All Year</label>
+                                        <label><input type="radio" name="q3" value="certain_seasons"> Certain Seasons</label>
+                                    </div>
+                                    <button type="button" class="btn btn-primary back-btn" data-back="question5">Back</button>
+                                    <button type="button" class="btn btn-primary next-btn" data-next="question4">Next</button>
                                 </div>
-                                <button type="button" class="btn btn-primary back-btn" data-back="question5">Back</button>
-                                <button type="button" class="btn btn-primary next-btn" data-next="question4">Next</button>
-                            </div>
-                            <!-- Add more questions similarly -->
-                            <div class="question d-none" id="question4">
-                                <h3>Do your breathing problems get worse when you're around tobacco smoke, fumes or strong odours?</h3>
-                                <div class="options">
-                                    <label><input type="radio" name="q4" value="yes"> Yes</label>
-                                    <label><input type="radio" name="q4" value="no"> No</label>
+                                <!-- Add more questions similarly -->
+                                <div class="question d-none" id="question4">
+                                    <h3>Do your breathing problems get worse when you're around tobacco smoke, fumes or strong odours?</h3>
+                                    <div class="options">
+                                        <label><input type="radio" name="q4" value="yes"> Yes</label>
+                                        <label><input type="radio" name="q4" value="no"> No</label>
+                                    </div>
+                                    <button type="button" class="btn btn-primary back-btn" data-back="question5">Back</button>
+                                    <button type="button" class="btn btn-primary next-btn" data-next="question5">Next</button>
                                 </div>
-                                <button type="button" class="btn btn-primary back-btn" data-back="question5">Back</button>
-                                <button type="button" class="btn btn-primary next-btn" data-next="question5">Next</button>
-                            </div>
-                            <!-- Add more questions similarly -->
-                            <div class="question d-none" id="question5">
-                                <h3>Does close contact with a furry pet (like a dog, cat or hamster) seem to cause or worsen your symptoms?</h3>
-                                <div class="options">
-                                    <label><input type="radio" name="q5" value="yes"> Yes</label>
-                                    <label><input type="radio" name="q5" value="no"> No</label>
+                                <!-- Add more questions similarly -->
+                                <div class="question d-none" id="question5">
+                                    <h3>Does close contact with a furry pet (like a dog, cat or hamster) seem to cause or worsen your symptoms?</h3>
+                                    <div class="options">
+                                        <label><input type="radio" name="q5" value="yes"> Yes</label>
+                                        <label><input type="radio" name="q5" value="no"> No</label>
+                                    </div>
+                                    <button type="button" class="btn btn-primary back-btn" data-back="question5">Back</button>
+                                    <button type="button" class="btn btn-primary next-btn" data-next="question6">Next</button>
                                 </div>
-                                <button type="button" class="btn btn-primary back-btn" data-back="question5">Back</button>
-                                <button type="button" class="btn btn-primary next-btn" data-next="question6">Next</button>
-                            </div>
-                            <!-- Add more questions similarly -->
-                            <div class="question d-none" id="question6">
-                                <h3>Have you observed the reactions of diarrhoea and abdominal aches or bloating after consuming milk or dairy products?</h3>
-                                <div class="options">
-                                    <label><input type="radio" name="q6" value="yes"> Yes</label>
-                                    <label><input type="radio" name="q6" value="no"> No</label>
+                                <!-- Add more questions similarly -->
+                                <div class="question d-none" id="question6">
+                                    <h3>Have you observed the reactions of diarrhoea and abdominal aches or bloating after consuming milk or dairy products?</h3>
+                                    <div class="options">
+                                        <label><input type="radio" name="q6" value="yes"> Yes</label>
+                                        <label><input type="radio" name="q6" value="no"> No</label>
+                                    </div>
+                                    <button type="button" class="btn btn-primary back-btn" data-back="question5">Back</button>
+                                    <button type="button" class="btn btn-primary next-btn" data-next="question7">Next</button>
                                 </div>
-                                <button type="button" class="btn btn-primary back-btn" data-back="question5">Back</button>
-                                <button type="button" class="btn btn-primary next-btn" data-next="question7">Next</button>
-                            </div>
-                            <!-- Add more questions similarly -->
-                            <div class="question d-none" id="question7">
-                                <h3>Do you get rashes or throat irritations after eating certain kinds of food?</h3>
-                                <div class="options">
-                                    <label><input type="radio" name="q7" value="yes"> Yes</label>
-                                    <label><input type="radio" name="q7" value="no"> No</label>
+                                <!-- Add more questions similarly -->
+                                <div class="question d-none" id="question7">
+                                    <h3>Do you get rashes or throat irritations after eating certain kinds of food?</h3>
+                                    <div class="options">
+                                        <label><input type="radio" name="q7" value="yes"> Yes</label>
+                                        <label><input type="radio" name="q7" value="no"> No</label>
+                                    </div>
+                                    <button type="button" class="btn btn-primary back-btn" data-back="question5">Back</button>
+                                    <button type="submit" class="btn btn-primary">Submit</button>
                                 </div>
-                                <button type="button" class="btn btn-primary back-btn" data-back="question5">Back</button>
-                                <button type="submit" class="btn btn-primary">Submit</button>
+                            </form>
+                            <div id="result" class="mt-4" style="display: none;">
+                                <h2>Result</h2>
+                                <p id="allergyResult">{{ result }}</p>
+                                <p class="recommendation">For accurate diagnosis and treatment, please consult a doctor.</p>
                             </div>
-                        </form>
-                        <div id="result" class="mt-4" style="display: none;">
-                            <h2>Result</h2>
-                            <p id="allergyResult"></p>
-                            <p class="recommendation">For accurate diagnosis and treatment, please consult a doctor.</p>
+                            {% comment %} <p id="response"></p>  {% endcomment %}
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const questions = document.querySelectorAll('.question');
+        const nextButtons = document.querySelectorAll('.next-btn');
+        const backButtons = document.querySelectorAll('.back-btn');
+    
+        nextButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const currentQuestion = this.parentElement;
+                const nextQuestionId = this.getAttribute('data-next');
+                const nextQuestion = document.getElementById(nextQuestionId);
+    
+                currentQuestion.classList.add('d-none');
+                nextQuestion.classList.remove('d-none');
+            });
+        });
+    
+        backButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const currentQuestion = this.parentElement;
+                const prevQuestionId = this.getAttribute('data-back');
+                const prevQuestion = document.getElementById(prevQuestionId);
+    
+                currentQuestion.classList.add('d-none');
+                prevQuestion.classList.remove('d-none');
+            });
+        });
+    
+        const form = document.getElementById('quizForm');
+    
+        form.addEventListener('submit', function (event) {
+            event.preventDefault(); // Prevent default form submission behavior
+        
+            // Send form data to server
+            fetch('/quiz/', {
+                method: 'POST',
+                body: new FormData(form),
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Display result to user
+                const resultDiv = document.getElementById('result');
+                resultDiv.style.display = 'block';
+                document.getElementById('allergyResult').innerText = data.result;
+        
+                // Print the response in the HTML document
+                const responseElement = document.getElementById('response');
+                responseElement.innerText = data.result;
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    });
+</script>
+
+    
+
+    {% comment %} <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const questions = document.querySelectorAll('.question');
+            const nextButtons = document.querySelectorAll('.next-btn');
+            const backButtons = document.querySelectorAll('.back-btn');
+    
+            nextButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const currentQuestion = this.parentElement;
+                    const nextQuestionId = this.getAttribute('data-next');
+                    const nextQuestion = document.getElementById(nextQuestionId);
+    
+                    currentQuestion.classList.add('d-none');
+                    nextQuestion.classList.remove('d-none');
+                });
+            });
+    
+            backButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const currentQuestion = this.parentElement;
+                    const prevQuestionId = this.getAttribute('data-back');
+                    const prevQuestion = document.getElementById(prevQuestionId);
+    
+                    currentQuestion.classList.add('d-none');
+                    prevQuestion.classList.remove('d-none');
+                });
+            });
+    
+            const form = document.getElementById('quizForm');
+        
+            form.addEventListener('submit', function (event) {
+                event.preventDefault(); // Prevent default form submission behavior
+        
+                // Send form data to server
+                fetch('/quiz/', {
+                    method: 'POST',
+                    body: new FormData(form),
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Display result to user
+                    const resultDiv = document.getElementById('result');
+                    resultDiv.style.display = 'block';
+                    document.getElementById('allergyResult').innerText = data.result;
+    
+                    // Print the response in the HTML document
+                    const responseElement = document.getElementById('response');
+                    responseElement.innerText = data.result;
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        });
+    </script> {% endcomment %}
+
+
+
+
+
+
+
+    
+
+    
+
+
+
 <!-- Footer Start -->
 <div class="container-fluid bg-dark text-light mt-5 py-5">
     <div class="container py-5">
@@ -248,28 +381,6 @@
                 <p class="mb-2"><i class="fa fa-envelope text-primary me-3"></i>allergycare163@gmail.com</p>
                 <p class="mb-0"><i class="fa fa-phone-alt text-primary me-3"></i>+91 7592048618 </p>
             </div>
-            {% comment %} <div class="col-lg-3 col-md-6">
-                <h4 class="d-inline-block text-primary text-uppercase border-bottom border-5 border-secondary mb-4">Quick Links</h4>
-                <div class="d-flex flex-column justify-content-start">
-                    <a class="text-light mb-2" href="#"><i class="fa fa-angle-right me-2"></i>Home</a>
-                    <a class="text-light mb-2" href="#"><i class="fa fa-angle-right me-2"></i>About Us</a>
-                    <a class="text-light mb-2" href="#"><i class="fa fa-angle-right me-2"></i>Our Services</a>
-                    <a class="text-light mb-2" href="#"><i class="fa fa-angle-right me-2"></i>Meet The Team</a>
-                    <a class="text-light mb-2" href="#"><i class="fa fa-angle-right me-2"></i>Latest Blog</a>
-                    <a class="text-light" href="#"><i class="fa fa-angle-right me-2"></i>Contact Us</a>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6">
-                <h4 class="d-inline-block text-primary text-uppercase border-bottom border-5 border-secondary mb-4">Popular Links</h4>
-                <div class="d-flex flex-column justify-content-start">
-                    <a class="text-light mb-2" href="#"><i class="fa fa-angle-right me-2"></i>Home</a>
-                    <a class="text-light mb-2" href="#"><i class="fa fa-angle-right me-2"></i>About Us</a>
-                    <a class="text-light mb-2" href="#"><i class="fa fa-angle-right me-2"></i>Our Services</a>
-                    <a class="text-light mb-2" href="#"><i class="fa fa-angle-right me-2"></i>Meet The Team</a>
-                    <a class="text-light mb-2" href="#"><i class="fa fa-angle-right me-2"></i>Latest Blog</a>
-                    <a class="text-light" href="#"><i class="fa fa-angle-right me-2"></i>Contact Us</a>
-                </div>
-            </div> {% endcomment %}
             <div class="col-lg-3 col-md-6">
                 <h4 class="d-inline-block text-primary text-uppercase border-bottom border-5 border-secondary mb-4">{{phome_newsletter}}</h4>
                 <form action="">
@@ -293,70 +404,6 @@
 <!-- Back to Top -->
 <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const questions = document.querySelectorAll('.question');
-        const nextButtons = document.querySelectorAll('.next-btn');
-        const backButtons = document.querySelectorAll('.back-btn');
-
-        nextButtons.forEach(button => {
-            button.addEventListener('click', function () {
-                const currentQuestion = this.parentElement;
-                const nextQuestionId = this.getAttribute('data-next');
-                const nextQuestion = document.getElementById(nextQuestionId);
-
-                currentQuestion.classList.add('d-none');
-                nextQuestion.classList.remove('d-none');
-            });
-        });
-
-        backButtons.forEach(button => {
-            button.addEventListener('click', function () {
-                const currentQuestion = this.parentElement;
-                const prevQuestionId = this.getAttribute('data-back');
-                const prevQuestion = document.getElementById(prevQuestionId);
-
-                currentQuestion.classList.add('d-none');
-                prevQuestion.classList.remove('d-none');
-            });
-        });
-    });
-
-    document.getElementById('quizForm').addEventListener('submit', function (e) {
-        e.preventDefault();
-        var answers = {
-            q1: document.querySelector('input[name="q1"]:checked').value,
-            q2: document.querySelector('input[name="q2"]:checked').value,
-            q3: document.querySelector('input[name="q3"]:checked').value,
-            q4: document.querySelector('input[name="q4"]:checked').value,
-            q5: document.querySelector('input[name="q5"]:checked').value,
-            q6: document.querySelector('input[name="q6"]:checked').value,
-            q7: document.querySelector('input[name="q7"]:checked').value
-        };
-
-        var allergyResult = calculateAllergy(answers);
-        document.getElementById('allergyResult').innerText = allergyResult;
-        document.getElementById('result').style.display = 'block';
-    });
-
-    function calculateAllergy(answers) {
-        var result = '';
-        if (answers.q1 === 'yes' || answers.q2 === 'yes') {
-            result = "You may have an outdoor pollen-related allergy where your triggers may be dust, pollen, or mold. However, it's best to consult a doctor to know this for sure. To know more about each of these, browse our website.";
-        } else if (answers.q6 === 'yes' || answers.q7 === 'yes') {
-            result = "It appears that you may have a food allergy. There are various degrees of severity in food allergies, so it's best to consult a doctor and get some tests done to know for sure. You can know more about such allergies on our website.";
-        } else if (answers.q4 === 'yes' || answers.q5 === 'yes') {
-            result = "Your seasonal profile suggests that you may be affected by weed pollen and might also be affected by mold or fungal spores. These are widespread in certain seasons. It's best to consult a doctor and get some tests done to know for sure. You can know more about such allergies on our website.";
-        } else if (answers.q1 === 'yes' || answers.q2 === 'yes' || answers.q4 === 'yes' || answers.q5 === 'yes') {
-            result = "It looks like you may have allergies pertaining to indoor or outdoor triggers. Given by some of your, you may also be allergic to certain kinds of food. It's best to consult a doctor and not rely on self-diagnosis. To read more about allergies, browse our website.";
-        } else if (answers.q1 === 'no' && answers.q2 === 'no' && answers.q3 === 'all_year' && answers.q4 === 'no' && answers.q5 === 'no' && answers.q6 === 'no' && answers.q7 === 'no') {
-            result = "It doesn't look like you have allergies. If you still have doubts, your doctor can recommend some tests to be sure. If you have been noticing a different kind of reaction pattern, something not covered in the questions, please mention it to your doctor. To know more about allergies, browse our website.";
-        } else {
-            result = "Sorry. We're unable to identify your allergy. We suggest you consult your doctor or an allergy specialist for an accurate result.";
-        }
-        return result;
-    }
-</script>
 </body>
 
 </html>
