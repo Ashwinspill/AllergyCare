@@ -1476,10 +1476,184 @@ def message_page(request):
     return render(request, 'messages.html', context)
 
 
+# @login_required
+# def quiz(request):
+#     return render(request, 'quiz.html')
+
+
+
+# from django.http import JsonResponse, HttpResponse
+# import pandas as pd
+# from sklearn.ensemble import RandomForestClassifier
+# from sklearn.model_selection import train_test_split
+# from django.shortcuts import render
+
+# @login_required
+# def quiz(request):
+#     if request.method == 'POST':
+#         # Load data
+#         data = pd.read_csv(r'C:/Users/ashwin/Desktop/mini/symp.csv')
+
+#         # Drop rows with missing 'Result' values
+#         data.dropna(subset=['Result'], inplace=True)
+
+#         # Check if there are any missing values in the target variable y
+#         if data['Result'].isnull().any():
+#             return HttpResponse("Error: Target variable 'Result' contains missing values")
+
+#         # Preprocess data (convert categorical variables to numerical)
+#         data['Sore or Watery Eyes'] = data['Sore or Watery Eyes'].map({'Yes': 1, 'No': 0})
+#         data['Symptoms Outdoors'] = data['Symptoms Outdoors'].map({'Yes': 1, 'No': 0})
+#         data['Symptoms Time of Year'] = data['Symptoms Time of Year'].map({'All year': 1, 'Certain Season': 0})
+#         data['Breathing Problems around Smoke'] = data['Breathing Problems around Smoke'].map({'Yes': 1, 'No': 0})
+#         data['Symptoms with Furry Pets'] = data['Symptoms with Furry Pets'].map({'Yes': 1, 'No': 0})
+#         data['Reaction to Dairy'] = data['Reaction to Dairy'].map({'Yes': 1, 'No': 0})
+#         data['Reaction to Food'] = data['Reaction to Food'].map({'Yes': 1, 'No': 0})
+
+#         # Drop unnamed columns
+#         data.drop(data.columns[data.columns.str.contains('Unnamed', case=False)], axis=1, inplace=True)
+
+#         # Define features and target
+#         X = data.drop('Result', axis=1)
+#         y = data['Result']
+
+#         # Train-test split
+#         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+#         # Train model
+#         model = RandomForestClassifier()
+#         model.fit(X_train, y_train)
+
+#         # Evaluate model
+#         accuracy = model.score(X_test, y_test)
+
+#         # Extract user responses from the form
+#         responses = [
+#             1 if request.POST.get('q1') == 'Yes' else 0,  # Map 'Yes' to 1 and 'No' to 0
+#             1 if request.POST.get('q2') == 'Yes' else 0,  # Map 'Yes' to 1 and 'No' to 0
+#             1 if request.POST.get('q3') == 'All year' else 0,  # Map 'All year' to 1 and 'Certain Season' to 0
+#             1 if request.POST.get('q4') == 'Yes' else 0,  # Map 'Yes' to 1 and 'No' to 0
+#             1 if request.POST.get('q5') == 'Yes' else 0,  # Map 'Yes' to 1 and 'No' to 0
+#             1 if request.POST.get('q6') == 'Yes' else 0,  # Map 'Yes' to 1 and 'No' to 0
+#             1 if request.POST.get('q7') == 'Yes' else 0,  # Map 'Yes' to 1 and 'No' to 0
+#         ]
+
+#         # Make prediction
+#         prediction = model.predict([responses])[0]
+
+#         print("Prediction:", prediction)  # Debugging statement
+#         print("Responses:", responses)  # Debugging statement
+
+#         # Assign initial value to result_label
+#         result_label = ""
+
+#         # Map prediction back to original label
+#         if prediction == 1:
+#             result_label = 'It looks like you may have allergies pertaining to indoor or outdoor triggers. Given by some of your responses, you may also be allergic to certain kinds of food.'
+#         elif prediction == 2:
+#             result_label = 'You may have a non-pollen related allergy, for example to house dust, pets or mold.'
+#         elif prediction == 3:
+#             result_label = "Sorry we couldn't find the problem."
+#         elif prediction == 4:
+#             result_label = 'Your seasonal profile suggests that you may be affected by weed pollen and might also be affected by mold or fungal spores. These are widespread in certain seasons.'
+#         else:
+#             result_label = "Unknown prediction"  # Adding a default value if prediction does not match any condition
+
+#         # Return prediction and evaluation as JSON response
+#         return JsonResponse({'result': result_label, 'accuracy': accuracy})
+
+#     return render(request, 'quiz.html')
+
+from django.http import JsonResponse, HttpResponse
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from django.shortcuts import render
+
 @login_required
 def quiz(request):
-    return render(request, 'quiz.html')
+    if request.method == 'POST':
+        # Store form submission data in a variable
+        form_data = request.POST
+        print("Form data:", form_data)  # Debugging statement
 
+        # Load data
+        data = pd.read_csv(r'C:/Users/ashwin/Desktop/mini/symp.csv')
+
+        # # Print data corresponding to each question
+        # print("Data for each question:")
+        # for column in data.columns:
+        #     print(f"{column}: {data[column].unique()}")
+
+        # Drop rows with missing 'Result' values
+        data.dropna(subset=['Result'], inplace=True)
+
+        # Check if there are any missing values in the target variable y
+        if data['Result'].isnull().any():
+            return HttpResponse("Error: Target variable 'Result' contains missing values")
+
+        # Preprocess data (convert categorical variables to numerical)
+        data['Sore or Watery Eyes'] = data['Sore or Watery Eyes'].map({'Yes': 1, 'No': 0})
+        data['Symptoms Outdoors'] = data['Symptoms Outdoors'].map({'Yes': 1, 'No': 0})
+        data['Symptoms Time of Year'] = data['Symptoms Time of Year'].map({'All year': 1, 'Certain Season': 0})
+        data['Breathing Problems around Smoke'] = data['Breathing Problems around Smoke'].map({'Yes': 1, 'No': 0})
+        data['Symptoms with Furry Pets'] = data['Symptoms with Furry Pets'].map({'Yes': 1, 'No': 0})
+        data['Reaction to Dairy'] = data['Reaction to Dairy'].map({'Yes': 1, 'No': 0})
+        data['Reaction to Food'] = data['Reaction to Food'].map({'Yes': 1, 'No': 0})
+
+        # Drop unnamed columns
+        data.drop(data.columns[data.columns.str.contains('Unnamed', case=False)], axis=1, inplace=True)
+
+        # Define features and target
+        X = data.drop('Result', axis=1)
+        y = data['Result']
+
+        # Train-test split
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+        # Train model
+        model = RandomForestClassifier()
+        model.fit(X_train, y_train)
+
+        # Evaluate model
+        accuracy = model.score(X_test, y_test)
+
+        # Extract user responses from the form data variable
+        responses = [
+            1 if form_data.get('q1') == 'yes' else 0,  # Map 'Yes' to 1 and 'No' to 0
+            1 if form_data.get('q2') == 'yes' else 0,  # Map 'Yes' to 1 and 'No' to 0
+            1 if form_data.get('q3') == 'all_year' else 0,  # Map 'All year' to 1 and 'Certain Season' to 0
+            1 if form_data.get('q4') == 'yes' else 0,  # Map 'Yes' to 1 and 'No' to 0
+            1 if form_data.get('q5') == 'yes' else 0,  # Map 'Yes' to 1 and 'No' to 0
+            1 if form_data.get('q6') == 'yes' else 0,  # Map 'Yes' to 1 and 'No' to 0
+            1 if form_data.get('q7') == 'yes' else 0,  # Map 'Yes' to 1 and 'No' to 0
+        ]
+
+        # Make prediction
+        prediction = model.predict([responses])[0]
+
+        print("Prediction:", prediction)  # Debugging statement
+        print("Responses:", responses)  # Debugging statement
+
+        # Assign initial value to result_label
+        result_label = ""
+
+        # Map prediction back to original label
+        if prediction == 1:
+            result_label = 'It looks like you may have allergies pertaining to indoor or outdoor triggers. Given by some of your responses, you may also be allergic to certain kinds of food.'
+        elif prediction == 2:
+            result_label = 'You may have a non-pollen related allergy, for example to house dust, pets or mold.'
+        elif prediction == 3:
+            result_label = "Sorry we couldn't find the problem."
+        elif prediction == 4:
+            result_label = 'Your seasonal profile suggests that you may be affected by weed pollen and might also be affected by mold or fungal spores. These are widespread in certain seasons.'
+        else:
+            result_label = "Unknown prediction"  # Adding a default value if prediction does not match any condition
+
+        # Return prediction and evaluation as JSON response
+        return JsonResponse({'result': prediction, 'accuracy': accuracy})
+
+    return render(request, 'quiz.html')
 
 
 
@@ -1674,3 +1848,7 @@ def food_allergy_types(request):
 
 def skin_allergy_types(request):
     return render(request, 'skin_allergy_types.html')
+
+def error_page(request):
+    error_message = "An error occurred. Please try again later."  # You can customize this message as needed
+    return render(request, 'error_page.html', {'message': error_message})
