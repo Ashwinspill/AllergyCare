@@ -1058,79 +1058,6 @@ def patient_replies(request):
 
     return render(request, 'patient_replies.html', context)
 
-#appointment
-# from .models import Appointment, Doctor
-# from .forms import AppointmentForm
-# from django.core.mail import send_mail
-# from django.template.loader import render_to_string
-# from django.utils.html import strip_tags
-# from django.http import JsonResponse
-
-# @login_required
-# def create_appointment(request):
-#     if request.method == 'POST':
-#         # Get the doctor instance
-#         doctor_id = request.GET.get('doctor_id')
-#         doctor = get_object_or_404(Doctor, id=doctor_id)
-
-#         # Automatically populate patient name and email
-#         patient = request.user.patient
-#         form_data = request.POST.copy()
-#         form_data['patient_name'] = f"{patient.first_name} {patient.last_name}"
-#         form_data['patient_email'] = patient.email
-
-#         form = AppointmentForm(form_data)
-        
-
-        
-#         if form.is_valid():
-#             appointment = form.save(commit=False)
-#             appointment.doctor = doctor  # Assign the doctor to the appointment
-#             date = appointment.date
-#             time_slot = appointment.time_slot
-
-#             # Check if the slot is available for the selected doctor and date
-#             slot_exists = Appointment.objects.filter(
-#                 doctor=doctor,
-#                 date=date,
-#                 time_slot=time_slot
-#             ).exists()
-
-#             if not slot_exists:
-#                 # Check if the patient already has an appointment on the same day
-#                 existing_appointment = Appointment.objects.filter(
-#                     patient=patient,
-#                     date=date
-#                 ).first()
-
-#                 if existing_appointment:
-#                     messages.error(request, 'You already have an appointment on the same day.')
-#                 else:
-#                     appointment.patient = patient
-#                     appointment.save()
-
-#                     # Send an email to the user with the appointment details
-#                     subject = 'Appointment Confirmation'
-#                     from_email = 'your_email@example.com'
-#                     to_email = patient.email
-#                     appointment_data = {
-#                         'appointment': appointment,
-#                     }
-
-#                     html_message = render_to_string('appointment_email.html', appointment_data)
-#                     plain_message = strip_tags(html_message)
-
-#                     send_mail(subject, plain_message, from_email, [to_email], html_message=html_message)
-
-#                     # Redirect to the booking_success page upon successful appointment
-#                     return redirect('booking_success')
-#             else:
-#                 messages.error(request, 'This slot is already booked. Please choose another.')
-
-#     else:
-#         form = AppointmentForm()
-
-#     return render(request, 'create_appointment.html', {'form': form})
 
 from django.utils.html import strip_tags
 from django.contrib.auth.decorators import login_required
@@ -1254,7 +1181,7 @@ def cancel_appointment(request, appointment_id):
 
     # Send cancellation email to the doctor
     subject = f'Appointment Cancelled - {appointment}'
-    message = f'The appointment with {doctor} scheduled for {appointment.date} at {appointment.time_slot} has been cancelled.'
+    message = f'The appointment with {doctor} scheduled for {appointment.date} at {appointment.time_slot} has been cancelled. Your Initial Payment will be  as service charge'
     from_email = 'your_email@example.com'
     to_email = doctor.email
     send_mail(subject, message, from_email, [to_email])
@@ -1304,18 +1231,9 @@ def get_available_time_slots(request):
     return JsonResponse({"error": "Invalid request"}, status=400)
 
 
-# @login_required
-# def doctor_appointments(request):
-#     # Assuming you're using the logged-in doctor to filter appointments
-#     doctor = request.user.doctor
-#     appointments = Appointment.objects.filter(doctor=doctor)
-
-#     return render(request, 'doctor_appointments.html', {'appointments': appointments})
-
 
 
 # history
-
 from .models import Appointment, ConsultationRequest
 @login_required
 def patient_history(request, patient_id):
@@ -1476,93 +1394,7 @@ def message_page(request):
     return render(request, 'messages.html', context)
 
 
-# @login_required
-# def quiz(request):
-#     return render(request, 'quiz.html')
 
-
-
-# from django.http import JsonResponse, HttpResponse
-# import pandas as pd
-# from sklearn.ensemble import RandomForestClassifier
-# from sklearn.model_selection import train_test_split
-# from django.shortcuts import render
-
-# @login_required
-# def quiz(request):
-#     if request.method == 'POST':
-#         # Load data
-#         data = pd.read_csv(r'C:/Users/ashwin/Desktop/mini/symp.csv')
-
-#         # Drop rows with missing 'Result' values
-#         data.dropna(subset=['Result'], inplace=True)
-
-#         # Check if there are any missing values in the target variable y
-#         if data['Result'].isnull().any():
-#             return HttpResponse("Error: Target variable 'Result' contains missing values")
-
-#         # Preprocess data (convert categorical variables to numerical)
-#         data['Sore or Watery Eyes'] = data['Sore or Watery Eyes'].map({'Yes': 1, 'No': 0})
-#         data['Symptoms Outdoors'] = data['Symptoms Outdoors'].map({'Yes': 1, 'No': 0})
-#         data['Symptoms Time of Year'] = data['Symptoms Time of Year'].map({'All year': 1, 'Certain Season': 0})
-#         data['Breathing Problems around Smoke'] = data['Breathing Problems around Smoke'].map({'Yes': 1, 'No': 0})
-#         data['Symptoms with Furry Pets'] = data['Symptoms with Furry Pets'].map({'Yes': 1, 'No': 0})
-#         data['Reaction to Dairy'] = data['Reaction to Dairy'].map({'Yes': 1, 'No': 0})
-#         data['Reaction to Food'] = data['Reaction to Food'].map({'Yes': 1, 'No': 0})
-
-#         # Drop unnamed columns
-#         data.drop(data.columns[data.columns.str.contains('Unnamed', case=False)], axis=1, inplace=True)
-
-#         # Define features and target
-#         X = data.drop('Result', axis=1)
-#         y = data['Result']
-
-#         # Train-test split
-#         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-#         # Train model
-#         model = RandomForestClassifier()
-#         model.fit(X_train, y_train)
-
-#         # Evaluate model
-#         accuracy = model.score(X_test, y_test)
-
-#         # Extract user responses from the form
-#         responses = [
-#             1 if request.POST.get('q1') == 'Yes' else 0,  # Map 'Yes' to 1 and 'No' to 0
-#             1 if request.POST.get('q2') == 'Yes' else 0,  # Map 'Yes' to 1 and 'No' to 0
-#             1 if request.POST.get('q3') == 'All year' else 0,  # Map 'All year' to 1 and 'Certain Season' to 0
-#             1 if request.POST.get('q4') == 'Yes' else 0,  # Map 'Yes' to 1 and 'No' to 0
-#             1 if request.POST.get('q5') == 'Yes' else 0,  # Map 'Yes' to 1 and 'No' to 0
-#             1 if request.POST.get('q6') == 'Yes' else 0,  # Map 'Yes' to 1 and 'No' to 0
-#             1 if request.POST.get('q7') == 'Yes' else 0,  # Map 'Yes' to 1 and 'No' to 0
-#         ]
-
-#         # Make prediction
-#         prediction = model.predict([responses])[0]
-
-#         print("Prediction:", prediction)  # Debugging statement
-#         print("Responses:", responses)  # Debugging statement
-
-#         # Assign initial value to result_label
-#         result_label = ""
-
-#         # Map prediction back to original label
-#         if prediction == 1:
-#             result_label = 'It looks like you may have allergies pertaining to indoor or outdoor triggers. Given by some of your responses, you may also be allergic to certain kinds of food.'
-#         elif prediction == 2:
-#             result_label = 'You may have a non-pollen related allergy, for example to house dust, pets or mold.'
-#         elif prediction == 3:
-#             result_label = "Sorry we couldn't find the problem."
-#         elif prediction == 4:
-#             result_label = 'Your seasonal profile suggests that you may be affected by weed pollen and might also be affected by mold or fungal spores. These are widespread in certain seasons.'
-#         else:
-#             result_label = "Unknown prediction"  # Adding a default value if prediction does not match any condition
-
-#         # Return prediction and evaluation as JSON response
-#         return JsonResponse({'result': result_label, 'accuracy': accuracy})
-
-#     return render(request, 'quiz.html')
 
 from django.http import JsonResponse, HttpResponse
 import pandas as pd
@@ -1657,20 +1489,6 @@ def quiz(request):
 
 
 
-# from django.shortcuts import render
-# from .models import Clinic
-# from .utils import find_nearest_clinic
-
-# def find_nearest_clinic_view(request):
-#     if request.method == 'POST':
-#         latitude = float(request.POST.get('latitude'))
-#         longitude = float(request.POST.get('longitude'))
-#         clinic_locations = [(float(lat), float(lon)) for lat, lon in [clinic.location.split(',') for clinic in Clinic.objects.all()]]
-#         nearest_clinic, min_distance = find_nearest_clinic(latitude, longitude, clinic_locations)
-#         return render(request, 'nearest_clinic.html', {'nearest_clinic': nearest_clinic, 'min_distance': min_distance})
-#     return render(request, 'location_form.html')
-
-
 
 
 from django.shortcuts import render
@@ -1708,6 +1526,7 @@ def find_nearest_clinic_view(request):
 from .models import Appointment
 from .forms import AppointmentForm
 
+@login_required
 def doctor_appointments(request):
     appointments = Appointment.objects.filter(doctor=request.user.doctor)
 
@@ -1730,64 +1549,6 @@ def doctor_appointments(request):
     }
     return render(request, 'doctor_appointments.html', context)
 
-# def reschedule_appointment(request, appointment_id):
-#     appointment = get_object_or_404(Appointment, pk=appointment_id)
-
-#     if request.method == 'POST':
-#         form = AppointmentForm(request.POST, instance=appointment)
-#         if form.is_valid():
-#             # Update the appointment date and time slot
-#             appointment.date = form.cleaned_data['date']
-#             appointment.time_slot = form.cleaned_data['time_slot']
-#             appointment.save()
-            
-#              # Send email notification
-#             send_reschedule_email(appointment.patient_email, appointment.doctor.name, appointment.date)
-            
-#             return redirect('doctor_appointments')
-#     else:
-#         form = AppointmentForm(instance=appointment)
-
-#     context = {
-#         'form': form,
-#         'appointment': appointment
-#     }
-#     return render(request, 'reschedule_appointment.html', context)
-
-
-# def send_reschedule_email(patient_email, doctor_name, new_date):
-#     subject = 'Appointment Rescheduled'
-#     message = f'Your appointment with Dr. {doctor_name} has been rescheduled to {new_date} due to an emergency.'
-#     sender_email = settings.EMAIL_HOST_USER
-#     send_mail(subject, message, sender_email, [patient_email])
-
-# from django.core.mail import send_mail
-# from django.conf import settings
-# from django.shortcuts import render, get_object_or_404, redirect
-# from .models import Appointment
-# from .forms import AppointmentForm
-
-# def reschedule_appointment(request, appointment_id):
-#     appointment = get_object_or_404(Appointment, pk=appointment_id)
-
-#     if request.method == 'POST':
-#         form = AppointmentForm(request.POST, instance=appointment)
-#         if form.is_valid():
-#             # Update the appointment date and time slot
-#             appointment.date = form.cleaned_data['date']
-#             appointment.time_slot = form.cleaned_data['time_slot']
-#             appointment.save()
-             
-#             return redirect('doctor_appointments')
-#     else:
-#         form = AppointmentForm(instance=appointment)
-
-#     context = {
-#         'form': form,
-#         'appointment': appointment
-#     }
-#     return render(request, 'reschedule_appointment.html', context)
-
 
 from django.core.mail import send_mail
 from django.conf import settings
@@ -1796,6 +1557,7 @@ from django.contrib import messages
 from .models import Appointment
 from .forms import AppointmentForm
 
+@login_required
 def reschedule_appointment(request, appointment_id):
     appointment = get_object_or_404(Appointment, pk=appointment_id)
 
@@ -1832,23 +1594,23 @@ def send_reschedule_email(patient_email, doctor_name, new_date):
         print(f"Error sending email: {e}")
         
         
-        
+@login_required       
 def allergy_types(request):
     return render(request, 'allergy_types.html')
 
-
+@login_required
 def outdoor_allergy_types(request):
     return render(request, 'outdoor_allergy_types.html')
-
+@login_required
 def indoor_allergy_types(request):
     return render(request, 'indoor_allergy_types.html')
-
+@login_required
 def food_allergy_types(request):
     return render(request, 'food_allergy_types.html')
-
+@login_required
 def skin_allergy_types(request):
     return render(request, 'skin_allergy_types.html')
-
+@login_required
 def error_page(request):
     error_message = "An error occurred. Please try again later."  # You can customize this message as needed
     return render(request, 'error_page.html', {'message': error_message})
